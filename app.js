@@ -167,7 +167,7 @@ function controllaProssimita(userLat, userLng) {
         if (!m.scoperto) {
             const distanza = calcolaDistanza(userLat, userLng, m.lat, m.lng);
             
-            if (distanza <= 50) { 
+            if (distanza <= 50000) { 
                 m.scoperto = true;
                 assegnaXP(100);
                 mostraPopupScoperta(m);
