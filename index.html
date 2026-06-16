@@ -25,8 +25,7 @@
         📋 <span class="text-xs ml-1 font-bold">Wishlist</span>
     </button>
 
-    <div id="wishlist-sidebar" class="fixed top-0 h-full w-72 bg-gray-950 border-gray-800 transition-transform duration-300 ease-in-out overflow-y-auto p-6 shadow-2xl
-        left-0 -translate-x-full border-r md:left-auto md:right-0 md:translate-x-full md:border-l">
+    <div id="wishlist-sidebar" class="fixed top-0 right-0 h-full w-72 bg-gray-950 border-l border-gray-800 transition-transform duration-300 ease-in-out overflow-y-auto p-6 shadow-2xl translate-x-full">
         
         <div class="flex justify-between items-center mb-6 mt-4">
             <h2 class="text-xl font-bold text-yellow-400">⚔️ La mia Wishlist</h2>
@@ -145,13 +144,10 @@
     <script src="app.js"></script>
 
     <script>
+        // Semplificata la logica Javascript: ora sposta la barra lateralmente a prescindere dallo schermo
         function toggleWishlist() {
             const sidebar = document.getElementById('wishlist-sidebar');
-            if (window.innerWidth >= 768) {
-                sidebar.classList.toggle('md:translate-x-full');
-            } else {
-                sidebar.classList.toggle('-translate-x-full');
-            }
+            sidebar.classList.toggle('translate-x-full');
         }
 
         function apriPopupProfilo() {
