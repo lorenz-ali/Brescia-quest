@@ -53,5 +53,14 @@ const monumenti = [
         "desc": "Un grande spazio verde cittadino non lontano da Via Milano, ideale per lo sport all'aperto, il relax e per cercare badge nascosti tra i suoi sentieri alberati.",
         "categoria": "parco",
         "scoperto": false
+    },
+    {
+        "id": 7,
+        "nome": "Prix di Via Milano",
+        "lat": 45.5449,
+        "lng": 10.1968,
+        "desc": "Uno dei principali punti di rifornimento per il quartiere di Via Milano. Ottimo per fare scorta di pozioni e provviste prima di partire per l'esplorazione!",
+        "categoria": "supermercato",
+        "scoperto": false
     }
 ];
