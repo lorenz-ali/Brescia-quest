@@ -10,17 +10,18 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
-        /* La mappa ora occupa tutto lo spazio rimanente sotto l'header e i filtri */
+        /* La mappa occupa tutto lo spazio rimanente sotto l'header e i filtri */
         #map { flex-grow: 1; width: 100%; z-index: 1; }
-        /* Il pop-up di sblocco e la sidebar devono stare ASSOLUTAMENTE sopra la mappa */
-        #popup-scoperta { z-index: 10000 !important; }
+        
+        /* GERARCHIA LIVELLI (Z-INDEX) */
+        #popup-scoperta, #popup-profilo { z-index: 10000 !important; }
         #wishlist-sidebar { z-index: 9000 !important; }
         #btn-wishlist { z-index: 8500 !important; }
     </style>
 </head>
 <body class="bg-gray-900 text-white font-sans flex flex-col h-screen overflow-hidden">
 
-    <button id="btn-wishlist" onclick="toggleWishlist()" class="fixed bottom-6 right-6 z-40 bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold p-4 rounded-full shadow-2xl transition-all cursor-pointer text-xl flex items-center justify-center">
+    <button id="btn-wishlist" onclick="toggleWishlist()" class="fixed bottom-6 right-6 md:bottom-auto md:top-36 md:right-6 bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold p-4 rounded-full shadow-2xl transition-all cursor-pointer text-xl flex items-center justify-center">
         📋 <span class="text-xs ml-1 font-bold">Wishlist</span>
     </button>
 
@@ -69,9 +70,43 @@
     </div>
 
 
+    <div id="popup-profilo" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden">
+        <div class="bg-gray-800 p-6 rounded-2xl max-w-sm w-full border-2 border-yellow-500 shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-yellow-400">⚙️ Gestione Profilo</h3>
+                <button onclick="chiudiPopupProfilo()" class="text-gray-400 hover:text-white text-lg cursor-pointer">✕</button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Modifica Nome</label>
+                    <input type="text" id="edit-nome" maxlength="12" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm focus:outline-none focus:border-yellow-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Modifica Stile Avatar</label>
+                    <select id="edit-genere" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm focus:outline-none focus:border-yellow-400">
+                        <option value="Esploratore">Esploratore 🧑‍🚀</option>
+                        <option value="Esploratrice">Esploratrice 👩‍🚀</option>
+                    </select>
+                </div>
+                
+                <button onclick="salvaModificheProfilo()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm">
+                    Salva Modifiche da Co-Pilota
+                </button>
+                
+                <hr class="border-gray-700 my-2">
+                
+                <button onclick="eseguiLogout()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm flex items-center justify-center gap-1">
+                    🚪 Esci dal Gioco (Logout)
+                </button>
+            </div>
+        </div>
+    </div>
+
+
     <header class="bg-gray-800 p-4 shadow-lg flex justify-between items-center z-10">
-        <div class="flex items-center gap-2">
-            <div id="avatar-icon" class="text-2xl bg-gray-700 p-1.5 rounded-full">👤</div>
+        <div onclick="apriPopupProfilo()" class="flex items-center gap-2 cursor-pointer hover:bg-gray-700 p-1.5 rounded-xl transition-colors">
+            <div id="avatar-icon" class="text-2xl bg-gray-700 p-1.5 rounded-full select-none">👤</div>
             <div>
                 <h1 id="player-display-name" class="text-md font-bold text-yellow-400">Player</h1>
                 <p id="player-display-role" class="text-xs text-gray-400">Esploratore Urbano</p>
@@ -114,7 +149,6 @@
     <script src="app.js"></script>
 
     <script>
-        // Funzione per mostrare/nascondere la Wishlist laterale
         function toggleWishlist() {
             const sidebar = document.getElementById('wishlist-sidebar');
             if (window.innerWidth >= 768) {
@@ -122,6 +156,50 @@
             } else {
                 sidebar.classList.toggle('-translate-x-full');
             }
+        }
+
+        // --- FUNZIONI DI GESTIONE DEL POP-UP PROFILO ---
+        function apriPopupProfilo() {
+            // Carica i valori attuali negli input del pop-up
+            document.getElementById('edit-nome').value = localStorage.getItem('giocatoreNome') || '';
+            document.getElementById('edit-genere').value = localStorage.getItem('giocatoreGenere') || 'Esploratore';
+            document.getElementById('popup-profilo').classList.remove('hidden');
+        }
+
+        function chiudiPopupProfilo() {
+            document.getElementById('popup-profilo').classList.add('hidden');
+        }
+
+        function salvaModificheProfilo() {
+            const nuovoNome = document.getElementById('edit-nome').value.trim();
+            const nuovoGenere = document.getElementById('edit-genere').value;
+            
+            if (nuovoNome.length < 3) {
+                alert("Il nome deve contenere almeno 3 caratteri!");
+                return;
+            }
+            
+            // Salva le nuove impostazioni nel browser
+            localStorage.setItem('giocatoreNome', nuovoNome);
+            localStorage.setItem('giocatoreGenere', nuovoGenere);
+            
+            // Aggiorna la schermata principale
+            document.getElementById('player-display-name').innerText = nuovoNome;
+            document.getElementById('player-display-role').innerText = nuovoGenere;
+            
+            const avatarIcon = document.getElementById('avatar-icon');
+            avatarIcon.innerText = (nuovoGenere === "Esploratore") ? "🧑‍🚀" : "👩‍🚀";
+            
+            chiudiPopupProfilo();
+        }
+
+        function eseguiLogout() {
+            // Svuota la memoria locale del profilo utente
+            localStorage.removeItem('giocatoreNome');
+            localStorage.removeItem('giocatoreGenere');
+            
+            // Ricarica la pagina per azzerare lo stato dell'app e riaprire il login nativo
+            window.location.reload();
         }
 
         // Controllo automatico sessione nel Browser (LocalStorage)
@@ -143,7 +221,7 @@
             }
         });
 
-        // Gestione del form di Login
+        // Gestione del form di Login iniziale
         function gestisciLogin(event) {
             event.preventDefault();
             
