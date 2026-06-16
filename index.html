@@ -25,7 +25,7 @@
         📋 <span class="text-xs ml-1 font-bold">Wishlist</span>
     </button>
 
-    <div id="wishlist-sidebar" class="fixed top-0 h-full w-72 bg-gray-950 border-gray-800 transform transition-transform duration-300 ease-in-out overflow-y-auto p-6 shadow-2xl
+    <div id="wishlist-sidebar" class="fixed top-0 h-full w-72 bg-gray-950 border-gray-800 transition-transform duration-300 ease-in-out overflow-y-auto p-6 shadow-2xl
         left-0 -translate-x-full border-r md:left-auto md:right-0 md:translate-x-full md:border-l">
         
         <div class="flex justify-between items-center mb-6 mt-4">
@@ -149,18 +149,20 @@
     <script src="app.js"></script>
 
     <script>
+        // Funzione corretta per l'apertura/chiusura della Sidebar
         function toggleWishlist() {
             const sidebar = document.getElementById('wishlist-sidebar');
             if (window.innerWidth >= 768) {
+                // Su computer toglie/mette la classe che la sposta a destra fuori dallo schermo
                 sidebar.classList.toggle('md:translate-x-full');
             } else {
+                // Su smartphone controlla il lato sinistro
                 sidebar.classList.toggle('-translate-x-full');
             }
         }
 
         // --- FUNZIONI DI GESTIONE DEL POP-UP PROFILO ---
         function apriPopupProfilo() {
-            // Carica i valori attuali negli input del pop-up
             document.getElementById('edit-nome').value = localStorage.getItem('giocatoreNome') || '';
             document.getElementById('edit-genere').value = localStorage.getItem('giocatoreGenere') || 'Esploratore';
             document.getElementById('popup-profilo').classList.remove('hidden');
@@ -179,11 +181,9 @@
                 return;
             }
             
-            // Salva le nuove impostazioni nel browser
             localStorage.setItem('giocatoreNome', nuovoNome);
             localStorage.setItem('giocatoreGenere', nuovoGenere);
             
-            // Aggiorna la schermata principale
             document.getElementById('player-display-name').innerText = nuovoNome;
             document.getElementById('player-display-role').innerText = nuovoGenere;
             
@@ -194,11 +194,8 @@
         }
 
         function eseguiLogout() {
-            // Svuota la memoria locale del profilo utente
             localStorage.removeItem('giocatoreNome');
             localStorage.removeItem('giocatoreGenere');
-            
-            // Ricarica la pagina per azzerare lo stato dell'app e riaprire il login nativo
             window.location.reload();
         }
 
@@ -213,7 +210,7 @@
                 document.getElementById('player-display-role').innerText = genereSalvato;
                 
                 const avatarIcon = document.getElementById('avatar-icon');
-                avatarIcon.innerText = (genereSalvato === "Esploratore") ? "🧑‍🚀" : "👩‍🚀";
+                avatarIcon.innerText = (genereSaved = genereSalvato === "Esploratore") ? "🧑‍🚀" : "👩‍🚀";
                 
                 if (typeof initGioco === 'function') {
                     initGioco();
