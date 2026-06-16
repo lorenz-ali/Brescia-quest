@@ -12,6 +12,7 @@
     <style>
         /* Gestione dell'altezza della mappa */
         #map { height: 45vh; width: 100%; }
+        #popup-scoperta {  z-index: 9999 !important; /* Forza il pop-up sopra la mappa */ }
     </style>
 </head>
 <body class="bg-gray-900 text-white font-sans flex flex-col h-screen overflow-hidden">
@@ -30,8 +31,7 @@
                 
                 <div>
                     <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Nome del Player</label>
-                    <input type="text" id="login-nome" required minlength="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400">
-                </div>
+                    <input type="text" id="login-nome" required minlength="3" maxlength="12" placeholder="Max 12 caratteri" class="w-full bg-gray-700 ...">                </div>
                 
                 <div>
                     <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Seleziona Genere Avatar</label>
