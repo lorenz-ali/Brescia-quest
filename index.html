@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brescia Quest - Il Gioco Esplorativo</title>
     
@@ -11,11 +11,26 @@
     
     <style>
         /* Gestione dell'altezza della mappa */
-        #map { height: 45vh; width: 100%; }
-        #popup-scoperta {  z-index: 9999 !important; /* Forza il pop-up sopra la mappa */ }
+        #map { height: 55vh; width: 100%; }
+        #popup-scoperta { z-index: 10000 !important; /* Forza il pop-up sopra la mappa */ }
     </style>
 </head>
 <body class="bg-gray-900 text-white font-sans flex flex-col h-screen overflow-hidden">
+
+    <button onclick="toggleWishlist()" class="fixed bottom-6 right-6 md:bottom-auto md:top-24 md:right-6 z-40 bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold p-4 rounded-full shadow-2xl transition-all cursor-pointer text-xl flex items-center justify-center">
+        📋 <span class="text-xs ml-1 hidden md:inline">Wishlist</span>
+    </button>
+
+    <div id="wishlist-sidebar" class="fixed top-0 h-full w-72 bg-gray-950 border-gray-800 z-45 transform transition-transform duration-300 ease-in-out overflow-y-auto p-6 shadow-2xl
+        left-0 -translate-x-full border-r md:left-auto md:right-0 md:translate-x-full md:border-l">
+        
+        <div class="flex justify-between items-center mb-6 mt-4">
+            <h2 class="text-xl font-bold text-yellow-400">⚔️ La mia Wishlist</h2>
+            <button onclick="toggleWishlist()" class="text-gray-400 hover:text-white text-sm cursor-pointer">Chiudi ✕</button>
+        </div>
+        <div id="lista-monumenti" class="space-y-3"></div>
+    </div>
+
 
     <div id="schermata-login" class="fixed inset-0 bg-gray-950 z-50 flex flex-col justify-center items-center p-6">
         <div class="max-w-sm w-full bg-gray-800 p-6 rounded-2xl border-2 border-yellow-500 shadow-xl text-center">
@@ -31,7 +46,8 @@
                 
                 <div>
                     <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Nome del Player</label>
-                    <input type="text" id="login-nome" required minlength="3" maxlength="12" placeholder="Max 12 caratteri" class="w-full bg-gray-700 ...">                </div>
+                    <input type="text" id="login-nome" required minlength="3" maxlength="12" placeholder="Max 12 caratteri" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400">
+                </div>
                 
                 <div>
                     <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Seleziona Genere Avatar</label>
@@ -39,7 +55,6 @@
                         <option value="" disabled selected>Scegli il tuo stile...</option>
                         <option value="Esploratore">Esploratore 🧑‍🚀</option>
                         <option value="Esploratrice">Esploratrice 👩‍🚀</option>
-                        <option value="Cibernetico">Cibernetico 🤖</option>
                     </select>
                 </div>
                 
@@ -49,6 +64,7 @@
             </form>
         </div>
     </div>
+
 
     <header class="bg-gray-800 p-4 shadow-lg flex justify-between items-center z-10">
         <div class="flex items-center gap-2">
@@ -76,13 +92,6 @@
 
     <main id="map" class="flex-grow"></main>
 
-    <section class="bg-gray-800 p-4 rounded-t-2xl shadow-2xl z-10 max-h-[35vh] overflow-y-auto">
-        <h2 class="text-md font-bold mb-3 flex items-center gap-2 text-yellow-400">
-            ⚔️ Registro Missioni (Wishlist)
-        </h2>
-        <div id="lista-monumenti" class="space-y-2">
-            </div>
-    </section>
 
     <div id="popup-scoperta" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 hidden">
         <div class="bg-gray-800 p-6 rounded-2xl max-w-sm w-full text-center border-2 border-yellow-400">
@@ -98,32 +107,62 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
     <script src="monumenti.js"></script>
     <script src="app.js"></script>
 
     <script>
-        // Gestione temporanea del Login direttamente nell'HTML per attivare il gioco
+        // Gestione apertura/chiusura Wishlist a scomparsa
+        function toggleWishlist() {
+            const sidebar = document.getElementById('wishlist-sidebar');
+            // Gestisce le classi in base allo schermo (Mobile sinistra, PC destra)
+            if (window.innerWidth >= 768) {
+                sidebar.classList.toggle('md:translate-x-full');
+            } else {
+                sidebar.classList.toggle('-translate-x-full');
+            }
+        }
+
+        // 1. CONTROLLO AUTOMATICO UTENTE APPARECCHIO (Local Storage)
+        window.addEventListener('DOMContentLoaded', () => {
+            const nomeSalvato = localStorage.getItem('giocatoreNome');
+            const genereSalvato = localStorage.getItem('giocatoreGenere') || 'Esploratore';
+            
+            if (nomeSalvato) {
+                document.getElementById('schermata-login').classList.add('hidden');
+                document.getElementById('player-display-name').innerText = nomeSalvato;
+                document.getElementById('player-display-role').innerText = genereSalvato;
+                
+                const avatarIcon = document.getElementById('avatar-icon');
+                avatarIcon.innerText = (genereSalvato === "Esploratore") ? "🧑‍🚀" : "👩‍🚀";
+                
+                if (typeof initGioco === 'function') {
+                    initGioco();
+                }
+            }
+        });
+
+        // 2. SALVATAGGIO UTENTE DURANTE IL LOGIN
         function gestisciLogin(event) {
             event.preventDefault();
             
             const nome = document.getElementById('login-nome').value;
             const genere = document.getElementById('login-genere').value;
             
-            // Aggiorna i dati dell'avatar nell'interfaccia di gioco
+            // Salva nel browser
+            localStorage.setItem('giocatoreNome', nome);
+            localStorage.setItem('giocatoreGenere', genere);
+            
+            // Aggiorna l'interfaccia principale
             document.getElementById('player-display-name').innerText = nome;
             document.getElementById('player-display-role').innerText = genere;
             
-            // Assegna un'icona simpatica in base al genere scelto
             const avatarIcon = document.getElementById('avatar-icon');
-            if(genere === "Esploratore") avatarIcon.innerText = "🧑‍🚀";
-            else if(genere === "Esploratrice") avatarIcon.innerText = "👩‍🚀";
-            else avatarIcon.innerText = "🤖";
+            avatarIcon.innerText = (genere === "Esploratore") ? "🧑‍🚀" : "👩‍🚀";
 
-            // Nasconde la schermata di login per rivelare il gioco
+            // Nasconde il login
             document.getElementById('schermata-login').classList.add('hidden');
             
-            // Avvia il motore della mappa globale e del GPS presente nel file app.js
+            // Avvia la mappa e il GPS
             if (typeof initGioco === 'function') {
                 initGioco();
             }
