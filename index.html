@@ -21,7 +21,7 @@
 </head>
 <body class="bg-gray-900 text-white font-sans flex flex-col h-screen overflow-hidden">
 
-    <button id="btn-wishlist" onclick="toggleWishlist()" class="fixed bottom-6 right-6 md:bottom-auto md:top-36 md:right-6 bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold p-4 rounded-full shadow-2xl transition-all cursor-pointer text-xl flex items-center justify-center">
+    <button id="btn-wishlist" onclick="toggleWishlist()" class="hidden fixed bottom-6 right-6 md:bottom-auto md:top-36 md:right-6 bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold p-4 rounded-full shadow-2xl transition-all cursor-pointer text-xl flex items-center justify-center">
         📋 <span class="text-xs ml-1 font-bold">Wishlist</span>
     </button>
 
@@ -144,7 +144,6 @@
     <script src="app.js"></script>
 
     <script>
-        // Semplificata la logica Javascript: ora sposta la barra lateralmente a prescindere dallo schermo
         function toggleWishlist() {
             const sidebar = document.getElementById('wishlist-sidebar');
             sidebar.classList.toggle('translate-x-full');
@@ -193,6 +192,10 @@
             
             if (nomeSalvato) {
                 document.getElementById('schermata-login').classList.add('hidden');
+                
+                // 🔓 Mostra il pulsante se l'utente risulta già loggato
+                document.getElementById('btn-wishlist').classList.remove('hidden');
+                
                 document.getElementById('player-display-name').innerText = nomeSalvato;
                 document.getElementById('player-display-role').innerText = genereSalvato;
                 
@@ -221,6 +224,9 @@
             avatarIcon.innerText = (genere === "Esploratore") ? "🧑‍🚀" : "👩‍🚀";
 
             document.getElementById('schermata-login').classList.add('hidden');
+            
+            // 🔓 Mostra il pulsante della wishlist subito dopo aver eseguito l'accesso
+            document.getElementById('btn-wishlist').classList.remove('hidden');
             
             if (typeof initGioco === 'function') {
                 initGioco();
