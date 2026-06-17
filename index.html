@@ -14,9 +14,10 @@
         #map { flex-grow: 1; width: 100%; z-index: 1; }
         
         /* GERARCHIA LIVELLI (Z-INDEX) */
-        #popup-scoperta, #popup-profilo, #popup-amici { z-index: 10000 !important; }
-        #wishlist-sidebar { z-index: 9000 !important; }
-        #btn-wishlist, #btn-amici { z-index: 8500 !important; }
+        header { position: relative; z-index: 99999 !important; }
+        #popup-scoperta, #popup-profilo, #popup-amici { z-index: 100000 !important; }
+        #wishlist-sidebar { z-index: 90000 !important; }
+        #btn-wishlist, #btn-amici { z-index: 85000 !important; }
     </style>
 </head>
 <body class="bg-gray-900 text-white font-sans flex flex-col h-screen overflow-hidden">
@@ -142,8 +143,7 @@
 
             <h4 class="text-xs font-bold uppercase text-gray-400 mb-2 flex items-center gap-1">🏆 Classifica della Squadra (Tu + Amici)</h4>
             
-            <div id="lista-amici-classifica" class="space-y-2 overflow-y-auto flex-grow pr-1 text-xs">
-                </div>
+            <div id="lista-amici-classifica" class="space-y-2 overflow-y-auto flex-grow pr-1 text-xs"></div>
         </div>
     </div>
 
@@ -219,13 +219,39 @@
         </div>
     </div>
 
+    <script>
+        function toggleWishlist() {
+            const sidebar = document.getElementById('wishlist-sidebar');
+            sidebar.classList.toggle('translate-x-full');
+        }
+        function apriPopupAmici() {
+            document.getElementById('popup-amici').classList.remove('hidden');
+            if (typeof window.aggiornaElencoClassificaAmici === 'function') {
+                window.aggiornaElencoClassificaAmici();
+            }
+        }
+        function chiudiPopupAmici() {
+            document.getElementById('popup-amici').classList.add('hidden');
+        }
+        function apriPopupProfilo() {
+            document.getElementById('popup-profilo').classList.remove('hidden');
+            const displayNome = document.getElementById('player-display-name').innerText;
+            const displayGenere = document.getElementById('player-display-role').innerText;
+            document.getElementById('edit-nome').value = displayNome.replace(" (Tu)", "");
+            document.getElementById('edit-genere').value = displayGenere;
+        }
+        function chiudiPopupProfilo() {
+            document.getElementById('popup-profilo').classList.add('hidden');
+        }
+    </script>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="monumenti.js"></script>
     <script src="app.js"></script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -245,7 +271,6 @@
         let datiUtenteLocale = null;
         let isAuthProcessing = false;
 
-        // --- INTERUTTORE GRAFICO PER I MODULI DI LOG IN / REGISTRAZIONE ---
         window.switchAuthTab = function(tab) {
             const formAccedi = document.getElementById('form-accedi');
             const formRegistrati = document.getElementById('form-registrati');
@@ -265,7 +290,6 @@
             }
         }
 
-        // --- LOGICA DI ACCESSO ---
         window.gestisciAccedi = async function(event) {
             event.preventDefault();
             if (isAuthProcessing) return;
@@ -292,7 +316,6 @@
             }
         }
 
-        // --- LOGICA DI REGISTRAZIONE ---
         window.gestisciRegistrazione = async function(event) {
             event.preventDefault();
             if (isAuthProcessing) return;
@@ -330,7 +353,6 @@
             }
         }
 
-        // --- SISTEMA DI RECUPERO PASSWORD ---
         window.mostraRecuperoPassword = function() {
             document.getElementById('schermata-login').classList.add('hidden');
             document.getElementById('schermata-recupero').classList.remove('hidden');
@@ -354,15 +376,12 @@
             }
         }
 
-        // --- FUNZIONE DI SUPPORTO PER SCARICARE I DATI E AGGIORNARE STATUS ---
         async function caricaEAvviaGioco(user) {
             utenteCorrenteId = user.uid;
             localStorage.setItem('giocatoreEmail', user.email);
             document.getElementById('mio-codice-txt').innerText = user.uid;
 
-            // Aggiorna lo stato online e la data di ultimo accesso su Firebase
             const timestampCorrente = new Date().toISOString();
-            
             const userRef = doc(db, "utenti", user.uid);
             const docSnap = await getDoc(userRef);
 
@@ -392,14 +411,13 @@
             isAuthProcessing = false;
         }
 
-        // --- CONTROLLO SESSIONE ATTIVA AL CARICAMENTO ---
         window.addEventListener('DOMContentLoaded', () => {
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
                     if (user.emailVerified) {
                         caricaEAvviaGioco(user);
                     } else {
-                        await auth.signOut();
+                        await signOut(auth);
                         document.getElementById('schermata-login').classList.remove('hidden');
                     }
                 } else {
@@ -408,7 +426,6 @@
             });
         });
 
-        // --- ENTRA NEL GIOCO ---
         window.entraNelGioco = function(nome, genere, xp, livello, datiMonumenti) {
             document.getElementById('schermata-login').classList.add('hidden');
             document.getElementById('schermata-recupero').classList.add('hidden');
@@ -440,7 +457,51 @@
             }
         }
 
-        // --- GESTIONE COPIA E CONDIVISIONE CODICE AMICO ---
+        window.eseguiLogout = async function() {
+            if (!confirm("Vuoi davvero uscire dal gioco?")) return;
+            try {
+                if (utenteCorrenteId) {
+                    await updateDoc(doc(db, "utenti", utenteCorrenteId), { status: "offline" });
+                }
+                await signOut(auth);
+                window.location.reload();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        window.salvaModificheProfilo = async function() {
+            const nuovoNome = document.getElementById('edit-nome').value.trim();
+            const nuovoGenere = document.getElementById('edit-genere').value;
+            if (!nuovoNome) return;
+
+            try {
+                await updateDoc(doc(db, "utenti", utenteCorrenteId), {
+                    nome: nuovoNome,
+                    genere: nuovoGenere
+                });
+                alert("✨ Profilo aggiornato con successo!");
+                chiudiPopupProfilo();
+                window.location.reload();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        window.salvaProgressoSuCloud = async function(xp, livello, listaMonumenti) {
+            if (!utenteCorrenteId) return;
+            try {
+                const statoMonumenti = listaMonumenti.map(m => ({ nome: m.nome, scoperto: m.scoperto || false }));
+                await updateDoc(doc(db, "utenti", utenteCorrenteId), {
+                    xp: xp,
+                    livello: livello,
+                    monumenti: statoMonumenti
+                });
+            } catch (e) {
+                console.error("Errore salvataggio cloud: ", e);
+            }
+        }
+
         window.copiaCodiceAmico = function() {
             if (!utenteCorrenteId) return;
             navigator.clipboard.writeText(utenteCorrenteId);
@@ -462,7 +523,6 @@
             }
         }
 
-        // --- AGGIUNGI AMICO ---
         window.aggiungiAmico = async function() {
             const codiceAmico = document.getElementById('input-codice-amico').value.trim();
             if (!codiceAmico) return;
@@ -478,51 +538,40 @@
                     return;
                 }
 
-                // Aggiorna sul database dell'utente corrente
-                await updateDoc(doc(db, "utenti", utenteCorrenteId), {
-                    amici: arrayUnion(codiceAmico)
-                });
-                
-                // Aggrega anche nel senso opposto (amicizia bi-direzionale automatica)
-                await updateDoc(doc(db, "utenti", codiceAmico), {
-                    amici: arrayUnion(utenteCorrenteId)
-                });
+                await updateDoc(doc(db, "utenti", utenteCorrenteId), { amici: arrayUnion(codiceAmico) });
+                await updateDoc(doc(db, "utenti", codiceAmico), { amici: arrayUnion(utenteCorrenteId) });
 
                 alert(`🤝 Compagno aggiunto con successo!`);
                 document.getElementById('input-codice-amico').value = "";
-                aggiornaElencoClassificaAmici();
+                window.aggiornaElencoClassificaAmici();
             } catch (e) {
                 console.error(e);
             }
         }
 
-        // --- RIMUOVI AMICO ---
         window.rimuoviAmico = async function(idAmico) {
             if (!confirm("Sei sicuro di voler rimuovere questo amico dalla tua classifica?")) return;
             try {
                 await updateDoc(doc(db, "utenti", utenteCorrenteId), { amici: arrayRemove(idAmico) });
                 await updateDoc(doc(db, "utenti", idAmico), { amici: arrayRemove(utenteCorrenteId) });
-                aggiornaElencoClassificaAmici();
+                window.aggiornaElencoClassificaAmici();
             } catch (e) {
                 console.error(e);
             }
         }
 
-        // --- CALCOLO DELLA CLASSIFICA E RENDER SULL'INTERFACCIA ---
-        async function aggiornaElencoClassificaAmici() {
+        window.aggiornaElencoClassificaAmici = async function() {
             const container = document.getElementById('lista-amici-classifica');
             if (!container || !utenteCorrenteId) return;
             container.innerHTML = "<p class='text-gray-400 animate-pulse text-center py-4'>Sincronizzazione punteggi...</p>";
 
             try {
-                // Scarica i dati aggiornati del player
                 const mioSnap = await getDoc(doc(db, "utenti", utenteCorrenteId));
                 if (!mioSnap.exists()) return;
                 const mieiDati = mioSnap.data();
                 const listaIdAmici = mieiDati.amici || [];
 
                 let partecipanti = [];
-                // Aggiungiamo te stesso alla classifica
                 partecipanti.push({
                     id: utenteCorrenteId,
                     nome: mieiDati.nome + " (Tu)",
@@ -532,7 +581,6 @@
                     ultimoAccesso: mieiDati.ultimoAccesso
                 });
 
-                // Scarica i dati reali di ciascun amico inserito
                 for (let idAmico of listaIdAmici) {
                     const snapAmico = await getDoc(doc(db, "utenti", idAmico));
                     if (snapAmico.exists()) {
@@ -548,7 +596,6 @@
                     }
                 }
 
-                // Ordina la classifica per Livello descrescente, e in caso di parità per punti XP decrescenti
                 partecipanti.sort((a, b) => {
                     if (b.livello !== a.livello) return b.livello - a.livello;
                     return b.xp - a.xp;
@@ -556,7 +603,6 @@
 
                 container.innerHTML = "";
                 partecipanti.forEach((p, index) => {
-                    // Calcolo testuale dell'ultimo accesso leggibile
                     let dataTxt = "Mai";
                     if (p.ultimoAccesso) {
                         const d = new Date(p.ultimoAccesso);
@@ -573,71 +619,25 @@
                         <div class="flex items-center gap-2">
                             <span class="font-mono font-bold text-sm text-gray-400 w-5">${badgePiazzamento}</span>
                             <div>
-                                <div class="flex items-center gap-1.5">
-                                    <p class="font-bold text-white">${p.nome}</p>
-                                    <span class="w-2 h-2 rounded-full ${p.status === 'online' ? 'bg-green-500 animate-ping' : 'bg-gray-500'}" title="${p.status}"></span>
+                                <div class="font-bold flex items-center gap-1.5">
+                                    ${p.nome}
+                                    <span class="w-2 h-2 rounded-full ${p.status === 'online' ? 'bg-green-500' : 'bg-gray-500'}"></span>
                                 </div>
-                                <p class="text-[10px] text-gray-400">Accesso: ${p.status === 'online' ? '<span class="text-green-400 font-bold">Ora</span>' : dataTxt}</p>
+                                <div class="text-[10px] text-gray-400">Accesso: ${dataTxt}</div>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
                             <div class="text-right">
-                                <span class="text-xs font-bold text-green-400 block font-mono">Lvl ${p.livello}</span>
-                                <span class="text-[10px] text-gray-400 block font-mono">${p.xp} XP</span>
+                                <span class="text-xs font-bold text-green-400 block">Lvl ${p.livello}</span>
+                                <span class="text-[10px] text-gray-400">${p.xp} XP</span>
                             </div>
-                            ${!isMe ? `<button onclick="rimuoviAmico('${p.id}')" class="text-gray-500 hover:text-red-400 transition-colors cursor-pointer text-sm p-1">🗑️</button>` : ''}
+                            ${!isMe ? `<button onclick="rimuoviAmico('${p.id}')" class="text-red-400 hover:text-red-500 text-sm p-1 cursor-pointer">✕</button>` : ''}
                         </div>
                     `;
                     container.appendChild(riga);
                 });
-
-            } catch (err) {
-                console.error(err);
-                container.innerHTML = "<p class='text-red-400 text-center'>Impossibile caricare la classifica.</p>";
-            }
-        }
-
-        // --- POPUP GESTIONE APERTURA/CHIUSURA ---
-        window.apriPopupAmici = function() {
-            document.getElementById('popup-amici').classList.remove('hidden');
-            aggiornaElencoClassificaAmici();
-        }
-
-        window.chiudiPopupAmici = function() {
-            document.getElementById('popup-amici').classList.add('hidden');
-        }
-
-        // Imposta lo stato offline se chiude la scheda o si disconnette
-        window.addEventListener('beforeunload', () => {
-            if (utenteCorrenteId) {
-                updateDoc(doc(db, "utenti", utenteCorrenteId), { status: "offline" });
-            }
-        });
-
-        window.salvaProgressoSuCloud = async function(nuoviXp, nuovoLivello, listaMonumentiAggiornata) {
-            if (!utenteCorrenteId) return;
-            const statoMonumenti = listaMonumentiAggiornata.map(m => ({ nome: m.nome, scoperto: m.scoperto }));
-            try {
-                await updateDoc(doc(db, "utenti", utenteCorrenteId), {
-                    xp: nuoviXp,
-                    livello: nuovoLivello,
-                    monumenti: statoMonumenti,
-                    ultimoAccesso: new Date().toISOString()
-                });
-                console.log("☁️ Database Cloud Aggiornato!");
-            } catch (error) {
-                console.error("Errore sincro cloud:", error);
-            }
-        }
-
-        window.eseguiLogout = function() {
-            if (utenteCorrenteId) {
-                updateDoc(doc(db, "utenti", utenteCorrenteId), { status: "offline" }).then(() => {
-                    auth.signOut().then(() => {
-                        localStorage.removeItem('giocatoreEmail');
-                        window.location.reload();
-                    });
-                });
+            } catch (e) {
+                console.error(e);
             }
         }
     </script>
