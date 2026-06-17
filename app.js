@@ -5,10 +5,7 @@ const xpPerLivello = 300;
 let map, userMarker;
 let markersAttivi = []; // Tiene traccia dei PIN visualizzati sulla mappa
 let categoriaCorrente = 'tutti';
-
-// Variabili per l'animazione fluida del GPS
-let posizioneTarget = null;
-let animazioneInCorso = null;
+let ultimaPosizioneUtente = null; // 📍 Memorizza l'ultima posizione GPS ricevuta
 
 // --- INIZIALIZZAZIONE DEL GIOCO ---
 function initGioco() {
@@ -20,11 +17,11 @@ function initGioco() {
         attribution: '© OpenStreetMap'
     }).addTo(map);
 
-    // Mostra i punti e la lista obiettivi
+    // Mostra i punti e la lista obiettivi iniziale
     aggiornaMappaELista();
 
     // Attiva il tracciamento del GPS del telefono
-    attivaGPS({ enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
+    attivaGPS();
 }
 
 // --- GESTIONE DEI FILTRI E DEI PIN ---
@@ -53,7 +50,17 @@ function aggiornaMappaELista() {
             markersAttivi.push(marker);
             m.markerRef = marker;
 
-            // --- AGGIUNGI RIGA AL REGISTRO DELLE MISSIONI ---
+            // --- CALCOLO DISTANZA DINAMICA PER LA SIDEBAR ---
+            let testoDistanza = '🔒 Distanza: Calcolo in corso...';
+            if (!m.scoperto && ultimaPosizioneUtente) {
+                const d = calcolaDistanza(ultimaPosizioneUtente.lat, ultimaPosizioneUtente.lng, m.lat, m.lng);
+                // Se la distanza è maggiore di 1000 metri mostra i km, altrimenti i metri
+                testoDistanza = d >= 1000 ? `📍 Distanza: ${(d/1000).toFixed(1)} km` : `📍 Distanza: ${Math.round(d)} metri`;
+            } else if (m.scoperto) {
+                testoDistanza = '🟢 Obiettivo Conquistato';
+            }
+
+            // --- AGGIUNGI RIGA AL REGISTRO DELLE MISSIONI (HTML) ---
             const item = document.createElement('div');
             item.className = `p-3 rounded-xl flex justify-between items-center transition-all ${
                 m.scoperto ? 'bg-green-950/40 border border-green-500' : 'bg-gray-700/50 border border-gray-600'
@@ -62,7 +69,7 @@ function aggiornaMappaELista() {
             item.innerHTML = `
                 <div>
                     <p class="font-semibold text-sm ${m.scoperto ? 'text-green-400' : 'text-gray-200'}">${m.nome}</p>
-                    <p class="text-xs text-gray-400 font-mono">${m.scoperto ? '🟢 Obiettivo Conquistato' : '🔒 Distanza: Calcolo in corso...'}</p>
+                    <p class="text-xs text-gray-400 font-mono">${testoDistanza}</p>
                 </div>
                 <div class="text-sm font-mono text-gray-400 bg-gray-800 px-2 py-1 rounded-md">
                     ${m.scoperto ? '🏆' : '+100 XP'}
@@ -78,16 +85,19 @@ function filtraCategoria(categoria) {
     aggiornaMappaELista();
 }
 
-// --- SISTEMA GPS CON MOVIMENTO FLUIDO INIETTATO ---
-function attivaGPS(options) {
+// --- SISTEMA GPS (GEOLOCALIZZAZIONE) ---
+function attivaGPS() {
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(
             (position) => {
                 const uLat = position.coords.latitude;
                 const uLng = position.coords.longitude;
 
+                // Salva la posizione per poter aggiornare le distanze nella wishlist
+                ultimaPosizioneUtente = { lat: uLat, lng: uLng };
+
+                // Crea l'avatar (cerchietto blu) o aggiorna la sua posizione
                 if (!userMarker) {
-                    // Primo avvio: crea l'avatar sul punto esatto
                     userMarker = L.circleMarker([uLat, uLng], { 
                         radius: 12, 
                         color: '#ffffff', 
@@ -98,54 +108,21 @@ function attivaGPS(options) {
                     
                     map.setView([uLat, uLng], 16); 
                 } else {
-                    // Spostamenti successivi: attiva l'animazione fluida verso le nuove coordinate
-                    posizioneTarget = { lat: uLat, lng: uLng };
-                    if (!animazioneInCorso) {
-                        animaAvatar();
-                    }
+                    userMarker.setLatLng([uLat, uLng]);
                 }
 
-                // Controlla la prossimità basandosi sulla posizione reale rilevata
+                // Controlla prossimità e aggiorna l'interfaccia con le nuove distanze
                 controllaProssimita(uLat, uLng);
             },
             (error) => { console.warn("Errore ricezione GPS: ", error.message); },
-            { enableHighAccuracy: true }
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
         );
     } else {
         alert("Questo telefono o browser non supporta la geolocalizzazione.");
     }
 }
 
-// Funzione di interpolazione lineare (Lerp) per muovere il pallino millimetro per millimetro
-function animaAvatar() {
-    if (!posizioneTarget || !userMarker) return;
-
-    const posAttuale = userMarker.getLatLng();
-    
-    // Calcoliamo la differenza tra dove si trova ora e dove deve arrivare
-    const diffLat = posizioneTarget.lat - posAttuale.lat;
-    const diffLng = posizioneTarget.lng - posAttuale.lng;
-
-    // Velocità di scivolamento (0.05 significa che copre il 5% della distanza rimanente ad ogni fotogramma)
-    const fattoreFlidita = 0.05; 
-
-    // Se la distanza è minuscola, saltiamo direttamente al punto d'arrivo e fermiamo l'animazione
-    if (Math.abs(diffLat) < 0.00001 && Math.abs(diffLng) < 0.00001) {
-        userMarker.setLatLng([posizioneTarget.lat, posizioneTarget.lng]);
-        animazioneInCorso = null; // Animazione completata
-    } else {
-        // Altrimenti calcola lo step intermedio
-        const nuovaLat = posAttuale.lat + (diffLat * fattoreFlidita);
-        const nuovaLng = posAttuale.lng + (diffLng * fattoreFlidita);
-        
-        userMarker.setLatLng([nuovaLat, nuovaLng]);
-        
-        // Richiede al browser di eseguire il prossimo fotogramma dell'animazione (circa 60 fps)
-        animazioneInCorso = requestAnimationFrame(animaAvatar);
-    }
-}
-
-// --- FORMULA HA VERSINE ---
+// --- FORMULA HAVERSINE ---
 function calcolaDistanza(lat1, lon1, lat2, lon2) {
     const R = 6371e3; // Raggio terrestre in metri
     const phi1 = lat1 * Math.PI / 180;
@@ -158,23 +135,30 @@ function calcolaDistanza(lat1, lon1, lat2, lon2) {
               Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-    return R * c; 
+    return R * c; // Distanza precisa in metri
 }
 
 // --- MECCANICA DI GIOCO: GEOFENCING E SBLOCCO BADGE ---
 function controllaProssimita(userLat, userLng) {
+    let haSbloccatoQualcosa = false;
+
     monumenti.forEach(m => {
         if (!m.scoperto) {
             const distanza = calcolaDistanza(userLat, userLng, m.lat, m.lng);
             
+            // Sblocca il Badge se l'utente si trova a meno di 50 metri dal posto
+            // NOTA: mantengo temporaneamente il tuo raggio esteso per i tuoi test da casa!
             if (distanza <= 50000) { 
                 m.scoperto = true;
                 assegnaXP(100);
                 mostraPopupScoperta(m);
-                aggiornaMappaELista();
+                haSbloccatoQualcosa = true;
             }
         }
     });
+
+    // Se non ha sbloccato nulla ma si è mosso, aggiorna comunque la lista per mostrare i metri che calano!
+    aggiornaMappaELista();
 }
 
 // --- ASSEGNAZIONE PUNTEGGIO E LIVELLI ---
