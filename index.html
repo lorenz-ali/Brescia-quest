@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">  
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brescia Quest - Il Gioco Esplorativo</title>
-   
+
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-   
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-   
+
     <style>
         /* La mappa occupa tutto lo spazio rimanente sotto l'header e i filtri */
         #map { flex-grow: 1; width: 100%; z-index: 1; }
-       
+
         /* GERARCHIA LIVELLI (Z-INDEX) */
         header { position: relative; z-index: 99999 !important; }
         #popup-scoperta, #popup-profilo, #popup-amici { z-index: 100000 !important; }
@@ -33,17 +33,19 @@
     <div id="wishlist-sidebar" class="fixed top-0 right-0 h-full w-72 bg-gray-950 border-l border-gray-800 transition-transform duration-300 ease-in-out overflow-y-auto p-6 shadow-2xl translate-x-full">
         <div class="flex justify-between items-center mb-6 mt-4">
             <h2 class="text-xl font-bold text-yellow-400">⚔️ La mia Wishlist</h2>
-            <button onclick="toggleWishlist()" class="text-gray-400 hover:text-white text-sm cursor-pointer">Chiudi ✕</button>
+            <button onclick="toggleWishlist()" class="bg-gray-850 hover:bg-gray-800 text-yellow-400 hover:text-yellow-300 font-bold w-8 h-8 rounded-lg text-sm flex items-center justify-center transition-colors cursor-pointer border border-gray-700">
+                ✕
+            </button>
         </div>
         <div id="lista-monumenti" class="space-y-3"></div>
     </div>
 
-    <div id="schermata-login" class="fixed inset-0 bg-gray-950 z-50 flex flex-col justify-center items-center p-6">
+    <div id="schermata-login" class="fixed inset-0 bg-gray-950 z-50 flex flex-col justify-center items-center p-6 hidden">
         <div class="max-w-sm w-full bg-gray-800 p-6 rounded-2xl border-2 border-yellow-500 shadow-xl text-center">
             <span class="text-6xl animate-pulse">🎮</span>
             <h2 class="text-2xl font-bold text-yellow-400 mt-2">BRESCIA QUEST</h2>
             <p class="text-gray-400 text-xs mb-4">Inizia la tua avventura urbana</p>
-           
+
             <div class="flex bg-gray-900 p-1 rounded-xl mb-4 border border-gray-700">
                 <button id="tab-accedi" onclick="switchAuthTab('accedi')" class="w-1/2 py-2 text-sm font-bold rounded-lg bg-yellow-500 text-gray-950 transition-colors cursor-pointer">ACCEDI</button>
                 <button id="tab-registrati" onclick="switchAuthTab('registrati')" class="w-1/2 py-2 text-sm font-bold rounded-lg text-gray-400 hover:text-white transition-colors cursor-pointer">REGISTRATI</button>
@@ -99,7 +101,7 @@
             <span class="text-5xl">🔑</span>
             <h2 class="text-2xl font-bold text-yellow-400 mt-2">RECUPERO PASSWORD</h2>
             <p class="text-gray-400 text-xs mb-6">Inserisci la tua email per ricevere il link di reimpostazione</p>
-           
+
             <form id="form-recupero" onsubmit="gestisciRecupero(event)" class="text-left space-y-4">
                 <div>
                     <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Indirizzo Email dell'account</label>
@@ -119,7 +121,7 @@
         <div class="bg-gray-800 p-5 rounded-2xl max-w-md w-full border-2 border-blue-500 shadow-2xl flex flex-col max-h-[85vh]">
             <div class="flex justify-between items-center mb-3">
                 <h3 class="text-lg font-bold text-blue-400">👥 Clan & Amici</h3>
-                <button onclick="chiudiPopupAmici()" class="text-gray-400 hover:text-white text-lg cursor-pointer">✕</button>
+                <button onclick="chiudiPopupAmici()" class="text-gray-400 hover:text-white text-lg cursor-pointer"> ✕ </button>
             </div>
 
             <div class="bg-gray-900 p-2 rounded-xl border border-gray-700 mb-3 flex justify-between items-center text-xs">
@@ -142,7 +144,6 @@
             </div>
 
             <h4 class="text-xs font-bold uppercase text-gray-400 mb-2 flex items-center gap-1">🏆 Classifica della Squadra (Tu + Amici)</h4>
-           
             <div id="lista-amici-classifica" class="space-y-2 overflow-y-auto flex-grow pr-1 text-xs"></div>
         </div>
     </div>
@@ -151,9 +152,9 @@
         <div class="bg-gray-800 p-6 rounded-2xl max-w-sm w-full border-2 border-yellow-500 shadow-2xl">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-bold text-yellow-400">⚙️ Gestione Profilo</h3>
-                <button onclick="chiudiPopupProfilo()" class="text-gray-400 hover:text-white text-lg cursor-pointer">✕</button>
+                <button onclick="chiudiPopupProfilo()" class="text-gray-400 hover:text-white text-lg cursor-pointer"> ✕ </button>
             </div>
-           
+
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Modifica Nome</label>
@@ -166,13 +167,13 @@
                         <option value="Esploratrice">Esploratrice 👩‍🚀</option>
                     </select>
                 </div>
-               
+
                 <button onclick="salvaModificheProfilo()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm">
                     Salva Modifiche da Co-Pilota
                 </button>
-               
+
                 <hr class="border-gray-700 my-2">
-               
+
                 <button onclick="eseguiLogout()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm flex items-center justify-center gap-1">
                     🚪 Esci dal Gioco (Logout)
                 </button>
@@ -198,7 +199,7 @@
     </header>
 
     <nav id="filtri-nav" class="bg-gray-850 p-2 flex gap-2 justify-center z-10 border-b border-gray-800">
-        <button id="btn-filtro-tutti" onclick="filtraCategoria('tutti')" class="bg-gray-700 hover:bg-gray-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer outline-3 outline-yellow-400">🌍 Tutti</button>
+        <button id="btn-filtro-tutti" onclick="filtraCategoria('tutti')" class="bg-gray-700 hover:bg-gray-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer">🌍 Tutti</button>
         <button id="btn-filtro-monumento" onclick="filtraCategoria('monumento')" class="bg-amber-700 hover:bg-amber-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer">🏛️ Monumenti</button>
         <button id="btn-filtro-parco" onclick="filtraCategoria('parco')" class="bg-green-700 hover:bg-green-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer">🌳 Parchi</button>
         <button id="btn-filtro-supermercato" onclick="filtraCategoria('supermercato')" class="bg-blue-700 hover:bg-blue-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer">🛒 Spesa</button>
@@ -225,27 +226,23 @@
             if (sidebar) sidebar.classList.toggle('translate-x-full');
         }
         function apriPopupAmici() {
-            const popup = document.getElementById('popup-amici');
-            if (popup) popup.classList.remove('hidden');
+            document.getElementById('popup-amici').classList.remove('hidden');
             if (typeof window.aggiornaElencoClassificaAmici === 'function') {
                 window.aggiornaElencoClassificaAmici();
             }
         }
         function chiudiPopupAmici() {
-            const popup = document.getElementById('popup-amici');
-            if (popup) popup.classList.add('hidden');
+            document.getElementById('popup-amici').classList.add('hidden');
         }
         function apriPopupProfilo() {
-            const popup = document.getElementById('popup-profilo');
-            if (popup) popup.classList.remove('hidden');
+            document.getElementById('popup-profilo').classList.remove('hidden');
             const displayNome = document.getElementById('player-display-name').innerText;
             const displayGenere = document.getElementById('player-display-role').innerText;
             document.getElementById('edit-nome').value = displayNome.replace(" (Tu)", "");
             document.getElementById('edit-genere').value = displayGenere;
         }
         function chiudiPopupProfilo() {
-            const popup = document.getElementById('popup-profilo');
-            if (popup) popup.classList.add('hidden');
+            document.getElementById('popup-profilo').classList.add('hidden');
         }
     </script>
 
@@ -258,7 +255,6 @@
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Configurazione delle credenziali Firebase del progetto di Stage
         const firebaseConfig = {
             apiKey: "AIzaSyDJeMeCgX5MfwWH8Dyok44d7XKacLGFiBc",
             authDomain: "brescia-quest-1ddda.firebaseapp.com",
@@ -434,13 +430,13 @@
         window.entraNelGioco = function(nome, genere, xp, livello, datiMonumenti) {
             document.getElementById('schermata-login').classList.add('hidden');
             document.getElementById('schermata-recupero').classList.add('hidden');
-           
+
             document.getElementById('player-display-name').innerText = nome;
             document.getElementById('player-display-role').innerText = genere;
             document.getElementById('avatar-icon').innerText = (genere === "Esploratore") ? "🧑‍🚀" : "👩‍🚀";
             document.getElementById('livello-txt').innerText = livello;
             document.getElementById('xp-txt').innerText = xp;
-           
+
             const percentuale = (xp / 300) * 100;
             document.getElementById('xp-bar').style.width = `${percentuale}%`;
 
@@ -515,8 +511,8 @@
 
         window.condividiCodiceAmico = function() {
             if (!utenteCorrenteId) return;
-            const testoCondivisione = `Unisciti alla mia squadra su Brescia Quest! 🎮 Usa il mio Codice Squadra per scalare la classifica insieme: ${utenteCorrenteId}`;
-           
+            const testoCondivisione = `Unisciti alla mia squadra su Brescia Quest!\n🎮 Usa il mio Codice Squadra per scalare la classifica insieme: ${utenteCorrenteId}`;
+
             if (navigator.share) {
                 navigator.share({
                     title: 'Brescia Quest',
@@ -554,11 +550,13 @@
             }
         }
 
+        // Rimosso lo spazio vuoto errato dentro la stringa di rimozione ID amico
         window.rimuoviAmico = async function(idAmico) {
             if (!confirm("Sei sicuro di voler rimuovere questo amico dalla tua classifica?")) return;
             try {
-                await updateDoc(doc(db, "utenti", utenteCorrenteId), { amici: arrayRemove(idAmico) });
-                await updateDoc(doc(db, "utenti", idAmico), { amici: arrayRemove(utenteCorrenteId) });
+                const idPulito = idAmico.trim();
+                await updateDoc(doc(db, "utenti", utenteCorrenteId), { amici: arrayRemove(idPulito) });
+                await updateDoc(doc(db, "utenti", idPulito), { amici: arrayRemove(utenteCorrenteId) });
                 window.aggiornaElencoClassificaAmici();
             } catch (e) {
                 console.error(e);
@@ -619,7 +617,7 @@
 
                     const riga = document.createElement('div');
                     riga.className = `p-3 rounded-xl flex justify-between items-center border ${isMe ? 'bg-yellow-950/30 border-yellow-500/70' : 'bg-gray-700/40 border-gray-700'}`;
-                   
+
                     riga.innerHTML = `
                         <div class="flex items-center gap-2">
                             <span class="font-mono font-bold text-sm text-gray-400 w-5">${badgePiazzamento}</span>
@@ -645,6 +643,9 @@
                 console.error(e);
             }
         }
+
+        // Rendiamo disponibili le funzioni del modulo Firebase allo scope globale dell'applicazione
+        window.salvaProgressoSuCloud = salvaProgressoSuCloud;
     </script>
 </body>
 </html>
