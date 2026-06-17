@@ -154,26 +154,41 @@ function calcolaDistanza(lat1, lon1, lat2, lon2) {
 
     return R * c; 
 }
+// 1. Crea una lista (coda) vuota all'esterno per accumulare i popup
+let codaPopup = [];
 
 // --- MECCANICA DI GIOCO SBLOCCO REGISTRATO SU CLOUD ---
 function controllaProssimita(userLat, userLng) {
+    // Ripristiniamo il ciclo corretto che mancava!
     monumenti.forEach(m => {
         if (!m.scoperto) {
             const distanza = calcolaDistanza(userLat, userLng, m.lat, m.lng);
             
-            // Rimesso a 50km come volevi per i tuoi test rapidi!
+            // Il tuo raggio di 50km per i test da PC
             if (distanza <= 50000) { 
                 m.scoperto = true;
-                assegnaXP(100);
+                assegnaXP(100); // Questo invierà anche i dati a Firebase
                 
-                // Mostra il popup grafico solo se NON siamo al primissimo caricamento silente
-                if (!primoAvvioGps) {
-                    mostraPopupScoperta(m);
-                }
+                // Mettiamo il monumento in coda per il popup grafico
+                codaPopup.push(m);
             }
         }
     });
+
     aggiornaMappaELista();
+
+    // Se ci sono monumenti sbloccati nella coda E la schermata non è già occupata da un popup, mostra il primo!
+    if (codaPopup.length > 0 && document.getElementById('popup-scoperta').classList.contains('hidden')) {
+        mostraProssimoPopupDallaCoda();
+    }
+}
+
+// Funzione di supporto per estrarre e mostrare il primo popup disponibile
+function mostraProssimoPopupDallaCoda() {
+    if (codaPopup.length === 0) return;
+    
+    const monumentoDaMostrare = codaPopup[0]; // Prende il primo della lista
+    mostraPopupScoperta(monumentoDaMostrare);
 }
 
 // --- ASSEGNAZIONE PUNTEGGIO E LIVELLI CON INVIO A FIREBASE ---
@@ -190,7 +205,7 @@ function assegnaXP(punti) {
     const percentuale = (playerXP / xpPerLivello) * 100;
     document.getElementById('xp-bar').style.width = `${percentuale}%`;
 
-    // ☁️ Salva i nuovi progressi su Firebase in tempo reale!
+    // ☁️ Salva su Firebase usando la funzione globale dell'index.html
     if (typeof window.salvaProgressoSuCloud === 'function') {
         window.salvaProgressoSuCloud(playerXP, playerLevel, monumenti);
     }
@@ -202,6 +217,16 @@ function mostraPopupScoperta(m) {
     document.getElementById('popup-scoperta').classList.remove('hidden');
 }
 
+// Modifichiamo la chiusura: quando clicchi, scarta il popup vecchio e passa al successivo!
 function chiudiPopup() {
     document.getElementById('popup-scoperta').classList.add('hidden');
+
+    codaPopup.shift(); // Elimina il popup appena visto dalla lista
+
+    // Se ci sono altri obiettivi sbloccati che aspettano, mostra il prossimo dopo un istante
+    if (codaPopup.length > 0) {
+        setTimeout(() => {
+            mostraProssimoPopupDallaCoda();
+        }, 200);
+    }
 }
