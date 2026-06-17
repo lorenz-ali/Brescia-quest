@@ -14,15 +14,19 @@
         #map { flex-grow: 1; width: 100%; z-index: 1; }
         
         /* GERARCHIA LIVELLI (Z-INDEX) */
-        #popup-scoperta, #popup-profilo { z-index: 10000 !important; }
+        #popup-scoperta, #popup-profilo, #popup-amici { z-index: 10000 !important; }
         #wishlist-sidebar { z-index: 9000 !important; }
-        #btn-wishlist { z-index: 8500 !important; }
+        #btn-wishlist, #btn-amici { z-index: 8500 !important; }
     </style>
 </head>
 <body class="bg-gray-900 text-white font-sans flex flex-col h-screen overflow-hidden">
 
     <button id="btn-wishlist" onclick="toggleWishlist()" class="fixed bottom-6 right-6 md:bottom-auto md:top-36 md:right-6 bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold p-4 rounded-full shadow-2xl transition-all cursor-pointer text-xl flex items-center justify-center hidden">
         📋 <span class="text-xs ml-1 font-bold">Wishlist</span>
+    </button>
+
+    <button id="btn-amici" onclick="apriPopupAmici()" class="fixed bottom-6 left-6 bg-blue-500 hover:bg-blue-400 text-white font-bold p-4 rounded-full shadow-2xl transition-all cursor-pointer text-xl flex items-center justify-center hidden">
+        👥 <span class="text-xs ml-1 font-bold">Amici</span>
     </button>
 
     <div id="wishlist-sidebar" class="fixed top-0 right-0 h-full w-72 bg-gray-950 border-l border-gray-800 transition-transform duration-300 ease-in-out overflow-y-auto p-6 shadow-2xl translate-x-full">
@@ -77,7 +81,7 @@
                 <div>
                     <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Seleziona Genere Avatar</label>
                     <select id="login-genere" required class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
-                        <option value="" disabled selected>Scegli il tuo genere...</option>
+                        <option value="" disabled selected>Scegli il tuo stile...</option>
                         <option value="Esploratore">Esploratore 🧑‍🚀</option>
                         <option value="Esploratrice">Esploratrice 👩‍🚀</option>
                     </select>
@@ -110,6 +114,39 @@
         </div>
     </div>
 
+    <div id="popup-amici" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden">
+        <div class="bg-gray-800 p-5 rounded-2xl max-w-md w-full border-2 border-blue-500 shadow-2xl flex flex-col max-h-[85vh]">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-lg font-bold text-blue-400">👥 Clan & Amici</h3>
+                <button onclick="chiudiPopupAmici()" class="text-gray-400 hover:text-white text-lg cursor-pointer">✕</button>
+            </div>
+
+            <div class="bg-gray-900 p-2 rounded-xl border border-gray-700 mb-3 flex justify-between items-center text-xs">
+                <div>
+                    <span class="text-gray-400 block font-bold uppercase text-[10px]">Il tuo Codice Squadra:</span>
+                    <span id="mio-codice-txt" class="font-mono font-semibold text-yellow-400 tracking-wider">Caricamento...</span>
+                </div>
+                <div class="flex gap-1">
+                    <button onclick="copiaCodiceAmico()" class="bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded text-white font-bold cursor-pointer">📋 Copia</button>
+                    <button onclick="condividiCodiceAmico()" class="bg-yellow-600 hover:bg-yellow-500 px-2 py-1 rounded text-gray-950 font-bold cursor-pointer">🔗 Condividi</button>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Aggiungi un compagno di avventure</label>
+                <div class="flex gap-2">
+                    <input type="text" id="input-codice-amico" placeholder="Incolla il codice del tuo amico..." class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-xs focus:outline-none focus:border-blue-400 text-white font-mono">
+                    <button onclick="aggiungiAmico()" class="bg-blue-600 hover:bg-blue-500 px-3 text-xs font-bold rounded-lg text-white cursor-pointer">Aggiungi</button>
+                </div>
+            </div>
+
+            <h4 class="text-xs font-bold uppercase text-gray-400 mb-2 flex items-center gap-1">🏆 Classifica della Squadra (Tu + Amici)</h4>
+            
+            <div id="lista-amici-classifica" class="space-y-2 overflow-y-auto flex-grow pr-1 text-xs">
+                </div>
+        </div>
+    </div>
+
     <div id="popup-profilo" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden">
         <div class="bg-gray-800 p-6 rounded-2xl max-w-sm w-full border-2 border-yellow-500 shadow-2xl">
             <div class="flex justify-between items-center mb-4">
@@ -123,7 +160,7 @@
                     <input type="text" id="edit-nome" maxlength="12" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm focus:outline-none focus:border-yellow-400 text-white">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Modifica Genere Avatar</label>
+                    <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Modifica Stile Avatar</label>
                     <select id="edit-genere" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm focus:outline-none focus:border-yellow-400 text-white">
                         <option value="Esploratore">Esploratore 🧑‍🚀</option>
                         <option value="Esploratrice">Esploratrice 👩‍🚀</option>
@@ -189,7 +226,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDJeMeCgX5MfwWH8Dyok44d7XKacLGFiBc",
@@ -205,6 +242,7 @@
         const db = getFirestore(app);
 
         let utenteCorrenteId = null;
+        let datiUtenteLocale = null;
         let isAuthProcessing = false;
 
         // --- INTERUTTORE GRAFICO PER I MODULI DI LOG IN / REGISTRAZIONE ---
@@ -227,7 +265,7 @@
             }
         }
 
-        // --- LOGICA DI ACCESSO (LOGIN DIRETTO REALE) ---
+        // --- LOGICA DI ACCESSO ---
         window.gestisciAccedi = async function(event) {
             event.preventDefault();
             if (isAuthProcessing) return;
@@ -254,7 +292,7 @@
             }
         }
 
-        // --- LOGICA DI REGISTRAZIONE ACCOUNT NUOVO (UGUALE A PRIMA) ---
+        // --- LOGICA DI REGISTRAZIONE ---
         window.gestisciRegistrazione = async function(event) {
             event.preventDefault();
             if (isAuthProcessing) return;
@@ -277,7 +315,10 @@
                     genere: genere,
                     xp: 0,
                     livello: 1,
-                    monumenti: statoMonumenti
+                    monumenti: statoMonumenti,
+                    amici: [],
+                    status: "online",
+                    ultimoAccesso: new Date().toISOString()
                 });
 
                 alert("📧 Ti abbiamo inviato una mail di conferma! Clicca sul link ricevuto per attivare il tuo account e poi effettua l'accesso.");
@@ -289,7 +330,7 @@
             }
         }
 
-        // --- SISTEMA DI RECUPERO PASSWORD SU SCHERMATA SEPARATA ---
+        // --- SISTEMA DI RECUPERO PASSWORD ---
         window.mostraRecuperoPassword = function() {
             document.getElementById('schermata-login').classList.add('hidden');
             document.getElementById('schermata-recupero').classList.remove('hidden');
@@ -313,24 +354,39 @@
             }
         }
 
-        // --- FUNZIONE DI SUPPORTO PER SCARICARE I DATI ---
+        // --- FUNZIONE DI SUPPORTO PER SCARICARE I DATI E AGGIORNARE STATUS ---
         async function caricaEAvviaGioco(user) {
             utenteCorrenteId = user.uid;
             localStorage.setItem('giocatoreEmail', user.email);
+            document.getElementById('mio-codice-txt').innerText = user.uid;
 
-            const docSnap = await getDoc(doc(db, "utenti", user.uid));
+            // Aggiorna lo stato online e la data di ultimo accesso su Firebase
+            const timestampCorrente = new Date().toISOString();
+            
+            const userRef = doc(db, "utenti", user.uid);
+            const docSnap = await getDoc(userRef);
+
             if (docSnap.exists()) {
-                const datiSito = docSnap.data();
-                window.entraNelGioco(datiSito.nome, datiSito.genere, datiSito.xp, datiSito.livello, datiSito.monumenti);
+                await updateDoc(userRef, {
+                    status: "online",
+                    ultimoAccesso: timestampCorrente
+                });
+                datiUtenteLocale = docSnap.data();
+                datiUtenteLocale.amici = datiUtenteLocale.amici || [];
+                window.entraNelGioco(datiUtenteLocale.nome, datiUtenteLocale.genere, datiUtenteLocale.xp, datiUtenteLocale.livello, datiUtenteLocale.monumenti);
             } else {
                 const statoMonumenti = (typeof monumenti !== 'undefined') ? monumenti.map(m => ({ nome: m.nome, scoperto: false })) : [];
-                await setDoc(doc(db, "utenti", user.uid), {
+                datiUtenteLocale = {
                     nome: "Esploratore",
                     genere: "Esploratore",
                     xp: 0,
                     livello: 1,
-                    monumenti: statoMonumenti
-                });
+                    monumenti: statoMonumenti,
+                    amici: [],
+                    status: "online",
+                    ultimoAccesso: timestampCorrente
+                };
+                await setDoc(userRef, datiUtenteLocale);
                 window.entraNelGioco("Esploratore", "Esploratore", 0, 1, statoMonumenti);
             }
             isAuthProcessing = false;
@@ -377,21 +433,196 @@
             }
 
             document.getElementById('btn-wishlist').classList.remove('hidden');
+            document.getElementById('btn-amici').classList.remove('hidden');
 
             if (typeof initGioco === 'function') {
                 initGioco();
             }
         }
 
-        // --- SALVATAGGIO CLOUD ---
+        // --- GESTIONE COPIA E CONDIVISIONE CODICE AMICO ---
+        window.copiaCodiceAmico = function() {
+            if (!utenteCorrenteId) return;
+            navigator.clipboard.writeText(utenteCorrenteId);
+            alert("📋 Codice copiato negli appunti! Invialo ai tuoi amici.");
+        }
+
+        window.condividiCodiceAmico = function() {
+            if (!utenteCorrenteId) return;
+            const testoCondivisione = `Unisciti alla mia squadra su Brescia Quest! 🎮 Usa il mio Codice Squadra per scalare la classifica insieme: ${utenteCorrenteId}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Brescia Quest',
+                    text: testoCondivisione
+                }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(testoCondivisione);
+                alert("🔗 Link stile Monopoly GO generato e copiato! Incollalo dove vuoi per condividerlo.");
+            }
+        }
+
+        // --- AGGIUNGI AMICO ---
+        window.aggiungiAmico = async function() {
+            const codiceAmico = document.getElementById('input-codice-amico').value.trim();
+            if (!codiceAmico) return;
+            if (codiceAmico === utenteCorrenteId) {
+                alert("❌ Non puoi aggiungere te stesso come amico!");
+                return;
+            }
+
+            try {
+                const amicoSnap = await getDoc(doc(db, "utenti", codiceAmico));
+                if (!amicoSnap.exists()) {
+                    alert("❌ Nessun giocatore trovato con questo codice. Controlla e riprova.");
+                    return;
+                }
+
+                // Aggiorna sul database dell'utente corrente
+                await updateDoc(doc(db, "utenti", utenteCorrenteId), {
+                    amici: arrayUnion(codiceAmico)
+                });
+                
+                // Aggrega anche nel senso opposto (amicizia bi-direzionale automatica)
+                await updateDoc(doc(db, "utenti", codiceAmico), {
+                    amici: arrayUnion(utenteCorrenteId)
+                });
+
+                alert(`🤝 Compagno aggiunto con successo!`);
+                document.getElementById('input-codice-amico').value = "";
+                aggiornaElencoClassificaAmici();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // --- RIMUOVI AMICO ---
+        window.rimuoviAmico = async function(idAmico) {
+            if (!confirm("Sei sicuro di voler rimuovere questo amico dalla tua classifica?")) return;
+            try {
+                await updateDoc(doc(db, "utenti", utenteCorrenteId), { amici: arrayRemove(idAmico) });
+                await updateDoc(doc(db, "utenti", idAmico), { amici: arrayRemove(utenteCorrenteId) });
+                aggiornaElencoClassificaAmici();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // --- CALCOLO DELLA CLASSIFICA E RENDER SULL'INTERFACCIA ---
+        async function aggiornaElencoClassificaAmici() {
+            const container = document.getElementById('lista-amici-classifica');
+            if (!container || !utenteCorrenteId) return;
+            container.innerHTML = "<p class='text-gray-400 animate-pulse text-center py-4'>Sincronizzazione punteggi...</p>";
+
+            try {
+                // Scarica i dati aggiornati del player
+                const mioSnap = await getDoc(doc(db, "utenti", utenteCorrenteId));
+                if (!mioSnap.exists()) return;
+                const mieiDati = mioSnap.data();
+                const listaIdAmici = mieiDati.amici || [];
+
+                let partecipanti = [];
+                // Aggiungiamo te stesso alla classifica
+                partecipanti.push({
+                    id: utenteCorrenteId,
+                    nome: mieiDati.nome + " (Tu)",
+                    livello: mieiDati.livello,
+                    xp: mieiDati.xp,
+                    status: "online",
+                    ultimoAccesso: mieiDati.ultimoAccesso
+                });
+
+                // Scarica i dati reali di ciascun amico inserito
+                for (let idAmico of listaIdAmici) {
+                    const snapAmico = await getDoc(doc(db, "utenti", idAmico));
+                    if (snapAmico.exists()) {
+                        const dAmico = snapAmico.data();
+                        partecipanti.push({
+                            id: idAmico,
+                            nome: dAmico.nome,
+                            livello: dAmico.livello,
+                            xp: dAmico.xp,
+                            status: dAmico.status || "offline",
+                            ultimoAccesso: dAmico.ultimoAccesso
+                        });
+                    }
+                }
+
+                // Ordina la classifica per Livello descrescente, e in caso di parità per punti XP decrescenti
+                partecipanti.sort((a, b) => {
+                    if (b.livello !== a.livello) return b.livello - a.livello;
+                    return b.xp - a.xp;
+                });
+
+                container.innerHTML = "";
+                partecipanti.forEach((p, index) => {
+                    // Calcolo testuale dell'ultimo accesso leggibile
+                    let dataTxt = "Mai";
+                    if (p.ultimoAccesso) {
+                        const d = new Date(p.ultimoAccesso);
+                        dataTxt = d.toLocaleDateString() + " " + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    }
+
+                    const isMe = p.id === utenteCorrenteId;
+                    const badgePiazzamento = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `${index + 1}.`;
+
+                    const riga = document.createElement('div');
+                    riga.className = `p-3 rounded-xl flex justify-between items-center border ${isMe ? 'bg-yellow-950/30 border-yellow-500/70' : 'bg-gray-700/40 border-gray-700'}`;
+                    
+                    riga.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono font-bold text-sm text-gray-400 w-5">${badgePiazzamento}</span>
+                            <div>
+                                <div class="flex items-center gap-1.5">
+                                    <p class="font-bold text-white">${p.nome}</p>
+                                    <span class="w-2 h-2 rounded-full ${p.status === 'online' ? 'bg-green-500 animate-ping' : 'bg-gray-500'}" title="${p.status}"></span>
+                                </div>
+                                <p class="text-[10px] text-gray-400">Accesso: ${p.status === 'online' ? '<span class="text-green-400 font-bold">Ora</span>' : dataTxt}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="text-right">
+                                <span class="text-xs font-bold text-green-400 block font-mono">Lvl ${p.livello}</span>
+                                <span class="text-[10px] text-gray-400 block font-mono">${p.xp} XP</span>
+                            </div>
+                            ${!isMe ? `<button onclick="rimuoviAmico('${p.id}')" class="text-gray-500 hover:text-red-400 transition-colors cursor-pointer text-sm p-1">🗑️</button>` : ''}
+                        </div>
+                    `;
+                    container.appendChild(riga);
+                });
+
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = "<p class='text-red-400 text-center'>Impossibile caricare la classifica.</p>";
+            }
+        }
+
+        // --- POPUP GESTIONE APERTURA/CHIUSURA ---
+        window.apriPopupAmici = function() {
+            document.getElementById('popup-amici').classList.remove('hidden');
+            aggiornaElencoClassificaAmici();
+        }
+
+        window.chiudiPopupAmici = function() {
+            document.getElementById('popup-amici').classList.add('hidden');
+        }
+
+        // Imposta lo stato offline se chiude la scheda o si disconnette
+        window.addEventListener('beforeunload', () => {
+            if (utenteCorrenteId) {
+                updateDoc(doc(db, "utenti", utenteCorrenteId), { status: "offline" });
+            }
+        });
+
         window.salvaProgressoSuCloud = async function(nuoviXp, nuovoLivello, listaMonumentiAggiornata) {
             if (!utenteCorrenteId) return;
             const statoMonumenti = listaMonumentiAggiornata.map(m => ({ nome: m.nome, scoperto: m.scoperto }));
             try {
                 await updateDoc(doc(db, "utenti", utenteCorrenteId), {
                     xp: nuoviXp,
-                    livello: nuevoLivello,
-                    monumenti: statoMonumenti
+                    livello: nuovoLivello,
+                    monumenti: statoMonumenti,
+                    ultimoAccesso: new Date().toISOString()
                 });
                 console.log("☁️ Database Cloud Aggiornato!");
             } catch (error) {
@@ -399,50 +630,15 @@
             }
         }
 
-        // --- FUNZIONI DI INTERFACCIA ---
-        window.toggleWishlist = function() {
-            const sidebar = document.getElementById('wishlist-sidebar');
-            sidebar.classList.toggle('translate-x-full');
-        }
-
-        window.apriPopupProfilo = function() {
-            document.getElementById('edit-nome').value = document.getElementById('player-display-name').innerText;
-            document.getElementById('edit-genere').value = document.getElementById('player-display-role').innerText;
-            document.getElementById('popup-profilo').classList.remove('hidden');
-        }
-
-        window.chiudiPopupProfilo = function() {
-            document.getElementById('popup-profilo').classList.add('hidden');
-        }
-
-        window.salvaModificheProfilo = async function() {
-            const nuovoNome = document.getElementById('edit-nome').value.trim();
-            const nuovoGenere = document.getElementById('edit-genere').value;
-            
-            if (nuovoNome.length < 3) {
-                alert("Il nome deve contenere almeno 3 caratteri!");
-                return;
-            }
-
+        window.eseguiLogout = function() {
             if (utenteCorrenteId) {
-                await updateDoc(doc(db, "utenti", utenteCorrenteId), {
-                    nome: nuovoNome,
-                    genere: nuovoGenere
+                updateDoc(doc(db, "utenti", utenteCorrenteId), { status: "offline" }).then(() => {
+                    auth.signOut().then(() => {
+                        localStorage.removeItem('giocatoreEmail');
+                        window.location.reload();
+                    });
                 });
             }
-            
-            document.getElementById('player-display-name').innerText = nuovoNome;
-            document.getElementById('player-display-role').innerText = nuovoGenere;
-            document.getElementById('avatar-icon').innerText = (nuovoGenere === "Esploratore") ? "🧑‍🚀" : "👩‍🚀";
-            
-            chiudiPopupProfilo();
-        }
-
-        window.eseguiLogout = function() {
-            auth.signOut().then(() => {
-                localStorage.removeItem('giocatoreEmail');
-                window.location.reload();
-            });
         }
     </script>
 </body>
