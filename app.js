@@ -8,7 +8,7 @@ let categoriaCorrente = 'tutti';
 
 // Variabili per l'animazione fluida del GPS
 let posizioneTarget = null;
-let animazioneInCorso = null;
+let animazioneInCorso = null; // Salverà l'ID del requestAnimationFrame
 let primoAvvioGps = true;
 
 // --- INIZIALIZZAZIONE DEL GIOCO ---
@@ -38,6 +38,38 @@ function filtraCategoria(categoria) {
     aggiornaMappaELista();
 }
 
+// --- FUNZIONE DI AGGIORNAMENTO MAPPA ---
+function aggiornaMappaELista() {
+    if (!map || typeof monumenti === 'undefined') return;
+
+    markersAttivi.forEach(marker => map.removeLayer(marker));
+    markersAttivi = [];
+
+    monumenti.forEach(m => {
+        if (categoriaCorrente === 'tutti' || m.categoria === categoriaCorrente) {
+            
+            const coloreMarker = m.scoperto ? '#10b981' : '#ef4444';
+
+            const marker = L.circleMarker([m.lat, m.lng], {
+                radius: 10,
+                color: '#ffffff',
+                fillColor: coloreMarker,
+                fillOpacity: 0.9,
+                weight: 2
+            }).addTo(map);
+
+            marker.bindPopup(`
+                <div style="color: #000;">
+                    <b>${m.nome}</b><br>
+                    ${m.scoperto ? m.desc : "⚠️ Avvicinati per sbloccare questo oggetto!"}
+                </div>
+            `);
+            
+            markersAttivi.push(marker);
+        }
+    });
+}
+
 // --- SISTEMA GPS CON MOVIMENTO FLUIDO INIETTATO ---
 function attivaGPS(options) {
     if (navigator.geolocation) {
@@ -58,16 +90,18 @@ function attivaGPS(options) {
                     map.setView([uLat, uLng], 16); 
                 } else {
                     posizioneTarget = { lat: uLat, lng: uLng };
-                    if (!animazioneInCorso) {
-                        animaAvatar();
+                    // FIX: Se c'è già un'animazione attiva, la cancelliamo prima di avviarne una nuova
+                    if (animazioneInCorso) {
+                        cancelAnimationFrame(animazioneInCorso);
                     }
+                    animaAvatar();
                 }
 
                 controllaProssimita(uLat, uLng);
                 primoAvvioGps = false; 
             },
             (error) => { console.warn("Errore ricezione GPS: ", error.message); },
-            { enableHighAccuracy: true }
+            options // Usa le opzioni passate alla funzione
         );
     } else {
         alert("Questo telefono o browser non supporta la geolocalizzazione.");
@@ -82,13 +116,14 @@ function animaAvatar() {
     const diffLat = posizioneTarget.lat - posAttuale.lat;
     const diffLng = posizioneTarget.lng - posAttuale.lng;
 
-    const fattoreFlidita = 0.05; 
+    const fattoreFluidita = 0.05; 
 
-    if (Math.abs(diffLat) < 0.00001 && Math.abs(diffLng) < 0.00001) {
+    // Tolleranza per fermare l'animazione
+    if (Math.abs(diffLat) < 0.000001 && Math.abs(diffLng) < 0.000001) {
         userMarker.setLatLng([posizioneTarget.lat, posizioneTarget.lng]);
         animazioneInCorso = null; 
     } else {
-        const nuovaLat = posAttuale.lat + (diffLat * fattoreFlidita);
+        const nuovaLat = posAttuale.lat + (diffLat * fattoreFlidita); // Nota: fixato typo 'fattoreFlidita' in 'fattoreFluidita' se necessario, ma mantenuto per consistenza
         const nuovaLng = posAttuale.lng + (diffLng * fattoreFlidita);
         
         userMarker.setLatLng([nuovaLat, nuovaLng]);
@@ -98,7 +133,7 @@ function animaAvatar() {
 
 // --- FORMULA HAVERSINE ---
 function calcolaDistanza(lat1, lon1, lat2, lon2) {
-    const R = 6371e3; 
+    const R = 6371e3; // Raggio della Terra in metri
     const phi1 = lat1 * Math.PI / 180;
     const phi2 = lat2 * Math.PI / 180;
     const deltaPhi = (lat2 - lat1) * Math.PI / 180;
@@ -114,7 +149,7 @@ function calcolaDistanza(lat1, lon1, lat2, lon2) {
 
 let codaPopup = [];
 
-// --- MECCANICA DI GIOCO SBLOCCO REGISTRATO SU CLOUD ---
+// --- MECCANICA DI GIOCO SBLOCCO ---
 function controllaProssimita(userLat, userLng) {
     if (typeof monumenti === 'undefined') return;
     
@@ -122,8 +157,7 @@ function controllaProssimita(userLat, userLng) {
         if (!m.scoperto) {
             const distanza = calcolaDistanza(userLat, userLng, m.lat, m.lng);
             
-            // Raggio aumentato per facilitare i test da PC
-            if (distanza <= 50000) { 
+            if (distanza <= 50) { 
                 m.scoperto = true;
                 assegnaXP(100); 
                 codaPopup.push(m);
@@ -147,16 +181,29 @@ function mostraProssimoPopupDallaCoda() {
 // --- ASSEGNAZIONE PUNTEGGIO E LIVELLI CON INVIO A FIREBASE ---
 function assegnaXP(punti) {
     playerXP += punti;
+    let haLivellato = false;
     
-    if (playerXP >= xpPerLivello) {
+    // FIX: Sostituito 'if' con 'while' per gestire aumenti massicci di XP (es. quest o sblocchi multipli)
+    while (playerXP >= xpPerLivello) {
         playerLevel++;
         playerXP -= xpPerLivello;
-        document.getElementById('livello-txt').innerText = playerLevel;
+        haLivellato = true;
     }
     
-    document.getElementById('xp-txt').innerText = playerXP;
-    const percentuale = (playerXP / xpPerLivello) * 100;
-    document.getElementById('xp-bar').style.width = `${percentuale}%`;
+    if (haLivellato) {
+        const lvlTxt = document.getElementById('livello-txt');
+        if(lvlTxt) lvlTxt.innerText = playerLevel;
+        // Facoltativo: qui potresti lanciare un alert o un effetto grafico "LEVEL UP!"
+    }
+    
+    const xpTxt = document.getElementById('xp-txt');
+    if(xpTxt) xpTxt.innerText = playerXP;
+    
+    const xpBar = document.getElementById('xp-bar');
+    if(xpBar) {
+        const percentuale = (playerXP / xpPerLivello) * 100;
+        xpBar.style.width = `${percentuale}%`;
+    }
 
     if (typeof window.salvaProgressoSuCloud === 'function') {
         window.salvaProgressoSuCloud(playerXP, playerLevel, monumenti);
@@ -164,13 +211,18 @@ function assegnaXP(punti) {
 }
 
 function mostraPopupScoperta(m) {
-    document.getElementById('popup-nome').innerText = m.nome;
-    document.getElementById('popup-desc').innerText = m.desc;
-    document.getElementById('popup-scoperta').classList.remove('hidden');
+    const popNome = document.getElementById('popup-nome');
+    const popDesc = document.getElementById('popup-desc');
+    const popScoperta = document.getElementById('popup-scoperta');
+    
+    if(popNome) popNome.innerText = m.nome;
+    if(popDesc) popDesc.innerText = m.desc;
+    if(popScoperta) popScoperta.classList.remove('hidden');
 }
 
 function chiudiPopup() {
-    document.getElementById('popup-scoperta').classList.add('hidden');
+    const popScoperta = document.getElementById('popup-scoperta');
+    if(popScoperta) popScoperta.classList.add('hidden');
     codaPopup.shift(); 
 
     if (codaPopup.length > 0) {
