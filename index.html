@@ -22,7 +22,7 @@
 <body class="bg-gray-900 text-white font-sans flex flex-col h-screen overflow-hidden">
 
     <button id="btn-wishlist" onclick="toggleWishlist()" class="fixed bottom-6 right-6 md:bottom-auto md:top-36 md:right-6 bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold p-4 rounded-full shadow-2xl transition-all cursor-pointer text-xl flex items-center justify-center hidden">
-    📋 <span class="text-xs ml-1 font-bold">Wishlist</span>
+        📋 <span class="text-xs ml-1 font-bold">Wishlist</span>
     </button>
 
     <div id="wishlist-sidebar" class="fixed top-0 right-0 h-full w-72 bg-gray-950 border-l border-gray-800 transition-transform duration-300 ease-in-out overflow-y-auto p-6 shadow-2xl translate-x-full">
@@ -40,34 +40,36 @@
             <p class="text-gray-400 text-xs mb-6">Crea il tuo Avatar e inizia l'avventura</p>
             
             <form id="form-login" onsubmit="gestisciLogin(event)" class="text-left space-y-4">
-    <div>
-        <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Indirizzo Email</label>
-        <input type="email" id="login-email" required class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Indirizzo Email</label>
+                    <input type="email" id="login-email" required class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400">
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Password</label>
+                    <input type="password" id="login-password" required minlength="6" placeholder="Minimo 6 caratteri" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400">
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Nome del Player</label>
+                    <input type="text" id="login-nome" required minlength="3" maxlength="12" placeholder="Max 12 caratteri" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400">
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Seleziona Genere Avatar</label>
+                    <select id="login-genere" required class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400">
+                        <option value="" disabled selected>Scegli il tuo stile...</option>
+                        <option value="Esploratore">Esploratore 🧑‍🚀</option>
+                        <option value="Esploratrice">Esploratrice 👩‍🚀</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="w-full bg-yellow-500 text-gray-950 font-bold py-3 rounded-xl shadow-lg hover:bg-yellow-400 transition-colors mt-4 cursor-pointer">
+                    REGISTRATI / ACCEDI 🚀
+                </button>
+            </form>
+        </div>
     </div>
-    
-    <div>
-        <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Password</label>
-        <input type="password" id="login-password" required minlength="6" placeholder="Minimo 6 caratteri" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400">
-    </div>
-    
-    <div>
-        <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Nome del Player</label>
-        <input type="text" id="login-nome" required minlength="3" maxlength="12" placeholder="Max 12 caratteri" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400">
-    </div>
-    
-    <div>
-        <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Seleziona Genere Avatar</label>
-        <select id="login-genere" required class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400">
-            <option value="" disabled selected>Scegli il tuo stile...</option>
-            <option value="Esploratore">Esploratore 🧑‍🚀</option>
-            <option value="Esploratrice">Esploratrice 👩‍🚀</option>
-        </select>
-    </div>
-    
-    <button type="submit" class="w-full bg-yellow-500 text-gray-950 font-bold py-3 rounded-xl shadow-lg hover:bg-yellow-400 transition-colors mt-4 cursor-pointer">
-        REGISTRATI / ACCEDI 🚀
-    </button>
-</form>
 
     <div id="popup-profilo" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden">
         <div class="bg-gray-800 p-6 rounded-2xl max-w-sm w-full border-2 border-yellow-500 shadow-2xl">
@@ -145,7 +147,7 @@
     <script src="monumenti.js"></script>
     <script src="app.js"></script>
 
-<script type="module">
+    <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -164,10 +166,13 @@
         const db = getFirestore(app);
 
         let utenteCorrenteId = null;
+        let isLoggingIn = false;
 
         // --- GESTIONE REGISTRAZIONE E LOGIN ---
         window.gestisciLogin = async function(event) {
             event.preventDefault();
+            if (isLoggingIn) return;
+            isLoggingIn = true;
             
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value;
@@ -175,75 +180,90 @@
             const genere = document.getElementById('login-genere').value;
 
             try {
-                // 1. Tenta la registrazione del nuovo utente
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                
-                // 2. Invia l'email di conferma reale
-                await sendEmailVerification(user);
-                
-                // 3. Salva i dati iniziali su Firestore
-                const statoMonumenti = monumenti.map(m => ({ nome: m.nome, scoperto: false }));
+                try {
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+
+                    if (!user.emailVerified) {
+                        alert("⚠️ Il tuo indirizzo email non è ancora stato verificato! Controlla la tua casella di posta (anche nello Spam).");
+                        await auth.signOut();
+                        isLoggingIn = false;
+                        return;
+                    }
+
+                    caricaEAvviaGioco(user);
+
+                } catch (loginError) {
+                    if (loginError.code === 'auth/user-not-found' || loginError.code === 'auth/invalid-credential' || loginError.code === 'auth/wrong-password') {
+                        
+                        try {
+                            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                            const user = userCredential.user;
+                            
+                            await sendEmailVerification(user);
+                            
+                            const statoMonumenti = (typeof monumenti !== 'undefined') ? monumenti.map(m => ({ nome: m.nome, scoperto: false })) : [];
+                            await setDoc(doc(db, "utenti", user.uid), {
+                                nome: nome,
+                                genere: genere,
+                                xp: 0,
+                                livello: 1,
+                                monumenti: statoMonumenti
+                            });
+
+                            alert("📧 Ti abbiamo inviato una mail di conferma! Clicca sul link ricevuto per attivare il tuo account e poi effettua l'accesso da questa schermata.");
+                            await auth.signOut();
+                            window.location.reload();
+                        } catch (regError) {
+                            alert("❌ Errore durante la registrazione: " + regError.message);
+                            isLoggingIn = false;
+                        }
+                    } else {
+                        alert("❌ Errore d'accesso: " + loginError.message);
+                        isLoggingIn = false;
+                    }
+                }
+            } catch (error) {
+                alert("❌ Errore generale: " + error.message);
+                isLoggingIn = false;
+            }
+        }
+
+        // --- FUNZIONE DI SUPPORTO PER SCARICARE I DATI ---
+        async function caricaEAvviaGioco(user) {
+            utenteCorrenteId = user.uid;
+            localStorage.setItem('giocatoreEmail', user.email);
+
+            const docSnap = await getDoc(doc(db, "utenti", user.uid));
+            if (docSnap.exists()) {
+                const datiSito = docSnap.data();
+                window.entraNelGioco(datiSito.nome, datiSito.genere, datiSito.xp, datiSito.livello, datiSito.monumenti);
+            } else {
+                const statoMonumenti = (typeof monumenti !== 'undefined') ? monumenti.map(m => ({ nome: m.nome, scoperto: false })) : [];
                 await setDoc(doc(db, "utenti", user.uid), {
-                    nome: nome,
-                    genere: genere,
+                    nome: "Esploratore",
+                    genere: "Esploratore",
                     xp: 0,
                     livello: 1,
                     monumenti: statoMonumenti
                 });
-
-                alert("📧 Ti abbiamo inviato una mail di conferma! Clicca sul link ricevuto per attivare il tuo account e poi effettua l'accesso.");
-                await auth.signOut();
-                window.location.reload();
-
-            } catch (error) {
-                // Se l'email esiste già, l'utente sta provando a fare il Login
-                if (error.code === 'auth/email-already-in-use') {
-                    try {
-                        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                        const user = userCredential.user;
-
-                        // 🛡️ CONTROLLO ANTISCAM: La mail è confermata?
-                        if (!user.emailVerified) {
-                            alert("⚠️ Il tuo indirizzo email non è ancora stato verificato! Controlla la tua casella di posta (guarda anche in Spam).");
-                            await auth.signOut();
-                            return;
-                        }
-
-                        // Se è verificata, carica i dati di gioco
-                        utenteCorrenteId = user.uid;
-                        localStorage.setItem('giocatoreEmail', email);
-
-                        const docSnap = await getDoc(doc(db, "utenti", user.uid));
-                        if (docSnap.exists()) {
-                            const datiSito = docSnap.data();
-                            alert(`👋 Bentornato ${datiSito.nome}! Progressi sincronizzati.`);
-                            entraNelGioco(datiSito.nome, datiSito.genere, datiSito.xp, datiSito.livello, datiSito.monumenti);
-                        }
-                    } catch (loginError) {
-                        alert("❌ Password errata o errore d'accesso: " + loginError.message);
-                    }
-                } else {
-                    alert("❌ Errore durante la registrazione: " + error.message);
-                }
+                window.entraNelGioco("Esploratore", "Esploratore", 0, 1, statoMonumenti);
             }
+            isLoggingIn = false;
         }
 
-        // --- CONTROLLO SESSIONE ATTIVA AL CARICAMENTO PAGINA (UNIFICATO) ---
+        // --- CONTROLLO SESSIONE ATTIVA AL CARICAMENTO (UNIFICATO) ---
         window.addEventListener('DOMContentLoaded', () => {
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
                     if (user.emailVerified) {
-                        utenteCorrenteId = user.uid;
-                        const docSnap = await getDoc(doc(db, "utenti", user.uid));
-                        if (docSnap.exists()) {
-                            const datiSito = docSnap.data();
-                            entraNelGioco(datiSito.nome, datiSito.genere, datiSito.xp, datiSito.livello, datiSito.monumenti);
-                        }
+                        caricaEAvviaGioco(user);
                     } else {
-                        // Se l'utente non è verificato, viene disconnesso forzatamente
                         await auth.signOut();
+                        document.getElementById('schermata-login').classList.remove('hidden');
                     }
+                } else {
+                    document.getElementById('schermata-login').classList.remove('hidden');
                 }
             });
         });
@@ -271,7 +291,6 @@
                 });
             }
 
-            // Mostra il bottone wishlist solo dopo l'accesso
             document.getElementById('btn-wishlist').classList.remove('hidden');
 
             if (typeof initGioco === 'function') {
@@ -341,3 +360,5 @@
             });
         }
     </script>
+</body>
+</html>
