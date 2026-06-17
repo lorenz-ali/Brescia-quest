@@ -1,233 +1,167 @@
-// --- VARIABILI DI STATO DEL GIOCO ---
+// --- VARIABILI DI STATO ---
 let playerXP = 0;
 let playerLevel = 1;
 const xpPerLivello = 300;
 let map, userMarker;
 let markersAttivi = []; 
 let categoriaCorrente = 'tutti';
-
-// Variabili per l'animazione fluida del GPS
 let posizioneTarget = null;
-let animazioneInCorso = null; // Salverà l'ID del requestAnimationFrame
-let primoAvvioGps = true;
+let animazioneInCorso = null;
+let codaPopup = [];
 
-// --- INIZIALIZZAZIONE DEL GIOCO ---
+// --- GESTIONE INTERFACCIA (Sidebar e Bottoni) ---
+function toggleWishlist() {
+    const sidebar = document.getElementById('wishlist-sidebar');
+    if (sidebar) sidebar.classList.toggle('translate-x-full');
+}
+
+function toggleAmici() {
+    const popup = document.getElementById('popup-amici');
+    if (popup) popup.classList.toggle('hidden');
+}
+
+// --- INIZIALIZZAZIONE ---
 function initGioco() {
-    if (map) {
-        console.log("Mappa già inizializzata. Salto la ricreazione.");
-        aggiornaMappaELista(); 
-        return; 
-    }
-
+    if (map) return aggiornaMappaELista();
+    
+    // Inizializzazione Leaflet
     map = L.map('map').setView([45.5415, 10.2012], 14);
-
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap'
     }).addTo(map);
 
     aggiornaMappaELista();
-
-    const bAmici = document.getElementById('btn-amici');
-    if(bAmici) bAmici.classList.remove('hidden');
-
     attivaGPS({ enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
 }
 
-function filtraCategoria(categoria) {
-    categoriaCorrente = categoria;
-    aggiornaMappaELista();
-}
-
-// --- FUNZIONE DI AGGIORNAMENTO MAPPA ---
+// --- LOGICA MAPPA E WISHLIST ---
 function aggiornaMappaELista() {
     if (!map || typeof monumenti === 'undefined') return;
-
-    markersAttivi.forEach(marker => map.removeLayer(marker));
+    
+    // Pulizia marker precedenti
+    markersAttivi.forEach(m => map.removeLayer(m));
     markersAttivi = [];
 
+    // Disegno marker
     monumenti.forEach(m => {
         if (categoriaCorrente === 'tutti' || m.categoria === categoriaCorrente) {
-            
-            const coloreMarker = m.scoperto ? '#10b981' : '#ef4444';
-
             const marker = L.circleMarker([m.lat, m.lng], {
                 radius: 10,
-                color: '#ffffff',
-                fillColor: coloreMarker,
+                fillColor: m.scoperto ? '#10b981' : '#ef4444',
+                color: '#fff',
                 fillOpacity: 0.9,
                 weight: 2
             }).addTo(map);
-
-            marker.bindPopup(`
-                <div style="color: #000;">
-                    <b>${m.nome}</b><br>
-                    ${m.scoperto ? m.desc : "⚠️ Avvicinati per sbloccare questo oggetto!"}
-                </div>
-            `);
             
+            marker.bindPopup(`<b>${m.nome}</b><br>${m.scoperto ? m.desc : "⚠️ Avvicinati!"}`);
             markersAttivi.push(marker);
         }
     });
+    
+    // Aggiorna sidebar wishlist
+    aggiornaWishlist();
 }
 
-// --- SISTEMA GPS CON MOVIMENTO FLUIDO INIETTATO ---
+function aggiornaWishlist() {
+    const lista = document.getElementById('lista-monumenti');
+    if (!lista || typeof monumenti === 'undefined') return;
+    
+    lista.innerHTML = ""; 
+    monumenti.filter(m => !m.scoperto).forEach(m => {
+        const div = document.createElement('div');
+        div.className = "bg-gray-800 p-3 rounded-lg border border-gray-700";
+        div.innerHTML = `<div class="font-bold text-yellow-400">${m.nome}</div>
+                         <div class="text-[10px] text-gray-400">${m.desc}</div>`;
+        lista.appendChild(div);
+    });
+}
+
+// --- GPS E ANIMAZIONE ---
 function attivaGPS(options) {
-    if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(
-            (position) => {
-                const uLat = position.coords.latitude;
-                const uLng = position.coords.longitude;
-
-                if (!userMarker) {
-                    userMarker = L.circleMarker([uLat, uLng], { 
-                        radius: 12, 
-                        color: '#ffffff', 
-                        fillColor: '#3b82f6', 
-                        fillOpacity: 0.9,
-                        weight: 3
-                    }).addTo(map);
-                    
-                    map.setView([uLat, uLng], 16); 
-                } else {
-                    posizioneTarget = { lat: uLat, lng: uLng };
-                    // FIX: Se c'è già un'animazione attiva, la cancelliamo prima di avviarne una nuova
-                    if (animazioneInCorso) {
-                        cancelAnimationFrame(animazioneInCorso);
-                    }
-                    animaAvatar();
-                }
-
-                controllaProssimita(uLat, uLng);
-                primoAvvioGps = false; 
-            },
-            (error) => { console.warn("Errore ricezione GPS: ", error.message); },
-            options // Usa le opzioni passate alla funzione
-        );
-    } else {
-        alert("Questo telefono o browser non supporta la geolocalizzazione.");
-    }
+    if (!navigator.geolocation) return alert("Geolocalizzazione non supportata");
+    
+    navigator.geolocation.watchPosition((pos) => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        
+        if (!userMarker) {
+            userMarker = L.circleMarker([lat, lng], { radius: 12, fillColor: '#3b82f6', color: '#fff', weight: 3 }).addTo(map);
+            map.setView([lat, lng], 16);
+        } else {
+            posizioneTarget = { lat, lng };
+            if (animazioneInCorso) cancelAnimationFrame(animazioneInCorso);
+            animaAvatar();
+        }
+        controllaProssimita(lat, lng);
+    }, (err) => console.error(err), options);
 }
 
 function animaAvatar() {
     if (!posizioneTarget || !userMarker) return;
+    const pos = userMarker.getLatLng();
+    const dLat = posizioneTarget.lat - pos.lat;
+    const dLng = posizioneTarget.lng - pos.lng;
+    const fattoreFluidita = 0.05;
 
-    const posAttuale = userMarker.getLatLng();
-    
-    const diffLat = posizioneTarget.lat - posAttuale.lat;
-    const diffLng = posizioneTarget.lng - posAttuale.lng;
-
-    const fattoreFluidita = 0.05; 
-
-    // Tolleranza per fermare l'animazione
-    if (Math.abs(diffLat) < 0.000001 && Math.abs(diffLng) < 0.000001) {
+    if (Math.abs(dLat) < 0.000001 && Math.abs(dLng) < 0.000001) {
         userMarker.setLatLng([posizioneTarget.lat, posizioneTarget.lng]);
-        animazioneInCorso = null; 
+        animazioneInCorso = null;
     } else {
-        const nuovaLat = posAttuale.lat + (diffLat * fattoreFlidita); // Nota: fixato typo 'fattoreFlidita' in 'fattoreFluidita' se necessario, ma mantenuto per consistenza
-        const nuovaLng = posAttuale.lng + (diffLng * fattoreFlidita);
-        
-        userMarker.setLatLng([nuovaLat, nuovaLng]);
+        userMarker.setLatLng([pos.lat + dLat * fattoreFluidita, pos.lng + dLng * fattoreFluidita]);
         animazioneInCorso = requestAnimationFrame(animaAvatar);
     }
 }
 
-// --- FORMULA HAVERSINE ---
-function calcolaDistanza(lat1, lon1, lat2, lon2) {
-    const R = 6371e3; // Raggio della Terra in metri
-    const phi1 = lat1 * Math.PI / 180;
-    const phi2 = lat2 * Math.PI / 180;
-    const deltaPhi = (lat2 - lat1) * Math.PI / 180;
-    const deltaLambda = (lon2 - lon1) * Math.PI / 180;
-
-    const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
-              Math.cos(phi1) * Math.cos(phi2) *
-              Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    return R * c; 
-}
-
-let codaPopup = [];
-
-// --- MECCANICA DI GIOCO SBLOCCO ---
-function controllaProssimita(userLat, userLng) {
-    if (typeof monumenti === 'undefined') return;
-    
-    monumenti.forEach(m => {
-        if (!m.scoperto) {
-            const distanza = calcolaDistanza(userLat, userLng, m.lat, m.lng);
-            
-            if (distanza <= 50) { 
-                m.scoperto = true;
-                assegnaXP(100); 
-                codaPopup.push(m);
-            }
-        }
-    });
-
-    aggiornaMappaELista();
-
-    if (codaPopup.length > 0 && document.getElementById('popup-scoperta').classList.contains('hidden')) {
-        mostraProssimoPopupDallaCoda();
-    }
-}
-
-function mostraProssimoPopupDallaCoda() {
-    if (codaPopup.length === 0) return;
-    const monumentoDaMostrare = codaPopup[0];
-    mostraPopupScoperta(monumentoDaMostrare);
-}
-
-// --- ASSEGNAZIONE PUNTEGGIO E LIVELLI CON INVIO A FIREBASE ---
+// --- LOGICA DI GIOCO ---
 function assegnaXP(punti) {
     playerXP += punti;
-    let haLivellato = false;
-    
-    // FIX: Sostituito 'if' con 'while' per gestire aumenti massicci di XP (es. quest o sblocchi multipli)
     while (playerXP >= xpPerLivello) {
         playerLevel++;
         playerXP -= xpPerLivello;
-        haLivellato = true;
-    }
-    
-    if (haLivellato) {
-        const lvlTxt = document.getElementById('livello-txt');
-        if(lvlTxt) lvlTxt.innerText = playerLevel;
-        // Facoltativo: qui potresti lanciare un alert o un effetto grafico "LEVEL UP!"
     }
     
     const xpTxt = document.getElementById('xp-txt');
-    if(xpTxt) xpTxt.innerText = playerXP;
-    
     const xpBar = document.getElementById('xp-bar');
-    if(xpBar) {
-        const percentuale = (playerXP / xpPerLivello) * 100;
-        xpBar.style.width = `${percentuale}%`;
-    }
+    const lvlTxt = document.getElementById('livello-txt');
+    
+    if(lvlTxt) lvlTxt.innerText = playerLevel;
+    if(xpTxt) xpTxt.innerText = playerXP;
+    if(xpBar) xpBar.style.width = `${(playerXP / xpPerLivello) * 100}%`;
+    
+    if (window.salvaProgressoSuCloud) window.salvaProgressoSuCloud(playerXP, playerLevel, monumenti);
+}
 
-    if (typeof window.salvaProgressoSuCloud === 'function') {
-        window.salvaProgressoSuCloud(playerXP, playerLevel, monumenti);
+function controllaProssimita(lat, lng) {
+    monumenti.forEach(m => {
+        if (!m.scoperto && calcolaDistanza(lat, lng, m.lat, m.lng) <= 50) {
+            m.scoperto = true;
+            assegnaXP(100);
+            codaPopup.push(m);
+        }
+    });
+    
+    aggiornaMappaELista();
+
+    if (codaPopup.length > 0 && !document.getElementById('popup-scoperta').classList.contains('hidden') === false) {
+        mostraPopupScoperta(codaPopup[0]);
     }
+}
+
+function calcolaDistanza(lat1, lon1, lat2, lon2) {
+    const R = 6371000;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) * Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 function mostraPopupScoperta(m) {
-    const popNome = document.getElementById('popup-nome');
-    const popDesc = document.getElementById('popup-desc');
-    const popScoperta = document.getElementById('popup-scoperta');
-    
-    if(popNome) popNome.innerText = m.nome;
-    if(popDesc) popDesc.innerText = m.desc;
-    if(popScoperta) popScoperta.classList.remove('hidden');
+    document.getElementById('popup-nome').innerText = m.nome;
+    document.getElementById('popup-desc').innerText = m.desc;
+    document.getElementById('popup-scoperta').classList.remove('hidden');
 }
 
 function chiudiPopup() {
-    const popScoperta = document.getElementById('popup-scoperta');
-    if(popScoperta) popScoperta.classList.add('hidden');
-    codaPopup.shift(); 
-
-    if (codaPopup.length > 0) {
-        setTimeout(() => {
-            mostraProssimoPopupDallaCoda();
-        }, 200);
-    }
+    document.getElementById('popup-scoperta').classList.add('hidden');
+    codaPopup.shift();
+    if (codaPopup.length > 0) setTimeout(() => mostraPopupScoperta(codaPopup[0]), 200);
 }
