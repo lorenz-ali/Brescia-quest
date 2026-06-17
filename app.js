@@ -1,4 +1,4 @@
-// --- VARIABILI DI STATO DEL GIOCO ---
+ // --- VARIABILI DI STATO DEL GIOCO ---
 let playerXP = 0;
 let playerLevel = 1;
 const xpPerLivello = 300;
@@ -12,7 +12,16 @@ let animazioneInCorso = null;
 let primoAvvioGps = true; // Impedisce ai popup a catena di saltare fuori al primissimo avvio
 
 // --- INIZIALIZZAZIONE DEL GIOCO ---
+
 function initGioco() {
+    // 🛡️ CONTROLLO DI SICUREZZA: Se la mappa è già stata creata, fermati qui ed evita l'errore!
+    if (map) {
+        console.log("Mappa già inizializzata. Salto la ricreazione.");
+        aggiornaMappaELista(); // Ci assicuriamo solo che i PIN siano aggiornati
+        return; 
+    }
+
+    // Se non esiste, la crea normalmente come prima
     map = L.map('map').setView([45.5415, 10.2012], 14);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
