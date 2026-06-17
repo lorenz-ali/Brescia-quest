@@ -13,14 +13,12 @@ let primoAvvioGps = true;
 
 // --- INIZIALIZZAZIONE DEL GIOCO ---
 function initGioco() {
-    // 🛡️ CONTROLLO DI SICUREZZA: Se la mappa è già stata creata, si ferma ed evita l'errore!
     if (map) {
         console.log("Mappa già inizializzata. Salto la ricreazione.");
-        aggiornaMappaELista(); // Ci assicuriamo solo che i PIN siano aggiornati
+        aggiornaMappaELista(); 
         return; 
     }
 
-    // Se non esiste, la crea normalmente come prima
     map = L.map('map').setView([45.5415, 10.2012], 14);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -29,12 +27,12 @@ function initGioco() {
 
     aggiornaMappaELista();
 
-    // Mostra esplicitamente entrambi i pulsanti di controllo HUD di gioco inferiore
     const bAmici = document.getElementById('btn-amici');
     if(bAmici) bAmici.classList.remove('hidden');
 
     attivaGPS({ enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
 }
+
 function filtraCategoria(categoria) {
     categoriaCorrente = categoria;
     aggiornaMappaELista();
@@ -118,6 +116,8 @@ let codaPopup = [];
 
 // --- MECCANICA DI GIOCO SBLOCCO REGISTRATO SU CLOUD ---
 function controllaProssimita(userLat, userLng) {
+    if (typeof monumenti === 'undefined') return;
+    
     monumenti.forEach(m => {
         if (!m.scoperto) {
             const distanza = calcolaDistanza(userLat, userLng, m.lat, m.lng);
