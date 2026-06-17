@@ -145,141 +145,141 @@
     <script src="monumenti.js"></script>
     <script src="app.js"></script>
 
-    <script type="module">
+<script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-// 🎯 Aggiunta l'importazione di sendEmailVerification
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyDJeMeCgX5MfwWH8Dyok44d7XKacLGFiBc",
-    authDomain: "brescia-quest-1ddda.firebaseapp.com",
-    projectId: "brescia-quest-1ddda",
-    storageBucket: "brescia-quest-1ddda.firebasestorage.app",
-    messagingSenderId: "57771185253",
-    appId: "1:57771185253:web:92273ba5ed320363a0228c"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyDJeMeCgX5MfwWH8Dyok44d7XKacLGFiBc",
+            authDomain: "brescia-quest-1ddda.firebaseapp.com",
+            projectId: "brescia-quest-1ddda",
+            storageBucket: "brescia-quest-1ddda.firebasestorage.app",
+            messagingSenderId: "57771185253",
+            appId: "1:57771185253:web:92273ba5ed320363a0228c"
+        };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-let utenteCorrenteId = null;
+        let utenteCorrenteId = null;
 
-window.gestisciLogin = async function(event) {
-    event.preventDefault();
-    
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value; // Prende la vera password dell'utente
-    const nome = document.getElementById('login-nome').value.trim();
-    const genere = document.getElementById('login-genere').value;
+        // --- GESTIONE REGISTRAZIONE E LOGIN ---
+        window.gestisciLogin = async function(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const nome = document.getElementById('login-nome').value.trim();
+            const genere = document.getElementById('login-genere').value;
 
-    try {
-        // 1. Tenta la registrazione del nuovo utente
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        
-        // 2. Invia l'email di conferma reale all'indirizzo inserito
-        await sendEmailVerification(user);
-        
-        // 3. Salva i dati iniziali su Firestore
-        const statoMonumenti = monumenti.map(m => ({ nome: m.nome, scoperto: false }));
-        await setDoc(doc(db, "utenti", user.uid), {
-            nome: nome,
-            genere: genere,
-            xp: 0,
-            livello: 1,
-            monumenti: statoMonumenti
-        });
-
-        alert("📧 Ti abbiamo inviato una mail di conferma! Clicca sul link ricevuto per attivare il tuo account e poi effettua l'accesso.");
-        
-        // Disconnetti l'utente finché non si è verificato
-        await auth.signOut();
-        window.location.reload();
-
-    } catch (error) {
-        // Se l'email esiste già, l'utente sta provando a fare il Login
-        if (error.code === 'auth/email-already-in-use') {
             try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                // 1. Tenta la registrazione del nuovo utente
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
+                
+                // 2. Invia l'email di conferma reale
+                await sendEmailVerification(user);
+                
+                // 3. Salva i dati iniziali su Firestore
+                const statoMonumenti = monumenti.map(m => ({ nome: m.nome, scoperto: false }));
+                await setDoc(doc(db, "utenti", user.uid), {
+                    nome: nome,
+                    genere: genere,
+                    xp: 0,
+                    livello: 1,
+                    monumenti: statoMonumenti
+                });
 
-                // 🛡️ CONTROLLO ANTISCAM: La mail è confermata?
-                if (!user.emailVerified) {
-                    alert("⚠️ Il tuo indirizzo email non è ancora stato verificato! Controlla la tua casella di posta.");
-                    await auth.signOut();
-                    return;
+                alert("📧 Ti abbiamo inviato una mail di conferma! Clicca sul link ricevuto per attivare il tuo account e poi effettua l'accesso.");
+                await auth.signOut();
+                window.location.reload();
+
+            } catch (error) {
+                // Se l'email esiste già, l'utente sta provando a fare il Login
+                if (error.code === 'auth/email-already-in-use') {
+                    try {
+                        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                        const user = userCredential.user;
+
+                        // 🛡️ CONTROLLO ANTISCAM: La mail è confermata?
+                        if (!user.emailVerified) {
+                            alert("⚠️ Il tuo indirizzo email non è ancora stato verificato! Controlla la tua casella di posta (guarda anche in Spam).");
+                            await auth.signOut();
+                            return;
+                        }
+
+                        // Se è verificata, carica i dati di gioco
+                        utenteCorrenteId = user.uid;
+                        localStorage.setItem('giocatoreEmail', email);
+
+                        const docSnap = await getDoc(doc(db, "utenti", user.uid));
+                        if (docSnap.exists()) {
+                            const datiSito = docSnap.data();
+                            alert(`👋 Bentornato ${datiSito.nome}! Progressi sincronizzati.`);
+                            entraNelGioco(datiSito.nome, datiSito.genere, datiSito.xp, datiSito.livello, datiSito.monumenti);
+                        }
+                    } catch (loginError) {
+                        alert("❌ Password errata o errore d'accesso: " + loginError.message);
+                    }
+                } else {
+                    alert("❌ Errore durante la registrazione: " + error.message);
                 }
+            }
+        }
 
-                // Se è verificata, carica i dati di gioco
-                utenteCorrenteId = user.uid;
-                localStorage.setItem('giocatoreEmail', email);
-
-                const docSnap = await getDoc(doc(db, "utenti", user.uid));
-                if (docSnap.exists()) {
-                    const datiSito = docSnap.data();
-                    alert(`👋 Bentornato ${datiSito.nome}! Progressi sincronizzati.`);
-                    entraNelGioco(datiSito.nome, datiSito.genere, datiSito.xp, datiSito.livello, datiSito.monumenti);
+        // --- CONTROLLO SESSIONE ATTIVA AL CARICAMENTO PAGINA (UNIFICATO) ---
+        window.addEventListener('DOMContentLoaded', () => {
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    if (user.emailVerified) {
+                        utenteCorrenteId = user.uid;
+                        const docSnap = await getDoc(doc(db, "utenti", user.uid));
+                        if (docSnap.exists()) {
+                            const datiSito = docSnap.data();
+                            entraNelGioco(datiSito.nome, datiSito.genere, datiSito.xp, datiSito.livello, datiSito.monumenti);
+                        }
+                    } else {
+                        // Se l'utente non è verificato, viene disconnesso forzatamente
+                        await auth.signOut();
+                    }
                 }
-            } catch (loginError) {
-                alert("❌ Password errata o errore d'accesso: " + loginError.message);
-            }
-        } else {
-            alert("❌ Errore durante la registrazione: " + error.message);
-        }
-    }
-}
-
-// Modifichiamo anche il controllo automatico al caricamento pagina
-window.addEventListener('DOMContentLoaded', () => {
-    auth.onAuthStateChanged(async (user) => {
-        // Entra automaticamente solo se l'utente esiste ED è verificato
-        if (user && user.emailVerified) {
-            utenteCorrenteId = user.uid;
-            const docSnap = await getDoc(doc(db, "utenti", user.uid));
-            if (docSnap.exists()) {
-                const datiSito = docSnap.data();
-                entraNelGioco(datiSito.nome, datiSito.genere, datiSito.xp, datiSito.livello, datiSito.monumenti);
-            }
-        } else if (user && !user.emailVerified) {
-            // Se la sessione è rimasta attiva ma non è verificato, lo buttiamo fuori
-            await auth.signOut();
-        }
-    });
-});
-
-       function entraNelGioco(nome, genere, xp, livello, datiMonumenti) {
-    document.getElementById('schermata-login').classList.add('hidden');
-    
-    document.getElementById('player-display-name').innerText = nome;
-    document.getElementById('player-display-role').innerText = genere;
-    document.getElementById('avatar-icon').innerText = (genere === "Esploratore") ? "🧑‍🚀" : "👩‍🚀";
-    document.getElementById('livello-txt').innerText = livello;
-    document.getElementById('xp-txt').innerText = xp;
-    
-    const percentuale = (xp / 300) * 100;
-    document.getElementById('xp-bar').style.width = `${percentuale}%`;
-
-    if (typeof playerXP !== 'undefined') playerXP = xp;
-    if (typeof playerLevel !== 'undefined') playerLevel = livello;
-
-    if (typeof monumenti !== 'undefined' && datiMonumenti) {
-        monumenti.forEach(m => {
-            const salvato = datiMonumenti.find(s => s.nome === m.nome);
-            if (salvato) m.scoperto = salvato.scoperto;
+            });
         });
-    }
 
-    // 🎯 MODIFICA QUI: Rende visibile il bottone della wishlist appena entri nel gioco!
-    document.getElementById('btn-wishlist').classList.remove('hidden');
+        // --- ENTRA NEL GIOCO ---
+        window.entraNelGioco = function(nome, genere, xp, livello, datiMonumenti) {
+            document.getElementById('schermata-login').classList.add('hidden');
+            
+            document.getElementById('player-display-name').innerText = nome;
+            document.getElementById('player-display-role').innerText = genere;
+            document.getElementById('avatar-icon').innerText = (genere === "Esploratore") ? "🧑‍🚀" : "👩‍🚀";
+            document.getElementById('livello-txt').innerText = livello;
+            document.getElementById('xp-txt').innerText = xp;
+            
+            const percentuale = (xp / 300) * 100;
+            document.getElementById('xp-bar').style.width = `${percentuale}%`;
 
-    if (typeof initGioco === 'function') {
-        initGioco();
-    }
-}
-        
+            if (typeof playerXP !== 'undefined') playerXP = xp;
+            if (typeof playerLevel !== 'undefined') playerLevel = livello;
 
+            if (typeof monumenti !== 'undefined' && datiMonumenti) {
+                monumenti.forEach(m => {
+                    const salvato = datiMonumenti.find(s => s.nome === m.nome);
+                    if (salvato) m.scoperto = salvato.scoperto;
+                });
+            }
+
+            // Mostra il bottone wishlist solo dopo l'accesso
+            document.getElementById('btn-wishlist').classList.remove('hidden');
+
+            if (typeof initGioco === 'function') {
+                initGioco();
+            }
+        }
+
+        // --- SALVATAGGIO CLOUD ---
         window.salvaProgressoSuCloud = async function(nuoviXp, nuovoLivello, listaMonumentiAggiornata) {
             if (!utenteCorrenteId) return;
             const statoMonumenti = listaMonumentiAggiornata.map(m => ({ nome: m.nome, scoperto: m.scoperto }));
@@ -295,20 +295,7 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Auto-login al boot se la sessione Firebase è attiva o se abbiamo l'email salvata
-        window.addEventListener('DOMContentLoaded', () => {
-            auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    utenteCorrenteId = user.uid;
-                    const docSnap = await getDoc(doc(db, "utenti", user.uid));
-                    if (docSnap.exists()) {
-                        const datiSito = docSnap.data();
-                        entraNelGioco(datiSito.nome, datiSito.genere, datiSito.xp, datiSito.livello, datiSito.monumenti);
-                    }
-                }
-            });
-        });
-
+        // --- FUNZIONI DI INTERFACCIA ---
         window.toggleWishlist = function() {
             const sidebar = document.getElementById('wishlist-sidebar');
             sidebar.classList.toggle('translate-x-full');
@@ -354,5 +341,3 @@ window.addEventListener('DOMContentLoaded', () => {
             });
         }
     </script>
-</body>
-</html>
