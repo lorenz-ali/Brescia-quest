@@ -881,6 +881,58 @@
             // Mostra la mappa per default
             apriSchermata('mappa');
         }
+
+        // ============================================
+        // FUNZIONE MOSTRA LISTA WISHLIST IN SCHERMATA
+        // ============================================
+        window.mostraListaWishlistInSchermata = function() {
+            const contenitore = document.getElementById("lista-monumenti");
+            if (!contenitore || typeof monumenti === 'undefined') return;
+
+            contenitore.innerHTML = "";
+
+            monumenti.forEach(m => {
+                const giaScoperto = m.scoperto || false;
+                const item = document.createElement("div");
+                
+                // Colore del bordo/sfondo differenziato ma entrambi visibili
+                item.className = `p-3 rounded-xl border flex flex-col gap-2 transition-all ${
+                    giaScoperto 
+                        ? 'bg-green-950/30 border-green-600/50' 
+                        : 'bg-gray-800/40 border-gray-700/50'
+                }`;
+                
+                let iconaCat = m.categoria === 'monumento' ? '🏛️' : (m.categoria === 'parco' ? '🌳' : '🛒');
+                let descrizioneLuogo = m.desc ? m.desc : "Nessuna descrizione disponibile.";
+                let categoriaLabel = m.categoria === 'monumento' ? 'Monumento' : (m.categoria === 'parco' ? 'Parco' : 'Supermercato');
+
+                item.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-start gap-2 flex-1">
+                            <span class="text-lg">${iconaCat}</span>
+                            <div class="flex-1">
+                                <p class="font-bold text-sm ${giaScoperto ? 'text-green-400' : 'text-gray-200'}">${m.nome}</p>
+                                <p class="text-[10px] text-gray-500">${categoriaLabel}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-[10px] text-gray-400 px-2 py-1.5 bg-gray-900/50 rounded-lg">
+                        ${descrizioneLuogo}
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <p class="text-[10px] text-gray-500 font-mono label-distanza">
+                            ${giaScoperto ? '✅ SCOPERTO' : '📍 DA TROVARE'}
+                        </p>
+                        <span class="text-xs font-mono ${giaScoperto ? 'text-green-400' : 'text-yellow-400'} bg-gray-900/70 px-2 py-0.5 rounded-md">
+                            ${giaScoperto ? '✓' : '+100 XP'}
+                        </span>
+                    </div>
+                `;
+                contenitore.appendChild(item);
+            });
+        }
     </script>
 </body>
 </html>
