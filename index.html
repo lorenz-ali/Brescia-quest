@@ -76,8 +76,22 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Password</label>
-                    <input type="password" id="login-password" required minlength="6" maxlength="15" placeholder="6-15 caratteri, 1 Maiuscola, 1 Numero, 1 Speciale" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
-                    <p class="text-[10px] text-gray-400 mt-1 leading-tight">La password deve contenere da 6 a 15 caratteri, almeno una lettera maiuscola, un numero e un carattere speciale (es. !, @, #, $, ?, etc.).</p>
+                    <input type="password" id="login-password" required placeholder="Inserisci la tua password" oninput="validaPasswordInTempoReale()" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
+                    
+                    <div class="mt-2 space-y-1 text-[11px]">
+                        <div id="req-lunghezza" class="text-red-400 flex items-center gap-1 transition-colors duration-200">
+                            <span id="icon-lunghezza">✕</span> Tra 6 e 15 caratteri
+                        </div>
+                        <div id="req-maiuscola" class="text-red-400 flex items-center gap-1 transition-colors duration-200">
+                            <span id="icon-maiuscola">✕</span> Almeno una lettera maiuscola
+                        </div>
+                        <div id="req-numero" class="text-red-400 flex items-center gap-1 transition-colors duration-200">
+                            <span id="icon-numero">✕</span> Almeno un numero (0-9)
+                        </div>
+                        <div id="req-speciale" class="text-red-400 flex items-center gap-1 transition-colors duration-200">
+                            <span id="icon-speciale">✕</span> Almeno un carattere speciale (!, @, #, $, ?, etc.)
+                        </div>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Nome del Player</label>
@@ -256,6 +270,63 @@
         function chiudiPopupProfilo() {
             document.getElementById('popup-profilo').classList.add('hidden');
         }
+
+        // AGGIUNTO: Funzione di controllo e feedback grafico in tempo reale dei requisiti della password
+        function validaPasswordInTempoReale() {
+            const password = document.getElementById('login-password').value;
+
+            // Elementi grafici e icone
+            const reqLunghezza = document.getElementById('req-lunghezza');
+            const iconLunghezza = document.getElementById('icon-lunghezza');
+            const reqMaiuscola = document.getElementById('req-maiuscola');
+            const iconMaiuscola = document.getElementById('icon-maiuscola');
+            const reqNumero = document.getElementById('req-numero');
+            const iconNumero = document.getElementById('icon-numero');
+            const reqSpeciale = document.getElementById('req-speciale');
+            const iconSpeciale = document.getElementById('icon-speciale');
+
+            // Verifiche espressioni regolari
+            const vLunghezza = password.length >= 6 && password.length <= 15;
+            const vMaiuscola = /[A-Z]/.test(password);
+            const vNumero = /\d/.test(password);
+            const vSpeciale = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+            // Aggiornamento grafico Lunghezza
+            if (vLunghezza) {
+                reqLunghezza.className = "text-green-400 flex items-center gap-1";
+                iconLunghezza.innerText = "✓";
+            } else {
+                reqLunghezza.className = "text-red-400 flex items-center gap-1";
+                iconLunghezza.innerText = "✕";
+            }
+
+            // Aggiornamento grafico Lettera Maiuscola
+            if (vMaiuscola) {
+                reqMaiuscola.className = "text-green-400 flex items-center gap-1";
+                iconMaiuscola.innerText = "✓";
+            } else {
+                reqMaiuscola.className = "text-red-400 flex items-center gap-1";
+                iconMaiuscola.innerText = "✕";
+            }
+
+            // Aggiornamento grafico Numero
+            if (vNumero) {
+                reqNumero.className = "text-green-400 flex items-center gap-1";
+                iconNumero.innerText = "✓";
+            } else {
+                reqNumero.className = "text-red-400 flex items-center gap-1";
+                iconNumero.innerText = "✕";
+            }
+
+            // Aggiornamento grafico Carattere Speciale
+            if (vSpeciale) {
+                reqSpeciale.className = "text-green-400 flex items-center gap-1";
+                iconSpeciale.innerText = "✓";
+            } else {
+                reqSpeciale.className = "text-red-400 flex items-center gap-1";
+                iconSpeciale.innerText = "✕";
+            }
+        }
     </script>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -338,12 +409,11 @@
             const nome = document.getElementById('login-nome').value.trim();
             const genere = document.getElementById('login-genere').value;
 
-            // MODIFICATO: Controllo di validazione avanzato lato JavaScript tramite Espressione Regolare (Regex)
-            // Controlla: lunghezza 6-15, almeno 1 maiuscola, almeno 1 numero, almeno 1 speciale tra quelli indicati
+            // Controllo bloccante definitivo prima dell'invio a Firebase
             const regexPassword = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,15}$/;
 
             if (!regexPassword.test(password)) {
-                alert("❌ Password non valida!\n\nLa password deve rispettare questi requisiti:\n• Lunghezza compresa tra 6 e 15 caratteri\n• Almeno una lettera MAIUSCOLA\n• Almeno un numero (0-9)\n• Almeno un carattere speciale (es. !, @, #, $, ?, :, ;, .)");
+                alert("❌ Impossibile procedere! La password inserita non rispetta tutti i requisiti indicati in basso.");
                 return;
             }
 
@@ -501,7 +571,7 @@
             try {
                 await updateDoc(doc(db, "utenti", utenteCorrenteId), {
                     nome: nuovoNome,
-                    genere: nuovoGenere
+                    genere: nuevoGenere
                 });
                 alert( "✨ Profilo aggiornato con successo!" );
                 chiudiPopupProfilo();
