@@ -1,21 +1,13 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brescia Quest - Il Gioco Esplorativo</title>
-
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<!DOCTYPE html> <html lang="it"> <head>  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brescia Quest - Il Gioco Esplorativo</title> <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
-    <style>
-        #map { flex-grow: 1; width: 100%; z-index: 1; }
-        header { position: relative; z-index: 99999 !important; }
-        #popup-scoperta, #popup-profilo, #popup-amici, #popup-impostazioni-hub, #popup-impostazioni-generali { z-index: 100000 !important; }
+ <style>     #map { flex-grow: 1; width: 100%; z-index: 1; }  header { position: relative; z-index: 99999 !important; }  #popup-scoperta, #popup-profilo, #popup-amici, #popup-impostazioni-hub, #popup-impostazioni-generali { z-index: 100000 !important; }
         #wishlist-sidebar { z-index: 90000 !important; }
         #btn-wishlist, #btn-amici { z-index: 85000 !important; }
         #bottom-nav { z-index: 30000 !important; }
         #schermata-amici, #schermata-wishlist { z-index: 20000 !important; }
+        #schermata-login { z-index: 999999 !important; }
         
         .schermata-full {
             position: fixed;
@@ -34,23 +26,131 @@
         .schermata-full.hidden {
             display: none !important;
         }
+
+        #login-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999998;
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-bottom: 2px solid #eab308;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            height: 56px;
+        }
+
+        #login-bar.visible {
+            display: flex !important;
+        }
+
+        #login-bar .login-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #login-bar .login-info .avatar-small {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            overflow: hidden;
+        }
+
+        #login-bar .login-info .avatar-small img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #login-bar .login-info .user-name {
+            font-weight: bold;
+            color: #fbbf24;
+            font-size: 13px;
+        }
+
+        #login-bar .login-info .user-role {
+            font-size: 10px;
+            color: #9ca3af;
+        }
+
+        #login-bar .logout-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        #login-bar .logout-btn:hover {
+            background: #b91c1c;
+        }
+
+        #map-container {
+            height: calc(100vh - 64px);
+            width: 100%;
+        }
+
+        #map-container.with-login-bar {
+            margin-top: 56px;
+            height: calc(100vh - 56px - 64px);
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        #gioco-header {
+            display: none !important;
+        }
+
+        .msg-visualizzato {
+            opacity: 0.7;
+            border-color: #4ade80 !important;
+        }
+        .msg-non-visualizzato {
+            border-color: #fbbf24 !important;
+            border-width: 2px !important;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white font-sans flex flex-col h-screen overflow-hidden">
 
-    <!-- WISHLIST SIDEBAR (nascosta) -->
-    <div id="wishlist-sidebar" class="fixed top-0 right-0 h-full w-72 bg-gray-950 border-l border-gray-800 transition-transform duration-300 ease-in-out overflow-y-auto p-6 shadow-2xl translate-x-full" style="z-index: 999999 !important;">
-        <div class="flex flex-col gap-4 mb-6 mt-2 relative" style="z-index: 1000000 !important;">
-            <button id="wishlist-close-btn" onclick="toggleWishlist();" class="w-full bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold py-2.5 px-4 rounded-xl text-xs transition-colors border-none tracking-wider block text-center shadow-lg cursor-pointer relative" style="z-index: 1000005 !important;">
-                ✕ CHIUDI ELENCO
-            </button>
-            <h2 id="wishlist-title" class="text-xl font-bold text-yellow-400 mt-2">⚔️ La mia Wishlist</h2>
+    <!-- BARRA DI LOGIN -->
+    <div id="login-bar">
+        <div class="login-info">
+            <div id="avatar-login-bar" class="avatar-small">
+                <span>👤</span>
+            </div>
+            <div>
+                <div id="login-bar-name" class="user-name">Player</div>
+                <div id="login-bar-role" class="user-role">Esploratore</div>
+            </div>
+            <div style="margin-left: 8px; font-size: 11px; color: #4ade80;">
+                <span id="login-bar-level">Lv.1</span> | <span id="login-bar-xp">0 XP</span>
+            </div>
         </div>
-        <div id="lista-monumenti" class="space-y-3"></div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <button onclick="window.apriPopupHubImpostazioni()" class="text-gray-400 hover:text-white text-sm cursor-pointer" title="Impostazioni">⚙️</button>
+            <button onclick="window.eseguiLogout()" class="logout-btn">🚪 Logout</button>
+        </div>
     </div>
 
     <!-- SCHERMATA LOGIN -->
-    <div id="schermata-login" class="fixed inset-0 bg-gray-950 z-50 flex flex-col justify-center items-center p-6">
+    <div id="schermata-login" class="fixed inset-0 bg-gray-950 z-[999999] flex flex-col justify-center items-center p-6">
         <div class="max-w-sm w-full bg-gray-800 p-6 rounded-2xl border-2 border-yellow-500 shadow-xl text-center">
             <span class="text-6xl animate-pulse">🎮</span>
             <h2 class="text-2xl font-bold text-yellow-400 mt-2">BRESCIA QUEST</h2>
@@ -61,7 +161,7 @@
                 <button id="tab-registrati" onclick="switchAuthTab('registrati')" class="w-1/2 py-2 text-sm font-bold rounded-lg text-gray-400 hover:text-white transition-colors cursor-pointer">REGISTRATI</button>
             </div>
 
-            <form id="form-accedi" onsubmit="gestisciAccedi(event)" class="text-left space-y-4">
+            <form id="form-accedi" onsubmit="window.gestisciAccedi(event)" class="text-left space-y-4">
                 <div>
                     <label id="login-accedi-email-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Indirizzo Email</label>
                     <input type="email" id="accedi-email" required class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
@@ -78,7 +178,7 @@
                 </button>
             </form>
 
-            <form id="form-registrati" onsubmit="gestisciRegistrazione(event)" class="text-left space-y-4 hidden">
+            <form id="form-registrati" onsubmit="window.gestisciRegistrazione(event)" class="text-left space-y-4 hidden">
                 <div>
                     <label id="register-email-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Indirizzo Email</label>
                     <input type="email" id="login-email" required class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
@@ -122,13 +222,13 @@
     </div>
 
     <!-- SCHERMATA RECUPERO PASSWORD -->
-    <div id="schermata-recupero" class="fixed inset-0 bg-gray-950 z-50 flex flex-col justify-center items-center p-6 hidden">
+    <div id="schermata-recupero" class="fixed inset-0 bg-gray-950 z-[999999] flex flex-col justify-center items-center p-6 hidden">
         <div class="max-w-sm w-full bg-gray-800 p-6 rounded-2xl border-2 border-yellow-500 shadow-xl text-center">
             <span class="text-5xl">🔑</span>
             <h2 id="recovery-title" class="text-2xl font-bold text-yellow-400 mt-2">RECUPERO PASSWORD</h2>
             <p id="recovery-subtitle" class="text-gray-400 text-xs mb-6">Inserisci la tua email per ricevere il link di reimpostazione</p>
 
-            <form id="form-recupero" onsubmit="gestisciRecupero(event)" class="text-left space-y-4">
+            <form id="form-recupero" onsubmit="window.gestisciRecupero(event)" class="text-left space-y-4">
                 <div>
                     <label id="recovery-email-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Indirizzo Email dell'account</label>
                     <input type="email" id="recupero-email" required class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
@@ -143,19 +243,18 @@
         </div>
     </div>
 
-    <!-- POPUP IMPOSTAZIONI HUB -->
-    <div id="popup-impostazioni-hub" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden">
+    <!-- POPUP IMPOSTAZIONI -->
+    <div id="popup-impostazioni-hub" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden" style="z-index: 9999999 !important;">
         <div class="bg-gray-800 p-6 rounded-2xl max-w-sm w-full border-2 border-yellow-500 shadow-2xl">
             <div class="flex justify-between items-center mb-4">
                 <h3 id="hub-title" class="text-lg font-bold text-yellow-400">⚙️ Impostazioni profilo</h3>
-                <button onclick="chiudiPopupHubImpostazioni()" class="text-gray-400 hover:text-white text-lg cursor-pointer">✕</button>
+                <button onclick="window.chiudiPopupHubImpostazioni()" class="text-gray-400 hover:text-white text-lg cursor-pointer">✕</button>
             </div>
-
             <div class="space-y-3">
-                <button id="hub-general-btn" onclick="apriPopupImpostazioniGenerali()" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-xl transition-colors cursor-pointer text-sm text-left px-4">
+                <button id="hub-general-btn" onclick="window.apriPopupImpostazioniGenerali()" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-xl transition-colors cursor-pointer text-sm text-left px-4">
                     🌐 Impostazioni generali
                 </button>
-                <button id="hub-avatar-btn" onclick="apriPopupAvatarCustomization()" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-xl transition-colors cursor-pointer text-sm text-left px-4">
+                <button id="hub-avatar-btn" onclick="window.apriPopupAvatarCustomization()" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-xl transition-colors cursor-pointer text-sm text-left px-4">
                     🧑‍🚀 Personalizzazione avatar
                 </button>
             </div>
@@ -163,13 +262,12 @@
     </div>
 
     <!-- POPUP IMPOSTAZIONI GENERALI -->
-    <div id="popup-impostazioni-generali" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden">
+    <div id="popup-impostazioni-generali" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden" style="z-index: 9999999 !important;">
         <div class="bg-gray-800 p-6 rounded-2xl max-w-sm w-full border-2 border-yellow-500 shadow-2xl">
             <div class="flex justify-between items-center mb-4">
                 <h3 id="general-title" class="text-lg font-bold text-yellow-400">🌐 Impostazioni generali</h3>
-                <button onclick="ritornaAlMenuImpostazioni()" class="text-gray-400 hover:text-white text-lg cursor-pointer">✕</button>
+                <button onclick="window.ritornaAlMenuImpostazioni()" class="text-gray-400 hover:text-white text-lg cursor-pointer">✕</button>
             </div>
-
             <div class="space-y-4">
                 <div>
                     <label id="general-language-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Lingua</label>
@@ -178,36 +276,31 @@
                         <option value="en">English</option>
                     </select>
                 </div>
-
-                <button id="btn-salva-impostazioni-generali" type="button" onclick="salvaImpostazioniGenerali()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm">
+                <button id="btn-salva-impostazioni-generali" type="button" onclick="window.salvaImpostazioniGenerali()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm">
                     Salva impostazioni
                 </button>
-
-                <button id="general-back-btn" type="button" onclick="ritornaAlMenuImpostazioni()" class="w-full bg-transparent border border-gray-600 text-gray-400 hover:text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm text-center block">
+                <button id="general-back-btn" type="button" onclick="window.ritornaAlMenuImpostazioni()" class="w-full bg-transparent border border-gray-600 text-gray-400 hover:text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm text-center block">
                     Indietro
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- POPUP PERSONALIZZAZIONE AVATAR -->
-    <div id="popup-profilo" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden">
+    <!-- POPUP PROFILO (SENZA LOGOUT) -->
+    <div id="popup-profilo" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden" style="z-index: 9999999 !important;">
         <div class="bg-gray-800 p-6 rounded-2xl max-w-sm w-full border-2 border-yellow-500 shadow-2xl">
             <div class="flex justify-between items-center mb-4">
                 <h3 id="profile-title" class="text-lg font-bold text-yellow-400">🧑‍🚀 Personalizzazione avatar</h3>
-                <button onclick="chiudiPopupProfilo()" class="text-gray-400 hover:text-white text-lg cursor-pointer">✕</button>
+                <button onclick="window.chiudiPopupProfilo()" class="text-gray-400 hover:text-white text-lg cursor-pointer">✕</button>
             </div>
-
             <div class="space-y-4">
-                <button id="profile-back-btn" type="button" onclick="ritornaAlMenuImpostazioni()" class="w-full bg-transparent border border-gray-600 text-gray-400 hover:text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm text-center block">
+                <button id="profile-back-btn" type="button" onclick="window.ritornaAlMenuImpostazioni()" class="w-full bg-transparent border border-gray-600 text-gray-400 hover:text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm text-center block">
                     Torna al menu impostazioni
                 </button>
-
                 <div>
                     <label id="profile-name-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Modifica Nome</label>
                     <input type="text" id="edit-nome" maxlength="12" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm focus:outline-none focus:border-yellow-400 text-white">
                 </div>
-
                 <div>
                     <label id="profile-gender-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Modifica Genere Avatar</label>
                     <select id="edit-genere" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm focus:outline-none focus:border-yellow-400 text-white">
@@ -215,7 +308,6 @@
                         <option value="Esploratrice">Esploratrice 👩‍🚀</option>
                     </select>
                 </div>
-
                 <div>
                     <label id="profile-photo-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Foto Profilo</label>
                     <div class="flex items-center gap-3 mb-2">
@@ -223,147 +315,133 @@
                         <input type="file" id="edit-foto-file" accept="image/*" class="text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-yellow-500 file:text-gray-950 hover:file:bg-yellow-400 cursor-pointer">
                     </div>
                 </div>
-
-                <button id="btn-salva-profilo" type="button" onclick="salvaModificheProfilo()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm">
+                <button id="btn-salva-profilo" type="button" onclick="window.salvaModificheProfilo()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm">
                     Salva Modifiche
-                </button>
-
-                <hr class="border-gray-700 my-2">
-
-                <button id="profile-logout-btn" onclick="eseguiLogout()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm flex items-center justify-center gap-1">
-                    🚪 Esci dal Gioco (Logout)
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- HEADER GIOCO -->
-    <header id="gioco-header" class="bg-gray-800 p-4 shadow-lg flex justify-between items-center z-10 hidden">
-        <div onclick="apriPopupHubImpostazioni()" class="flex items-center gap-2 cursor-pointer hover:bg-gray-700 p-1.5 rounded-xl transition-colors">
-            <div id="avatar-container" class="text-2xl bg-gray-700 p-1.5 rounded-full select-none overflow-hidden flex items-center justify-center w-10 h-10">👤</div>
-            <div>
-                <h1 id="player-display-name" class="text-md font-bold text-yellow-400">Player</h1>
-                <p id="player-display-role" class="text-xs text-gray-400">Esploratore</p>
-            </div>
-        </div>
-        <div class="text-right">
-            <div class="text-sm font-semibold text-green-400"><span id="level-label">LIVELLO</span>: <span id="livello-txt">1</span></div>
-            <div class="text-xs text-gray-300"><span id="xp-txt">0</span> / 300 XP</div>
-            <div class="w-24 bg-gray-700 h-1.5 rounded-full mt-1 overflow-hidden">
-                <div id="xp-bar" class="bg-green-500 h-full transition-all duration-500" style="width: 0%"></div>
-            </div>
-        </div>
-    </header>
+    <!-- MAPPA CONTAINER -->
+    <div id="map-container">
+        <main id="map"></main>
+    </div>
 
-    <!-- NAV FILTRI -->
+    <!-- FILTRI -->
     <nav id="filtri-nav" class="bg-gray-850 p-2 flex gap-2 justify-center z-10 border-b border-gray-800 hidden">
-        <button id="btn-filtro-tutti" onclick="filtraCategoria('tutti')" class="bg-gray-700 hover:bg-gray-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer outline outline-3 outline-yellow-400">🌍 Tutti</button>
-        <button id="btn-filtro-monumento" onclick="filtraCategoria('monumento')" class="bg-amber-700 hover:bg-amber-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer">🏛️ Monumenti</button>
-        <button id="btn-filtro-parco" onclick="filtraCategoria('parco')" class="bg-green-700 hover:bg-green-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer">🌳 Parchi</button>
-        <button id="btn-filtro-supermercato" onclick="filtraCategoria('supermercato')" class="bg-blue-700 hover:bg-blue-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer">🛒 Spesa</button>
+        <button id="btn-filtro-tutti" onclick="window.filtraCategoria('tutti')" class="bg-gray-700 hover:bg-gray-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer outline outline-3 outline-yellow-400">🌍 Tutti</button>
+        <button id="btn-filtro-monumento" onclick="window.filtraCategoria('monumento')" class="bg-amber-700 hover:bg-amber-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer">🏛️ Monumenti</button>
+        <button id="btn-filtro-parco" onclick="window.filtraCategoria('parco')" class="bg-green-700 hover:bg-green-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer">🌳 Parchi</button>
+        <button id="btn-filtro-supermercato" onclick="window.filtraCategoria('supermercato')" class="bg-blue-700 hover:bg-blue-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer">🛒 Spesa</button>
     </nav>
 
-    <!-- MAPPA -->
-    <main id="map"></main>
-
     <!-- POPUP SCOPERTA -->
-    <div id="popup-scoperta" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden">
+    <div id="popup-scoperta" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden" style="z-index: 9999999 !important;">
         <div class="bg-gray-800 p-6 rounded-2xl max-w-sm w-full text-center border-2 border-yellow-400 shadow-2xl">
             <span class="text-5xl">🏆</span>
             <h3 id="popup-badge-title" class="text-2xl font-bold text-yellow-400 mt-2">BADGE SBLOCCATO!</h3>
             <p id="popup-nome" class="text-xl font-semibold mt-1">Nome Posto</p>
             <p id="popup-desc" class="text-gray-300 text-sm mt-3 px-2"></p>
             <div class="mt-4 text-green-400 font-bold font-mono text-lg">+100 XP GUADAGNATI!</div>
-            <button id="popup-continue-btn" onclick="chiudiPopup()" class="mt-5 w-full bg-yellow-500 text-gray-950 font-bold py-2 rounded-xl cursor-pointer hover:bg-yellow-400">
+            <button id="popup-continue-btn" onclick="window.chiudiPopupScoperta()" class="mt-5 w-full bg-yellow-500 text-gray-950 font-bold py-2 rounded-xl cursor-pointer hover:bg-yellow-400">
                 Continua la Caccia
             </button>
         </div>
     </div>
 
-    <!-- POPUP PROFILO -->
-    <div id="popup-profilo" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden">
-        <div class="bg-gray-800 p-6 rounded-2xl max-w-sm w-full border-2 border-yellow-500 shadow-2xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-yellow-400">⚙️ Gestione Profilo</h3>
-                <button onclick="chiudiPopupProfilo()" class="text-gray-400 hover:text-white text-lg cursor-pointer"> ✕ </button>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Modifica Nome</label>
-                    <input type="text" id="edit-nome" maxlength="12" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm focus:outline-none focus:border-yellow-400 text-white">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Modifica Stile Avatar</label>
-                    <select id="edit-genere" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm focus:outline-none focus:border-yellow-400 text-white">
-                        <option value="Esploratore">Esploratore 🧑‍🚀</option>
-                        <option value="Esploratrice">Esploratrice 👩‍🚀</option>
-                    </select>
-                </div>
-                <button onclick="salvaModificheProfilo()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm">
-                    Salva Modifiche da Co-Pilota
-                </button>
-                <hr class="border-gray-700 my-2">
-                <button onclick="eseguiLogout()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm flex items-center justify-center gap-1">
-                    🚪 Esci dal Gioco (Logout)
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- BOTTOM NAVIGATION -->
+    <!-- BOTTOM NAV -->
     <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 h-16 bg-gray-900 border-t border-gray-800 flex justify-around items-center z-[9999] hidden">
-        <button onclick="apriSchermata('amici')" class="flex flex-col items-center justify-center text-blue-400 hover:text-blue-300 transition-colors">
+        <button onclick="window.apriSchermata('amici')" class="flex flex-col items-center justify-center text-blue-400 hover:text-blue-300 transition-colors">
             <span class="text-2xl">👥</span>
             <span class="text-[10px] font-bold">Amici</span>
         </button>
-        <button onclick="apriSchermata('mappa')" class="flex flex-col items-center justify-center text-yellow-400 hover:text-yellow-300 transition-colors">
+        <button onclick="window.apriSchermata('mappa')" class="flex flex-col items-center justify-center text-yellow-400 hover:text-yellow-300 transition-colors">
             <span class="text-2xl">🌍</span>
             <span class="text-[10px] font-bold">Mappa</span>
         </button>
-        <button onclick="apriSchermata('wishlist')" class="flex flex-col items-center justify-center text-yellow-500 hover:text-yellow-400 transition-colors">
+        <button onclick="window.apriSchermata('wishlist')" class="flex flex-col items-center justify-center text-yellow-500 hover:text-yellow-400 transition-colors">
             <span class="text-2xl">📋</span>
             <span class="text-[10px] font-bold">Wishlist</span>
         </button>
     </nav>
 
-    <!-- SCHERMATA AMICI FULL -->
+    <!-- SCHERMATA AMICI -->
     <div id="schermata-amici" class="schermata-full hidden">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-blue-400 flex items-center gap-2">👥 Il mio Clan</h2>
-            <span class="text-xs bg-gray-800 text-gray-400 px-2.5 py-1 rounded-full font-mono" id="conteggio-clan">0 utenti</span>
+        <div class="flex justify-between items-end mb-6 border-b border-gray-800 pb-4">
+            <div>
+                <h2 id="titolo-sezione-amici" class="text-xl font-bold text-blue-400 flex items-center gap-2">
+                    👥 Il mio Clan
+                    <span class="text-xs bg-gray-800 text-gray-400 px-2 py-0.5 rounded-full font-mono font-normal" id="conteggio-clan">0 utenti</span>
+                </h2> 
+                <p id="sottotitolo-sezione-amici" class="text-[11px] text-gray-400 mt-0.5">Classifica dei punteggi</p>
+            </div>
+            <div class="flex items-center gap-1 bg-gray-950 p-1 rounded-xl border border-gray-800 shadow-inner">
+                <button id="btn-tab-classifica" onclick="window.switchAmiciTab('classifica')" class="bg-blue-600 text-white font-bold text-[11px] px-3 py-2 rounded-lg cursor-pointer transition-all uppercase tracking-wider flex items-center gap-1">◀ Clan</button>
+                <button id="btn-tab-feed" onclick="window.switchAmiciTab('feed')" class="bg-gray-700 text-gray-400 font-bold text-[11px] px-3 py-2 rounded-lg cursor-pointer transition-all uppercase tracking-wider flex items-center gap-1 hover:text-white">Attività ▶</button>
+            </div>
         </div>
 
-        <div class="bg-gray-800 p-4 rounded-xl border border-blue-500/30 mb-4">
-            <div class="flex justify-between items-center">
+        <div id="sezione-aggiungi-amico" class="mb-4 bg-gray-900/60 p-3 rounded-xl border border-gray-700">
+            <p class="text-[11px] text-gray-400 mb-1.5 font-semibold">🤝 AGGIUNGI UN COMPAGNO DI SQUADRA</p>
+            <div class="flex gap-2">
+                <input type="text" id="input-codice-amico" placeholder="Incolla il Codice Squadra..." class="flex-grow bg-gray-800 border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
+                <button onclick="window.aggiungiAmico()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer">Aggiungi</button>
+            </div>
+        </div>
+
+        <!-- SEZIONE INVIO MESSAGGIO CON PULSANTI GESTIONE -->
+        <div id="sezione-invia-messaggio" class="hidden mb-4">
+            <div class="flex gap-2">
+                <input type="text" id="input-messaggio-chat" placeholder="Scrivi un messaggio alla squadra..." class="flex-grow bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                <button onclick="window.inviaMessaggioChat()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors cursor-pointer shadow-md">
+                    Invia ✉️
+                </button>
+            </div>
+            <div class="flex gap-2 mt-2">
+                <button onclick="window.marcaIstantaneaTuttiMessaggi()" class="bg-green-700/50 hover:bg-green-700 text-white font-bold px-3 py-1 rounded-lg text-[10px] transition-colors cursor-pointer">
+                    👁️ Segna tutti come visualizzati
+                </button>
+                <button onclick="window.eliminaTuttiMessaggiChat()" class="bg-red-700/50 hover:bg-red-700 text-white font-bold px-3 py-1 rounded-lg text-[10px] transition-colors cursor-pointer">
+                    🗑️ Elimina tutti i miei messaggi
+                </button>
+            </div>
+        </div>
+
+        <!-- CODICE SQUADRA -->
+        <div id="box-squadra" class="bg-gray-800/50 border border-gray-700/60 p-4 rounded-2xl mb-6">
+            <div class="flex justify-between items-center"> 
                 <div>
                     <span class="text-gray-400 block font-bold uppercase text-[10px]">Il tuo Codice Squadra:</span>
                     <span id="mio-codice-txt" class="font-mono font-semibold text-yellow-400 tracking-wider">Caricamento...</span>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="copiaCodiceAmico()" class="bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg text-white font-bold text-xs cursor-pointer">📋 Copia</button>
-                    <button onclick="condividiCodiceAmico()" class="bg-yellow-600 hover:bg-yellow-500 px-3 py-1.5 rounded-lg text-gray-950 font-bold text-xs cursor-pointer">🔗 Condividi</button>
-                </div>
+                    <button onclick="window.copiaCodiceAmico()" class="bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg text-white font-bold text-xs cursor-pointer">📋 Copia</button>
+                    <button onclick="window.condividiCodiceAmico()" class="bg-yellow-600 hover:bg-yellow-500 px-3 py-1.5 rounded-lg text-gray-950 font-bold text-xs cursor-pointer">🔗 Condividi</button> 
+                </div> 
+            </div> 
+        </div> 
+
+        <div id="pannello-classifica">
+            <h4 class="text-xs font-bold uppercase text-gray-400 mb-3 flex items-center gap-1">🏆 Classifica della Squadra (Tu + Amici)</h4>
+            <div id="lista-amici-classifica" class="space-y-2 overflow-y-auto flex-grow pr-1 text-xs">
+                <p class="text-gray-500 text-center py-4 text-sm">Nessun amico nel clan. Condividi il tuo codice!</p>
             </div>
         </div>
 
-        <div class="mb-4">
-            <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Aggiungi un compagno di avventure</label>
-            <div class="flex gap-2">
-                <input type="text" id="input-codice-amico" placeholder="Incolla il codice del tuo amico..." class="flex-grow bg-gray-700 border border-gray-600 rounded-lg p-2 text-xs focus:outline-none focus:border-blue-400 text-white font-mono">
-                <button onclick="aggiungiAmico()" class="bg-blue-600 hover:bg-blue-500 px-4 text-xs font-bold rounded-lg text-white cursor-pointer">Aggiungi</button>
+        <div id="pannello-feed" class="hidden">
+            <h4 class="text-xs font-bold uppercase text-gray-400 mb-3 flex items-center gap-1">⚡ Bacheca & Successi della Squadra</h4>
+            <div id="lista-amici-feed" class="space-y-3 overflow-y-auto flex-grow pr-1">
+                <p class="text-gray-500 text-center py-4 text-sm">Nessun successo o messaggio da mostrare per questa squadra.</p>
             </div>
         </div>
-
-        <h4 class="text-xs font-bold uppercase text-gray-400 mb-3 flex items-center gap-1">🏆 Classifica della Squadra (Tu + Amici)</h4>
-        <div id="lista-amici-classifica" class="space-y-2 overflow-y-auto flex-grow pr-1 text-xs"></div>
     </div>
 
-    <!-- SCHERMATA WISHLIST FULL -->
+    <!-- SCHERMATA WISHLIST -->
     <div id="schermata-wishlist" class="schermata-full hidden">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-yellow-400">📋 La mia Wishlist</h2>
             <div class="flex gap-2">
-                <select id="filtro-wishlist" onchange="filtraWishlist(this.value)" class="bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-yellow-400 cursor-pointer">
+                <select id="filtro-wishlist" onchange="window.filtraWishlist(this.value)" class="bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-yellow-400 cursor-pointer">
                     <option value="tutti">🌍 Tutti</option>
                     <option value="monumento">🏛️ Monumenti</option>
                     <option value="parco">🌳 Parchi</option>
@@ -374,65 +452,135 @@
         <div id="lista-monumenti-full" class="space-y-3 overflow-y-auto flex-grow"></div>
     </div>
 
-    <!-- FINE HTML -->
+    <!-- WISHLIST SIDEBAR -->
+    <div id="wishlist-sidebar" class="fixed top-0 right-0 h-full w-72 bg-gray-950 border-l border-gray-800 transition-transform duration-300 ease-in-out overflow-y-auto p-6 shadow-2xl translate-x-full" style="z-index: 999999 !important;">
+        <div class="flex flex-col gap-4 mb-6 mt-2 relative" style="z-index: 1000000 !important;">
+            <button id="wishlist-close-btn" onclick="window.toggleWishlist();" class="w-full bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold py-2.5 px-4 rounded-xl text-xs transition-colors border-none tracking-wider block text-center shadow-lg cursor-pointer relative" style="z-index: 1000005 !important;">
+                ✕ CHIUDI ELENCO
+            </button>
+            <h2 id="wishlist-title" class="text-xl font-bold text-yellow-400 mt-2">⚔️ La mia Wishlist</h2>
+        </div>
+        <div id="lista-monumenti" class="space-y-3"></div>
+    </div>
 
     <script>
         // ============================================
         // FUNZIONI DI GESTIONE SCHERMATE FULL
         // ============================================
         window.apriSchermata = function(tipo) {
-            // 1. Nascondi solo le schermate dei contenuti, MAI la bottom-nav
             document.getElementById('schermata-amici').classList.add('hidden');
             document.getElementById('schermata-wishlist').classList.add('hidden');
             
-            // 2. Resetta l'estetica dei bottoni (per capire quale è selezionato)
+            const loginBar = document.getElementById('login-bar');
+            const mapContainer = document.getElementById('map-container');
+            
+            if (tipo === 'mappa') {
+                loginBar.classList.add('visible');
+                mapContainer.classList.add('with-login-bar');
+                document.getElementById('filtri-nav').classList.remove('hidden');
+                if (typeof map !== 'undefined' && map) map.invalidateSize();
+            } else {
+                loginBar.classList.remove('visible');
+                mapContainer.classList.remove('with-login-bar');
+                document.getElementById('filtri-nav').classList.add('hidden');
+            }
+            
             const bottoniNav = document.querySelectorAll("#bottom-nav button");
             bottoniNav.forEach(btn => {
                 btn.classList.remove("text-blue-400", "text-yellow-400", "text-yellow-500");
                 btn.classList.add("text-gray-400");
             });
 
-            // 3. Gestisci cosa mostrare sopra la mappa
             if (tipo === 'mappa') {
-                // Mostra Header e Filtri solo quando sei sulla Mappa
-                document.getElementById('gioco-header').classList.remove('hidden');
-                document.getElementById('filtri-nav').classList.remove('hidden');
-                if (typeof map !== 'undefined' && map) map.invalidateSize();
-                
-                // Evidenzia il tasto mappa
                 bottoniNav[1].classList.remove("text-gray-400");
                 bottoniNav[1].classList.add("text-yellow-400");
-            } else {
-                // Nascondi Header e Filtri se vai in Amici o Wishlist
-                document.getElementById('gioco-header').classList.add('hidden');
-                document.getElementById('filtri-nav').classList.add('hidden');
-
-                if (tipo === 'amici') {
-                    document.getElementById('schermata-amici').classList.remove('hidden');
-                    bottoniNav[0].classList.remove("text-gray-400");
-                    bottoniNav[0].classList.add("text-blue-400");
-                    if (typeof window.aggiornaElencoClassificaAmici === 'function') {
-                        window.aggiornaElencoClassificaAmici();
-                    }
-                } else if (tipo === 'wishlist') {
-                    document.getElementById('schermata-wishlist').classList.remove('hidden');
-                    bottoniNav[2].classList.remove("text-gray-400");
-                    bottoniNav[2].classList.add("text-yellow-500");
-                    document.getElementById('filtro-wishlist').value = 'tutti';
-                    if (typeof aggiornaWishlistFull === 'function') {
-                        aggiornaWishlistFull('tutti');
-                    }
+            } else if (tipo === 'amici') {
+                document.getElementById('schermata-amici').classList.remove('hidden');
+                bottoniNav[0].classList.remove("text-gray-400");
+                bottoniNav[0].classList.add("text-blue-400");
+                if (typeof window.aggiornaElencoClassificaAmici === 'function') {
+                    window.aggiornaElencoClassificaAmici();
+                }
+            } else if (tipo === 'wishlist') {
+                document.getElementById('schermata-wishlist').classList.remove('hidden');
+                bottoniNav[2].classList.remove("text-gray-400");
+                bottoniNav[2].classList.add("text-yellow-500");
+                document.getElementById('filtro-wishlist').value = 'tutti';
+                if (typeof window.aggiornaWishlistFull === 'function') {
+                    window.aggiornaWishlistFull('tutti');
                 }
             }
         }
 
-        function filtraWishlist(categoria) {
-            if (typeof aggiornaWishlistFull === 'function') {
-                aggiornaWishlistFull(categoria);
-            }
-        }
+        window.switchAmiciTab = function(tab) {
+            const btnClassifica = document.getElementById('btn-tab-classifica');
+            const btnFeed = document.getElementById('btn-tab-feed');
+            const listaClassifica = document.getElementById('lista-amici-classifica');
+            const listaFeed = document.getElementById('lista-amici-feed');
+            const titoloSezione = document.getElementById('titolo-sezione-amici');
+            const sottotitoloSezione = document.getElementById('sottotitolo-sezione-amici');
+            
+            const sezAggiungiAmico = document.getElementById('sezione-aggiungi-amico');
+            const sezInviaMessaggio = document.getElementById('sezione-invia-messaggio');
+            const boxSquadra = document.getElementById('box-squadra');
 
-        function aggiornaWishlistFull(categoriaFiltro = 'tutti') {
+            if (!btnClassifica || !btnFeed || !listaClassifica || !listaFeed) return;
+
+            if (tab === 'classifica') {
+                btnClassifica.className = "bg-blue-600 text-white font-bold text-[11px] px-3 py-2 rounded-lg cursor-pointer transition-all uppercase tracking-wider flex items-center gap-1";
+                btnFeed.className = "bg-gray-700 text-gray-400 font-bold text-[11px] px-3 py-2 rounded-lg cursor-pointer transition-all uppercase tracking-wider flex items-center gap-1 hover:text-white";
+                listaClassifica.classList.remove('hidden');
+                listaFeed.classList.add('hidden');
+                document.getElementById('pannello-classifica').classList.remove('hidden');
+                document.getElementById('pannello-feed').classList.add('hidden');
+                
+                if (sezAggiungiAmico) sezAggiungiAmico.classList.remove('hidden');
+                if (sezInviaMessaggio) sezInviaMessaggio.classList.add('hidden');
+                if (boxSquadra) boxSquadra.style.display = 'flex';
+                
+                if (titoloSezione) titoloSezione.innerText = "👥 Il mio Clan";
+                if (sottotitoloSezione) sottotitoloSezione.innerText = "Classifica dei punteggi";
+            } else {
+                btnClassifica.className = "bg-gray-700 text-gray-400 font-bold text-[11px] px-3 py-2 rounded-lg cursor-pointer transition-all uppercase tracking-wider flex items-center gap-1 hover:text-white";
+                btnFeed.className = "bg-blue-600 text-white font-bold text-[11px] px-3 py-2 rounded-lg cursor-pointer transition-all uppercase tracking-wider flex items-center gap-1";
+                listaClassifica.classList.add('hidden');
+                listaFeed.classList.remove('hidden');
+                document.getElementById('pannello-classifica').classList.add('hidden');
+                document.getElementById('pannello-feed').classList.remove('hidden');
+                
+                if (sezAggiungiAmico) sezAggiungiAmico.classList.add('hidden');
+                if (sezInviaMessaggio) sezInviaMessaggio.classList.remove('hidden');
+                if (boxSquadra) boxSquadra.style.display = 'none';
+                
+                if (titoloSezione) titoloSezione.innerText = "⚡ Bacheca & Successi della Squadra";
+                if (sottotitoloSezione) sottotitoloSezione.innerText = "Messaggi e conquiste dei compagni";
+                
+                window.aggiornaFeedSuccessiAmici();
+            }
+        };
+
+        window.filtraCategoria = function(categoria) {
+            if (typeof window.aggiornaMappaELista === 'function') {
+                window.aggiornaMappaELista(categoria);
+            }
+        };
+
+        window.chiudiPopupScoperta = function() {
+            document.getElementById('popup-scoperta').classList.add('hidden');
+        };
+
+        window.toggleWishlist = function() {
+            const sidebar = document.getElementById('wishlist-sidebar');
+            if (sidebar) sidebar.classList.toggle('translate-x-full');
+        };
+
+        window.filtraWishlist = function(categoria) {
+            if (typeof window.aggiornaWishlistFull === 'function') {
+                window.aggiornaWishlistFull(categoria);
+            }
+        };
+
+        window.aggiornaWishlistFull = function(categoriaFiltro = 'tutti') {
             const container = document.getElementById('lista-monumenti-full');
             if (!container) return;
             
@@ -472,14 +620,59 @@
                 `;
                 container.appendChild(item);
             });
-        }
+        };
+
+        window.mostraListaWishlistInSchermata = function() {
+            const contenitore = document.getElementById("lista-monumenti");
+            if (!contenitore || typeof monumenti === 'undefined') return;
+
+            contenitore.innerHTML = "";
+
+            monumenti.forEach(m => {
+                const giaScoperto = m.scoperto || false;
+                const item = document.createElement("div");
+                
+                if (giaScoperto) {
+                    item.className = "p-4 rounded-2xl border-2 border-green-500 bg-green-950/20 flex flex-col gap-3 transition-all shadow-md shadow-green-950/50";
+                } else {
+                    item.className = "p-4 rounded-2xl border-2 border-gray-800 bg-gray-900/40 flex flex-col gap-3 transition-all";
+                }
+                
+                let iconaCat = m.categoria === 'monumento' ? '🏛️' : (m.categoria === 'parco' ? '🌳' : '🛒');
+                let descrizioneLuogo = m.desc ? m.desc : "Nessuna descrizione disponibile per questo luogo.";
+                let categoriaLabel = m.categoria === 'monumento' ? 'Monumento' : (m.categoria === 'parco' ? 'Parco' : 'Supermercato');
+
+                item.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-start gap-2 flex-1">
+                            <span class="text-xl">${iconaCat}</span>
+                            <div class="flex-1">
+                                <p class="font-bold text-sm ${giaScoperto ? 'text-green-400' : 'text-gray-200'}">${m.nome}</p>
+                                <p class="text-[10px] text-gray-500">${categoriaLabel}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-gray-300 px-3 py-2 bg-gray-900/60 rounded-lg border border-gray-800/50">
+                        ${descrizioneLuogo}
+                    </div>
+                    <div class="flex justify-between items-center pt-1">
+                        <p class="text-[10px] text-gray-500 font-mono">
+                            ${giaScoperto ? '✅ Scoperto' : '📍 Da Trovare'}
+                        </p>
+                        <span class="text-xs font-mono ${giaScoperto ? 'text-green-400' : 'text-yellow-400'} bg-gray-800/70 px-2.5 py-1 rounded-md font-bold">
+                            ${giaScoperto ? '✓' : '+100 XP'}
+                        </span>
+                    </div>
+                `;
+                contenitore.appendChild(item);
+            });
+        };
 
         // ============================================
         // FUNZIONI DI VALIDAZIONE PASSWORD
         // ============================================
         function validaPasswordInTempoReale() {
             const password = document.getElementById('login-password').value;
-
             const reqLunghezza = document.getElementById('req-lunghezza');
             const iconLunghezza = document.getElementById('icon-lunghezza');
             const reqMaiuscola = document.getElementById('req-maiuscola');
@@ -494,7 +687,6 @@
             const vNumero = /\d/.test(password);
             const vSpeciale = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
 
-            // Aggiornamento grafico Lunghezza
             if (vLunghezza) {
                 reqLunghezza.className = "text-green-400 flex items-center gap-1";
                 iconLunghezza.innerText = "✓";
@@ -555,29 +747,6 @@
         function tornaAlLogin() {
             document.getElementById('schermata-recupero').classList.add('hidden');
             document.getElementById('schermata-login').classList.remove('hidden');
-        }
-
-        // ============================================
-        // FUNZIONI DI GESTIONE WISHLIST SIDEBAR
-        // ============================================
-        function toggleWishlist() {
-            const sidebar = document.getElementById('wishlist-sidebar');
-            if (sidebar) sidebar.classList.toggle('translate-x-full');
-        }
-
-        // ============================================
-        // FUNZIONI DI GESTIONE PROFILO
-        // ============================================
-        function apriPopupProfilo() {
-            document.getElementById('popup-profilo').classList.remove('hidden');
-            const displayNome = document.getElementById('player-display-name').innerText;
-            const displayGenere = document.getElementById('player-display-role').innerText;
-            document.getElementById('edit-nome').value = displayNome.replace(" (Tu)", "");
-            document.getElementById('edit-genere').value = displayGenere;
-        }
-
-        function chiudiPopupProfilo() {
-            document.getElementById('popup-profilo').classList.add('hidden');
         }
     </script>
 
@@ -711,17 +880,15 @@
             if (fotoUrl) {
                 return `<img src="${fotoUrl}" class="w-full h-full object-cover">`;
             }
-
             const emoji = genere === 'Esploratore' ? '🧑‍🚀' : '👩‍🚀';
             return `<span class="text-xl">${emoji}</span>`;
         }
 
         function aggiornaAvatarUI(fotoUrl, genere) {
-            const avatarContainer = document.getElementById('avatar-container');
+            const avatarContainer = document.getElementById('avatar-login-bar');
             if (avatarContainer) {
                 avatarContainer.innerHTML = getAvatarMarkup(fotoUrl, genere);
             }
-
             const preview = document.getElementById('edit-avatar-preview');
             if (preview) {
                 preview.innerHTML = getAvatarMarkup(fotoUrl, genere);
@@ -797,7 +964,6 @@
                 const elemento = document.getElementById(id);
                 if (elemento) elemento.classList.add('hidden');
             });
-
             const target = document.getElementById(apriId);
             if (target) target.classList.remove('hidden');
         }
@@ -852,7 +1018,6 @@
             inputFotoProfilo.addEventListener('change', async (event) => {
                 const file = event.target.files && event.target.files[0];
                 if (!file) return;
-
                 const reader = new FileReader();
                 reader.onload = () => {
                     fotoProfiloLocale = reader.result;
@@ -926,6 +1091,7 @@
                     monumenti: statoMonumenti,
                     fotoProfilo: null,
                     amici: [],
+                    messaggi: [],
                     status: "online",
                     ultimoAccesso: new Date().toISOString()
                 });
@@ -968,6 +1134,7 @@
                 });
                 datiUtenteLocale = docSnap.data();
                 datiUtenteLocale.amici = datiUtenteLocale.amici || [];
+                datiUtenteLocale.messaggi = datiUtenteLocale.messaggi || [];
                 fotoProfiloLocale = datiUtenteLocale.fotoProfilo || null;
                 window.entraNelGioco(datiUtenteLocale.nome, datiUtenteLocale.genere, datiUtenteLocale.xp, datiUtenteLocale.livello, datiUtenteLocale.monumenti);
             } else {
@@ -980,6 +1147,7 @@
                     monumenti: statoMonumenti,
                     fotoProfilo: null,
                     amici: [],
+                    messaggi: [],
                     status: "online",
                     ultimoAccesso: timestampCorrente
                 };
@@ -1026,10 +1194,10 @@
                     fotoProfilo: fotoProfiloDaSalvare
                 };
                 aggiornaAvatarUI(fotoProfiloDaSalvare, nuovoGenere);
-                document.getElementById('player-display-name').innerText = nuovoNome;
-                document.getElementById('player-display-role').innerText = getPlayerRoleLabel(linguaCorrente);
+                document.getElementById('login-bar-name').innerText = nuovoNome;
+                document.getElementById('login-bar-role').innerText = getPlayerRoleLabel(linguaCorrente);
                 alert("✨ Profilo aggiornato con successo!");
-                chiudiPopupProfilo();
+                window.chiudiPopupProfilo();
             } catch (e) {
                 console.error(e);
             }
@@ -1112,6 +1280,7 @@
 
         window.aggiornaElencoClassificaAmici = async function() {
             const container = document.getElementById('lista-amici-classifica');
+            const conteggioClan = document.getElementById('conteggio-clan');
             if (!container || !utenteCorrenteId) return;
             container.innerHTML = "<p class='text-gray-400 animate-pulse text-center py-4'>Sincronizzazione punteggi...</p>";
 
@@ -1144,6 +1313,10 @@
                             ultimoAccesso: dAmico.ultimoAccesso
                         });
                     }
+                }
+
+                if (conteggioClan) {
+                    conteggioClan.innerText = `${partecipanti.length} ${partecipanti.length === 1 ? 'utente' : 'utenti'}`;
                 }
 
                 partecipanti.sort((a, b) => {
@@ -1181,7 +1354,7 @@
                                 <span class="text-xs font-bold text-green-400 block">Lvl ${p.livello}</span>
                                 <span class="text-[10px] text-gray-400">${p.xp} XP</span>
                             </div>
-                            ${!isMe ? `<button onclick="rimuoviAmico('${p.id}')" class="text-red-400 hover:text-red-500 text-sm p-1 cursor-pointer">✕</button>` : ''}
+                            ${!isMe ? `<button onclick="window.rimuoviAmico('${p.id}')" class="text-red-400 hover:text-red-500 text-sm p-1 cursor-pointer hover:bg-red-950/20 rounded-lg transition-colors">✕</button>` : ''}
                         </div>
                     `;
                     container.appendChild(riga);
@@ -1190,6 +1363,276 @@
                 console.error(e);
             }
         }
+
+        // ============================================
+        // FUNZIONI PER GESTIONE MESSAGGI CHAT
+        // ============================================
+
+        // 1. FUNZIONE PER MARCARE UN MESSAGGIO COME VISUALIZZATO
+        window.marcaMessaggioVisualizzato = async function(idMessaggio) {
+            if (!utenteCorrenteId || !idMessaggio) return;
+            
+            try {
+                const userRef = doc(db, "utenti", utenteCorrenteId);
+                const userSnap = await getDoc(userRef);
+                
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    const messaggi = userData.messaggi || [];
+                    
+                    const messaggioTrovato = messaggi.find(m => m.id === idMessaggio);
+                    if (messaggioTrovato && !messaggioTrovato.visualizzato) {
+                        const messaggiAggiornati = messaggi.map(m => {
+                            if (m.id === idMessaggio) {
+                                return { ...m, visualizzato: true, visualizzatoIl: new Date().toISOString() };
+                            }
+                            return m;
+                        });
+                        
+                        await updateDoc(userRef, {
+                            messaggi: messaggiAggiornati
+                        });
+                        
+                        window.aggiornaFeedSuccessiAmici();
+                    }
+                }
+            } catch (e) {
+                console.error("Errore durante la marcatura del messaggio: ", e);
+            }
+        };
+
+        // 2. FUNZIONE PER ELIMINARE UN MESSAGGIO (SOLO PER IL MITTENTE)
+        window.eliminaMessaggioChat = async function(idMessaggio) {
+            if (!utenteCorrenteId || !idMessaggio) return;
+            
+            if (!confirm("Sei sicuro di voler eliminare questo messaggio?")) return;
+            
+            try {
+                const userRef = doc(db, "utenti", utenteCorrenteId);
+                const userSnap = await getDoc(userRef);
+                
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    const messaggi = userData.messaggi || [];
+                    
+                    const messaggiAggiornati = messaggi.filter(m => m.id !== idMessaggio);
+                    
+                    await updateDoc(userRef, {
+                        messaggi: messaggiAggiornati
+                    });
+                    
+                    alert("✅ Messaggio eliminato con successo!");
+                    window.aggiornaFeedSuccessiAmici();
+                }
+            } catch (e) {
+                console.error("Errore durante l'eliminazione del messaggio: ", e);
+                alert("❌ Errore durante l'eliminazione del messaggio.");
+            }
+        };
+
+        // 3. FUNZIONE PER ELIMINARE TUTTI I MESSAGGI (SOLO PER IL MITTENTE)
+        window.eliminaTuttiMessaggiChat = async function() {
+            if (!utenteCorrenteId) return;
+            
+            if (!confirm("Sei sicuro di voler eliminare TUTTI i tuoi messaggi? Questa azione non può essere annullata.")) return;
+            
+            try {
+                await updateDoc(doc(db, "utenti", utenteCorrenteId), {
+                    messaggi: []
+                });
+                
+                alert("✅ Tutti i messaggi eliminati con successo!");
+                window.aggiornaFeedSuccessiAmici();
+            } catch (e) {
+                console.error("Errore durante l'eliminazione di tutti i messaggi: ", e);
+                alert("❌ Errore durante l'eliminazione dei messaggi.");
+            }
+        };
+
+        // 4. MARCA TUTTI I MESSAGGI COME VISUALIZZATI
+        window.marcaIstantaneaTuttiMessaggi = async function() {
+            if (!utenteCorrenteId) return;
+            
+            try {
+                const userRef = doc(db, "utenti", utenteCorrenteId);
+                const userSnap = await getDoc(userRef);
+                
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    const messaggi = userData.messaggi || [];
+                    
+                    const messaggiAggiornati = messaggi.map(m => {
+                        if (!m.visualizzato) {
+                            return { ...m, visualizzato: true, visualizzatoIl: new Date().toISOString() };
+                        }
+                        return m;
+                    });
+                    
+                    await updateDoc(userRef, {
+                        messaggi: messaggiAggiornati
+                    });
+                    
+                    alert("✅ Tutti i messaggi segnati come visualizzati!");
+                    window.aggiornaFeedSuccessiAmici();
+                }
+            } catch (e) {
+                console.error("Errore durante la marcatura di tutti i messaggi: ", e);
+                alert("❌ Errore durante la marcatura dei messaggi.");
+            }
+        };
+
+        // 5. FUNZIONE AGGIORNATA PER INVIARE MESSAGGI CON ID UNICO
+        window.inviaMessaggioChat = async function() {
+            const input = document.getElementById('input-messaggio-chat');
+            if (!input) return;
+            const testo = input.value.trim();
+            if (!testo || !utenteCorrenteId) {
+                alert("Scrivi un messaggio prima di inviare!");
+                return;
+            }
+
+            try {
+                const idMessaggio = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                
+                const userRef = doc(db, "utenti", utenteCorrenteId);
+                const userSnap = await getDoc(userRef);
+                
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    if (!userData.messaggi) {
+                        await updateDoc(userRef, { messaggi: [] });
+                    }
+                }
+
+                await updateDoc(doc(db, "utenti", utenteCorrenteId), {
+                    messaggi: arrayUnion({
+                        id: idMessaggio,
+                        testo: testo,
+                        timestamp: new Date().toISOString(),
+                        visualizzato: false,
+                        visualizzatoIl: null
+                    })
+                });
+                
+                input.value = "";
+                window.aggiornaFeedSuccessiAmici();
+            } catch (e) {
+                console.error("Errore durante l'invio del messaggio chat: ", e);
+                alert("❌ Errore nell'invio del messaggio. Riprova.");
+            }
+        };
+
+        // 6. FUNZIONE AGGIORNATA PER IL FEED CON VISUALIZZAZIONE ED ELIMINAZIONE
+        window.aggiornaFeedSuccessiAmici = async function() {
+            const container = document.getElementById('lista-amici-feed');
+            if (!container || !utenteCorrenteId) return;
+            
+            container.innerHTML = "<p class='text-gray-400 animate-pulse text-center py-4'>Caricamento bacheca...</p>";
+
+            try {
+                const mioSnap = await getDoc(doc(db, "utenti", utenteCorrenteId));
+                if (!mioSnap.exists()) return;
+                
+                const mieiDati = mioSnap.data();
+                const listaIdAmici = mieiDati.amici || [];
+                const tuttiMembri = [utenteCorrenteId, ...listaIdAmici];
+                let eventiBacheca = [];
+
+                for (let idUtente of tuttiMembri) {
+                    const snapUtente = await getDoc(doc(db, "utenti", idUtente));
+                    if (snapUtente.exists()) {
+                        const dUtente = snapUtente.data();
+                        const nomeVisualizzato = idUtente === utenteCorrenteId ? "Tu" : (dUtente.nome || "Esploratore");
+                        const isMittente = idUtente === utenteCorrenteId;
+                        
+                        // MONUMENTI SCOPERTI
+                        const monumentiUtente = dUtente.monumenti || [];
+                        monumentiUtente.forEach(m => {
+                            if (m.scoperto) {
+                                eventiBacheca.push({
+                                    timestamp: m.timestamp || dUtente.ultimoAccesso || new Date().toISOString(),
+                                    html: `🎉 <strong>${nomeVisualizzato}</strong> ha scoperto il luogo: <span class="text-green-400 font-semibold">${m.nome}</span>!`,
+                                    tipo: 'scoperta',
+                                    id: `scoperta_${m.nome}_${idUtente}`,
+                                    mittente: idUtente
+                                });
+                            }
+                        });
+
+                        // MESSAGGI CON ID E STATO VISUALIZZAZIONE
+                        const messaggiUtente = dUtente.messaggi || [];
+                        messaggiUtente.forEach(msg => {
+                            const isVisualizzato = msg.visualizzato || false;
+                            const iconaVisualizzato = isVisualizzato ? '👁️' : '📩';
+                            const testoVisualizzato = isVisualizzato ? ' (Visualizzato)' : ' (Non visualizzato)';
+                            
+                            let pulsantiElimina = '';
+                            if (isMittente) {
+                                pulsantiElimina = `
+                                    <button onclick="window.eliminaMessaggioChat('${msg.id}')" class="text-red-400 hover:text-red-600 text-xs ml-1 cursor-pointer" title="Elimina messaggio">🗑️</button>
+                                    <button onclick="window.marcaMessaggioVisualizzato('${msg.id}')" class="text-blue-400 hover:text-blue-600 text-xs ml-1 cursor-pointer" title="Segna come visualizzato">👁️</button>
+                                `;
+                            }
+                            
+                            eventiBacheca.push({
+                                timestamp: msg.timestamp || new Date().toISOString(),
+                                html: `
+                                    💬 <strong>${nomeVisualizzato}</strong>: <span class="text-gray-200">${msg.testo}</span>
+                                    <span class="text-[9px] text-gray-500 ml-1">${iconaVisualizzato}${testoVisualizzato}</span>
+                                    ${pulsantiElimina}
+                                `,
+                                tipo: 'messaggio',
+                                id: msg.id || `msg_${Date.now()}_${Math.random()}`,
+                                mittente: idUtente,
+                                visualizzato: isVisualizzato,
+                                msgData: msg
+                            });
+                        });
+                    }
+                }
+
+                eventiBacheca.sort((a, b) => {
+                    if (a.timestamp > b.timestamp) return -1;
+                    if (a.timestamp < b.timestamp) return 1;
+                    return 0;
+                });
+
+                if (eventiBacheca.length > 30) {
+                    eventiBacheca = eventiBacheca.slice(0, 30);
+                }
+
+                container.innerHTML = "";
+                if (eventiBacheca.length === 0) {
+                    container.innerHTML = "<p class='text-gray-500 text-center py-4'>Ancora nessuna attività o messaggio in questa squadra.</p>";
+                    return;
+                }
+
+                let dataCorrente = '';
+                eventiBacheca.forEach(evento => {
+                    const data = new Date(evento.timestamp);
+                    const dataStr = data.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+                    
+                    if (dataStr !== dataCorrente) {
+                        dataCorrente = dataStr;
+                        const separatore = document.createElement('div');
+                        separatore.className = "text-[10px] text-gray-500 font-bold uppercase mt-3 mb-1.5 border-b border-gray-700/50 pb-1";
+                        separatore.innerText = dataStr;
+                        container.appendChild(separatore);
+                    }
+                    
+                    const riga = document.createElement('div');
+                    riga.className = `p-2.5 rounded-xl ${evento.tipo === 'messaggio' ? 'bg-gray-900/90 border border-gray-700/60' : 'bg-gray-800/50 border border-gray-700/30'} text-gray-200 leading-relaxed mb-1.5 shadow-sm text-xs`;
+                    
+                    const ora = data.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+                    riga.innerHTML = `<span class="text-gray-500 mr-1.5">${ora}</span> ${evento.html}`;
+                    container.appendChild(riga);
+                });
+
+            } catch (e) {
+                console.error("Errore di sincronizzazione feed/chat: ", e);
+                container.innerHTML = "<p class='text-red-400 text-center py-4'>Impossibile aggiornare la bacheca.</p>";
+            }
+        };
 
         // ============================================
         // AVVIO AUTENTICAZIONE
@@ -1216,19 +1659,13 @@
             document.getElementById('schermata-login').classList.add('hidden');
             document.getElementById('schermata-recupero').classList.add('hidden');
 
-            document.getElementById('player-display-name').innerText = nome;
-            document.getElementById('player-display-role').innerText = getPlayerRoleLabel(linguaCorrente);
+            document.getElementById('login-bar').classList.add('visible');
+            document.getElementById('login-bar-name').innerText = nome;
+            document.getElementById('login-bar-role').innerText = getPlayerRoleLabel(linguaCorrente);
+            document.getElementById('login-bar-level').innerText = `Lv.${livello}`;
+            document.getElementById('login-bar-xp').innerText = `${xp} XP`;
+            
             aggiornaAvatarUI(fotoProfiloLocale || (datiUtenteLocale && datiUtenteLocale.fotoProfilo) || null, genere);
-            document.getElementById('livello-txt').innerText = livello;
-            document.getElementById('xp-txt').innerText = xp;
-
-            const percentuale = (xp / 300) * 100;
-            document.getElementById('xp-bar').style.width = `${percentuale}%`;
-
-            if (typeof playerXP !== 'undefined') playerXP = xp;
-            if (typeof playerLevel !== 'undefined') playerLevel = livello;
-
-            setText('level-label', (UI_TRANSLATIONS[linguaCorrente] || UI_TRANSLATIONS.it).levelLabel);
 
             if (typeof monumenti !== 'undefined' && datiMonumenti) {
                 monumenti.forEach(m => {
@@ -1237,7 +1674,6 @@
                 });
             }
 
-            // Avvia il gioco e mostra bottom nav
             if (typeof initGioco === 'function') {
                 initGioco();
             }
@@ -1246,63 +1682,8 @@
                 aggiornaAvatarUI(datiUtenteLocale.fotoProfilo || fotoProfiloLocale || null, datiUtenteLocale.genere || genere);
             }
             
-            // Forza visualizzazione della bottom nav
             document.getElementById('bottom-nav').classList.remove('hidden');
-            
-            // Mostra la mappa per default
-            apriSchermata('mappa');
-        }
-
-        // ============================================
-        // FUNZIONE MOSTRA LISTA WISHLIST IN SCHERMATA
-        // ============================================
-        window.mostraListaWishlistInSchermata = function() {
-            const contenitore = document.getElementById("lista-monumenti");
-            if (!contenitore || typeof monumenti === 'undefined') return;
-
-            contenitore.innerHTML = "";
-
-            monumenti.forEach(m => {
-                const giaScoperto = m.scoperto || false;
-                const item = document.createElement("div");
-                
-                // Colore del bordo/sfondo differenziato ma entrambi visibili
-                item.className = `p-3 rounded-xl border flex flex-col gap-2 transition-all ${
-                    giaScoperto 
-                        ? 'bg-green-950/30 border-green-600/50' 
-                        : 'bg-gray-800/40 border-gray-700/50'
-                }`;
-                
-                let iconaCat = m.categoria === 'monumento' ? '🏛️' : (m.categoria === 'parco' ? '🌳' : '🛒');
-                let descrizioneLuogo = m.desc ? m.desc : "Nessuna descrizione disponibile.";
-                let categoriaLabel = m.categoria === 'monumento' ? 'Monumento' : (m.categoria === 'parco' ? 'Parco' : 'Supermercato');
-
-                item.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div class="flex items-start gap-2 flex-1">
-                            <span class="text-lg">${iconaCat}</span>
-                            <div class="flex-1">
-                                <p class="font-bold text-sm ${giaScoperto ? 'text-green-400' : 'text-gray-200'}">${m.nome}</p>
-                                <p class="text-[10px] text-gray-500">${categoriaLabel}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="text-[10px] text-gray-400 px-2 py-1.5 bg-gray-900/50 rounded-lg">
-                        ${descrizioneLuogo}
-                    </div>
-
-                    <div class="flex justify-between items-center">
-                        <p class="text-[10px] text-gray-500 font-mono label-distanza">
-                            ${giaScoperto ? '✅ SCOPERTO' : '📍 DA TROVARE'}
-                        </p>
-                        <span class="text-xs font-mono ${giaScoperto ? 'text-green-400' : 'text-yellow-400'} bg-gray-900/70 px-2 py-0.5 rounded-md">
-                            ${giaScoperto ? '✓' : '+100 XP'}
-                        </span>
-                    </div>
-                `;
-                contenitore.appendChild(item);
-            });
+            window.apriSchermata('mappa');
         }
     </script>
 </body>
