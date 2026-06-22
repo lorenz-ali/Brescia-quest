@@ -1,1817 +1,1912 @@
-<!DOCTYPE html> <html lang="it"> <head>  <meta charset="UTF-8">
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brescia Quest - Il Gioco Esplorativo</title> <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
- <style>     #map { flex-grow: 1; width: 100%; z-index: 1; }  header { position: relative; z-index: 99999 !important; }  #popup-scoperta, #popup-profilo, #popup-amici, #popup-impostazioni-hub, #popup-impostazioni-generali { z-index: 100000 !important; }
-        #wishlist-sidebar { z-index: 90000 !important; }
-        #btn-wishlist, #btn-amici { z-index: 85000 !important; }
-        #bottom-nav { z-index: 30000 !important; }
-        #schermata-amici, #schermata-wishlist { z-index: 20000 !important; }
-        #schermata-login { z-index: 999999 !important; }
-        
-        .schermata-full {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 64px;
-            background: #111827;
-            z-index: 20000;
-            overflow-y: auto;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .schermata-full.hidden {
-            display: none !important;
-        }
+  <title>Brescia Quest - Il Gioco Esplorativo</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #map { flex-grow: 1; width: 100%; z-index: 1; }
+    header { position: relative; z-index: 99999 !important; }
+    #popup-scoperta, #popup-profilo, #popup-amici, #popup-impostazioni-hub, #popup-impostazioni-generali { z-index: 100000 !important; }
+    #wishlist-sidebar { z-index: 90000 !important; }
+    #btn-wishlist, #btn-amici { z-index: 85000 !important; }
+    #bottom-nav { z-index: 30000 !important; }
+    #schermata-amici, #schermata-wishlist { z-index: 20000 !important; }
+    #schermata-login { z-index: 999999 !important; }
+    
+    .schermata-full {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 64px;
+      background: #111827;
+      z-index: 20000;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .schermata-full.hidden {
+      display: none !important;
+    }
 
-        #login-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 999998;
-            background: rgba(17, 24, 39, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 8px 16px;
-            border-bottom: 2px solid #eab308;
-            display: none;
-            justify-content: space-between;
-            align-items: center;
-            height: 56px;
-        }
+    #login-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 999998;
+      background: rgba(17, 24, 39, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 8px 16px;
+      border-bottom: 2px solid #eab308;
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      height: 56px;
+    }
 
-        #login-bar.visible {
-            display: flex !important;
-        }
+    #login-bar.visible {
+      display: flex !important;
+    }
 
-        #login-bar .login-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+    #login-bar .login-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-        #login-bar .login-info .avatar-small {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #374151;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            overflow: hidden;
-        }
+    #login-bar .login-info .avatar-small {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #374151;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      overflow: hidden;
+    }
 
-        #login-bar .login-info .avatar-small img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+    #login-bar .login-info .avatar-small img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-        #login-bar .login-info .user-name {
-            font-weight: bold;
-            color: #fbbf24;
-            font-size: 13px;
-        }
+    #login-bar .login-info .user-name {
+      font-weight: bold;
+      color: #fbbf24;
+      font-size: 13px;
+    }
 
-        #login-bar .login-info .user-role {
-            font-size: 10px;
-            color: #9ca3af;
-        }
+    #login-bar .login-info .user-role {
+      font-size: 10px;
+      color: #9ca3af;
+    }
 
-        #login-bar .logout-btn {
-            background: #dc2626;
-            color: white;
-            border: none;
-            padding: 4px 12px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+    #login-bar .logout-btn {
+      background: #dc2626;
+      color: white;
+      border: none;
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
 
-        #login-bar .logout-btn:hover {
-            background: #b91c1c;
-        }
+    #login-bar .logout-btn:hover {
+      background: #b91c1c;
+    }
 
-        #map-container {
-            height: calc(100vh - 64px);
-            width: 100%;
-        }
+    #map-container {
+      height: calc(100vh - 64px);
+      width: 100%;
+    }
 
-        #map-container.with-login-bar {
-            margin-top: 56px;
-            height: calc(100vh - 56px - 64px);
-        }
+    #map-container.with-login-bar {
+      margin-top: 56px;
+      height: calc(100vh - 56px - 64px);
+    }
 
-        #map {
-            height: 100%;
-            width: 100%;
-        }
+    #map {
+      height: 100%;
+      width: 100%;
+    }
 
-        #gioco-header {
-            display: none !important;
-        }
+    #gioco-header {
+      display: none !important;
+    }
 
-        /* Stile spunte WhatsApp */
-        .spunta-grigia { color: #9ca3af; font-size: 12px; font-weight: bold; }
-        .spunta-blu { color: #3b82f6; font-size: 12px; font-weight: bold; }
-        .msg-container {
-            transition: all 0.3s ease;
-            border-radius: 8px;
-        }
-        .msg-container.non-visualizzato {
-            border-left: 3px solid #fbbf24;
-        }
-        .msg-container.visualizzato {
-            border-left: 3px solid #4ade80;
-        }
-        .msg-mittente {
-            background: rgba(251, 191, 36, 0.08);
-        }
-        .msg-destinatario {
-            background: rgba(59, 130, 246, 0.05);
-        }
-    </style>
+    /* Stile spunte WhatsApp */
+    .spunta-grigia { color: #9ca3af; font-size: 12px; font-weight: bold; }
+    .spunta-blu { color: #3b82f6; font-size: 12px; font-weight: bold; }
+    .msg-container {
+      transition: all 0.3s ease;
+      border-radius: 8px;
+    }
+    .msg-container.non-visualizzato {
+      border-left: 3px solid #fbbf24;
+    }
+    .msg-container.visualizzato {
+      border-left: 3px solid #4ade80;
+    }
+    .msg-mittente {
+      background: rgba(251, 191, 36, 0.08);
+    }
+    .msg-destinatario {
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+  </style>
 </head>
 <body class="bg-gray-900 text-white font-sans flex flex-col h-screen overflow-hidden">
 
-    <!-- BARRA DI LOGIN -->
-    <div id="login-bar">
-        <div class="login-info">
-            <div id="avatar-login-bar" class="avatar-small">
-                <span>👤</span>
-            </div>
-            <div>
-                <div id="login-bar-name" class="user-name">Player</div>
-                <div id="login-bar-role" class="user-role">Esploratore</div>
-            </div>
-            <div style="margin-left: 8px; font-size: 11px; color: #4ade80;">
-                <span id="login-bar-level">Lv.1</span> | <span id="login-bar-xp">0 XP</span>
-            </div>
-        </div>
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <button onclick="window.apriPopupHubImpostazioni()" class="text-gray-400 hover:text-white text-sm cursor-pointer" title="Impostazioni">⚙️</button>
-            <button onclick="window.eseguiLogout()" class="logout-btn">🚪 Logout</button>
-        </div>
+  <!-- BARRA DI LOGIN -->
+  <div id="login-bar">
+    <div class="login-info">
+      <div id="avatar-login-bar" class="avatar-small">
+        <span>👤</span>
+      </div>
+      <div>
+        <div id="login-bar-name" class="user-name">Player</div>
+        <div id="login-bar-role" class="user-role">Esploratore</div>
+      </div>
+      <div style="margin-left: 8px; font-size: 11px; color: #4ade80;">
+        <span id="login-bar-level">Lv.1</span> | <span id="login-bar-xp">0 XP</span>
+      </div>
     </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <button onclick="window.apriPopupHubImpostazioni()" class="text-gray-400 hover:text-white text-sm cursor-pointer" title="Impostazioni">⚙️</button>
+      <button onclick="window.eseguiLogout()" class="logout-btn">🚪 Logout</button>
+    </div>
+  </div>
 
-    <!-- SCHERMATA LOGIN -->
-    <div id="schermata-login" class="fixed inset-0 bg-gray-950 z-[999999] flex flex-col justify-center items-center p-6">
-        <div class="max-w-sm w-full bg-gray-800 p-6 rounded-2xl border-2 border-yellow-500 shadow-xl text-center">
-            <span class="text-6xl animate-pulse">🎮</span>
-            <h2 class="text-2xl font-bold text-yellow-400 mt-2">BRESCIA QUEST</h2>
-            <p id="login-subtitle" class="text-gray-400 text-xs mb-4">Inizia la tua avventura urbana</p>
+  <!-- SCHERMATA LOGIN -->
+  <div id="schermata-login" class="fixed inset-0 bg-gray-950 z-[999999] flex flex-col justify-center items-center p-6">
+    <div class="max-w-sm w-full bg-gray-800 p-6 rounded-2xl border-2 border-yellow-500 shadow-xl text-center">
+      <span class="text-6xl animate-pulse">🎮</span>
+      <h2 class="text-2xl font-bold text-yellow-400 mt-2">BRESCIA QUEST</h2>
+      <p id="login-subtitle" class="text-gray-400 text-xs mb-4">Inizia la tua avventura urbana</p>
 
-            <div class="flex bg-gray-900 p-1 rounded-xl mb-4 border border-gray-700">
-                <button id="tab-accedi" onclick="switchAuthTab('accedi')" class="w-1/2 py-2 text-sm font-bold rounded-lg bg-yellow-500 text-gray-950 transition-colors cursor-pointer">ACCEDI</button>
-                <button id="tab-registrati" onclick="switchAuthTab('registrati')" class="w-1/2 py-2 text-sm font-bold rounded-lg text-gray-400 hover:text-white transition-colors cursor-pointer">REGISTRATI</button>
-            </div>
+      <div class="flex bg-gray-900 p-1 rounded-xl mb-4 border border-gray-700">
+        <button id="tab-accedi" onclick="switchAuthTab('accedi')" class="w-1/2 py-2 text-sm font-bold rounded-lg bg-yellow-500 text-gray-950 transition-colors cursor-pointer">ACCEDI</button>
+        <button id="tab-registrati" onclick="switchAuthTab('registrati')" class="w-1/2 py-2 text-sm font-bold rounded-lg text-gray-400 hover:text-white transition-colors cursor-pointer">REGISTRATI</button>
+      </div>
 
-            <form id="form-accedi" onsubmit="window.gestisciAccedi(event)" class="text-left space-y-4">
-                <div>
-                    <label id="login-accedi-email-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Indirizzo Email</label>
-                    <input type="email" id="accedi-email" required class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
-                </div>
-                <div>
-                    <label id="login-accedi-password-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Password</label>
-                    <input type="password" id="accedi-password" required class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
-                </div>
-                <div class="text-right">
-                    <button id="login-forgot-password" type="button" onclick="mostraRecuperoPassword()" class="text-xs text-yellow-400 hover:underline cursor-pointer">Hai dimenticato la password?</button>
-                </div>
-                <button id="login-submit-btn" type="submit" class="w-full bg-yellow-500 text-gray-950 font-bold py-3 rounded-xl shadow-lg hover:bg-yellow-400 transition-colors cursor-pointer">
-                    ENTRA NEL GIOCO 🚀
-                </button>
-            </form>
-
-            <form id="form-registrati" onsubmit="window.gestisciRegistrazione(event)" class="text-left space-y-4 hidden">
-                <div>
-                    <label id="register-email-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Indirizzo Email</label>
-                    <input type="email" id="login-email" required class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
-                </div>
-                <div>
-                    <label id="register-password-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Password</label>
-                    <input type="password" id="login-password" required placeholder="Inserisci la tua password" oninput="validaPasswordInTempoReale()" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
-                    
-                    <div class="mt-2 space-y-1 text-[11px]">
-                        <div id="req-lunghezza" class="text-red-400 flex items-center gap-1 transition-colors duration-200">
-                            <span id="icon-lunghezza">✕</span> Tra 6 e 15 caratteri
-                        </div>
-                        <div id="req-maiuscola" class="text-red-400 flex items-center gap-1 transition-colors duration-200">
-                            <span id="icon-maiuscola">✕</span> Almeno una lettera maiuscola
-                        </div>
-                        <div id="req-numero" class="text-red-400 flex items-center gap-1 transition-colors duration-200">
-                            <span id="icon-numero">✕</span> Almeno un numero (0-9)
-                        </div>
-                        <div id="req-speciale" class="text-red-400 flex items-center gap-1 transition-colors duration-200">
-                            <span id="icon-speciale">✕</span> Almeno un carattere speciale (!, @, #, $, ?, etc.)
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <label id="register-name-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Nome del Player</label>
-                    <input type="text" id="login-nome" required minlength="3" maxlength="12" placeholder="Max 12 caratteri" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
-                </div>
-                <div>
-                    <label id="register-gender-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Seleziona Genere Avatar</label>
-                    <select id="login-genere" required class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
-                        <option value="" disabled selected>Scegli il tuo stile...</option>
-                        <option value="Esploratore">Esploratore 🧑‍🚀</option>
-                        <option value="Esploratrice">Esploratrice 👩‍🚀</option>
-                    </select>
-                </div>
-                <button id="register-submit-btn" type="submit" class="w-full bg-yellow-500 text-gray-950 font-bold py-3 rounded-xl shadow-lg hover:bg-yellow-400 transition-colors cursor-pointer">
-                    CREA ACCOUNT 🌟
-                </button>
-            </form>
+      <form id="form-accedi" onsubmit="window.gestisciAccedi(event)" class="text-left space-y-4">
+        <div>
+          <label id="login-accedi-email-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Indirizzo Email</label>
+          <input type="email" id="accedi-email" required class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
         </div>
-    </div>
-
-    <!-- SCHERMATA RECUPERO PASSWORD -->
-    <div id="schermata-recupero" class="fixed inset-0 bg-gray-950 z-[999999] flex flex-col justify-center items-center p-6 hidden">
-        <div class="max-w-sm w-full bg-gray-800 p-6 rounded-2xl border-2 border-yellow-500 shadow-xl text-center">
-            <span class="text-5xl">🔑</span>
-            <h2 id="recovery-title" class="text-2xl font-bold text-yellow-400 mt-2">RECUPERO PASSWORD</h2>
-            <p id="recovery-subtitle" class="text-gray-400 text-xs mb-6">Inserisci la tua email per ricevere il link di reimpostazione</p>
-
-            <form id="form-recupero" onsubmit="window.gestisciRecupero(event)" class="text-left space-y-4">
-                <div>
-                    <label id="recovery-email-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Indirizzo Email dell'account</label>
-                    <input type="email" id="recupero-email" required class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
-                </div>
-                <button id="recovery-submit-btn" type="submit" class="w-full bg-yellow-500 text-gray-950 font-bold py-3 rounded-xl shadow-lg hover:bg-yellow-400 transition-colors cursor-pointer">
-                    INVIA EMAIL DI RECUPERO 📨
-                </button>
-                <button id="recovery-back-btn" type="button" onclick="tornaAlLogin()" class="w-full bg-transparent border border-gray-600 text-gray-400 hover:text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm text-center block">
-                    Annulla e Torna Indietro
-                </button>
-            </form>
+        <div>
+          <label id="login-accedi-password-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Password</label>
+          <input type="password" id="accedi-password" required class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
         </div>
-    </div>
-
-    <!-- POPUP IMPOSTAZIONI -->
-    <div id="popup-impostazioni-hub" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden" style="z-index: 9999999 !important;">
-        <div class="bg-gray-800 p-6 rounded-2xl max-w-sm w-full border-2 border-yellow-500 shadow-2xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="hub-title" class="text-lg font-bold text-yellow-400">⚙️ Impostazioni profilo</h3>
-                <button onclick="window.chiudiPopupHubImpostazioni()" class="text-gray-400 hover:text-white text-lg cursor-pointer">✕</button>
-            </div>
-            <div class="space-y-3">
-                <button id="hub-general-btn" onclick="window.apriPopupImpostazioniGenerali()" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-xl transition-colors cursor-pointer text-sm text-left px-4">
-                    🌐 Impostazioni generali
-                </button>
-                <button id="hub-avatar-btn" onclick="window.apriPopupAvatarCustomization()" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-xl transition-colors cursor-pointer text-sm text-left px-4">
-                    🧑‍🚀 Personalizzazione avatar
-                </button>
-            </div>
+        <div class="text-right">
+          <button id="login-forgot-password" type="button" onclick="mostraRecuperoPassword()" class="text-xs text-yellow-400 hover:underline cursor-pointer">Hai dimenticato la password?</button>
         </div>
-    </div>
-
-    <!-- POPUP IMPOSTAZIONI GENERALI -->
-    <div id="popup-impostazioni-generali" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden" style="z-index: 9999999 !important;">
-        <div class="bg-gray-800 p-6 rounded-2xl max-w-sm w-full border-2 border-yellow-500 shadow-2xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="general-title" class="text-lg font-bold text-yellow-400">🌐 Impostazioni generali</h3>
-                <button onclick="window.ritornaAlMenuImpostazioni()" class="text-gray-400 hover:text-white text-lg cursor-pointer">✕</button>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <label id="general-language-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Lingua</label>
-                    <select id="general-language-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm focus:outline-none focus:border-yellow-400 text-white">
-                        <option value="it">Italiano</option>
-                        <option value="en">English</option>
-                    </select>
-                </div>
-                <button id="btn-salva-impostazioni-generali" type="button" onclick="window.salvaImpostazioniGenerali()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm">
-                    Salva impostazioni
-                </button>
-                <button id="general-back-btn" type="button" onclick="window.ritornaAlMenuImpostazioni()" class="w-full bg-transparent border border-gray-600 text-gray-400 hover:text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm text-center block">
-                    Indietro
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- POPUP PROFILO -->
-    <div id="popup-profilo" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden" style="z-index: 9999999 !important;">
-        <div class="bg-gray-800 p-6 rounded-2xl max-w-sm w-full border-2 border-yellow-500 shadow-2xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="profile-title" class="text-lg font-bold text-yellow-400">🧑‍🚀 Personalizzazione avatar</h3>
-                <button onclick="window.chiudiPopupProfilo()" class="text-gray-400 hover:text-white text-lg cursor-pointer">✕</button>
-            </div>
-            <div class="space-y-4">
-                <button id="profile-back-btn" type="button" onclick="window.ritornaAlMenuImpostazioni()" class="w-full bg-transparent border border-gray-600 text-gray-400 hover:text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm text-center block">
-                    Torna al menu impostazioni
-                </button>
-                <div>
-                    <label id="profile-name-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Modifica Nome</label>
-                    <input type="text" id="edit-nome" maxlength="12" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm focus:outline-none focus:border-yellow-400 text-white">
-                </div>
-                <div>
-                    <label id="profile-gender-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Modifica Genere Avatar</label>
-                    <select id="edit-genere" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm focus:outline-none focus:border-yellow-400 text-white">
-                        <option value="Esploratore">Esploratore 🧑‍🚀</option>
-                        <option value="Esploratrice">Esploratrice 👩‍🚀</option>
-                    </select>
-                </div>
-                <div>
-                    <label id="profile-photo-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Foto Profilo</label>
-                    <div class="flex items-center gap-3 mb-2">
-                        <div id="edit-avatar-preview" class="w-12 h-12 bg-gray-700 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold">👤</div>
-                        <input type="file" id="edit-foto-file" accept="image/*" class="text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-yellow-500 file:text-gray-950 hover:file:bg-yellow-400 cursor-pointer">
-                    </div>
-                </div>
-                <button id="btn-salva-profilo" type="button" onclick="window.salvaModificheProfilo()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm">
-                    Salva Modifiche
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MAPPA CONTAINER -->
-    <div id="map-container">
-        <main id="map"></main>
-    </div>
-
-    <!-- FILTRI -->
-    <nav id="filtri-nav" class="bg-gray-850 p-2 flex gap-2 justify-center z-10 border-b border-gray-800 hidden">
-        <button id="btn-filtro-tutti" onclick="window.filtraCategoria('tutti')" class="bg-gray-700 hover:bg-gray-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer outline outline-3 outline-yellow-400">🌍 Tutti</button>
-        <button id="btn-filtro-monumento" onclick="window.filtraCategoria('monumento')" class="bg-amber-700 hover:bg-amber-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer">🏛️ Monumenti</button>
-        <button id="btn-filtro-parco" onclick="window.filtraCategoria('parco')" class="bg-green-700 hover:bg-green-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer">🌳 Parchi</button>
-        <button id="btn-filtro-supermercato" onclick="window.filtraCategoria('supermercato')" class="bg-blue-700 hover:bg-blue-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer">🛒 Spesa</button>
-    </nav>
-
-    <!-- POPUP SCOPERTA -->
-    <div id="popup-scoperta" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden" style="z-index: 9999999 !important;">
-        <div class="bg-gray-800 p-6 rounded-2xl max-w-sm w-full text-center border-2 border-yellow-400 shadow-2xl">
-            <span class="text-5xl">🏆</span>
-            <h3 id="popup-badge-title" class="text-2xl font-bold text-yellow-400 mt-2">BADGE SBLOCCATO!</h3>
-            <p id="popup-nome" class="text-xl font-semibold mt-1">Nome Posto</p>
-            <p id="popup-desc" class="text-gray-300 text-sm mt-3 px-2"></p>
-            <div class="mt-4 text-green-400 font-bold font-mono text-lg">+100 XP GUADAGNATI!</div>
-            <button id="popup-continue-btn" onclick="window.chiudiPopupScoperta()" class="mt-5 w-full bg-yellow-500 text-gray-950 font-bold py-2 rounded-xl cursor-pointer hover:bg-yellow-400">
-                Continua la Caccia
-            </button>
-        </div>
-    </div>
-
-    <!-- BOTTOM NAV -->
-    <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 h-16 bg-gray-900 border-t border-gray-800 flex justify-around items-center z-[9999] hidden">
-        <button onclick="window.apriSchermata('amici')" class="flex flex-col items-center justify-center text-blue-400 hover:text-blue-300 transition-colors">
-            <span class="text-2xl">👥</span>
-            <span class="text-[10px] font-bold">Amici</span>
+        <button id="login-submit-btn" type="submit" class="w-full bg-yellow-500 text-gray-950 font-bold py-3 rounded-xl shadow-lg hover:bg-yellow-400 transition-colors cursor-pointer">
+          ENTRA NEL GIOCO 🚀
         </button>
-        <button onclick="window.apriSchermata('mappa')" class="flex flex-col items-center justify-center text-yellow-400 hover:text-yellow-300 transition-colors">
-            <span class="text-2xl">🌍</span>
-            <span class="text-[10px] font-bold">Mappa</span>
+      </form>
+
+      <form id="form-registrati" onsubmit="window.gestisciRegistrazione(event)" class="text-left space-y-4 hidden">
+        <div>
+          <label id="register-email-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Indirizzo Email</label>
+          <input type="email" id="login-email" required class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
+        </div>
+        <div>
+          <label id="register-password-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Password</label>
+          <input type="password" id="login-password" required placeholder="Inserisci la tua password" oninput="validaPasswordInTempoReale()" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
+          
+          <div class="mt-2 space-y-1 text-[11px]">
+            <div id="req-lunghezza" class="text-red-400 flex items-center gap-1 transition-colors duration-200">
+              <span id="icon-lunghezza">✕</span> Tra 6 e 15 caratteri
+            </div>
+            <div id="req-maiuscola" class="text-red-400 flex items-center gap-1 transition-colors duration-200">
+              <span id="icon-maiuscola">✕</span> Almeno una lettera maiuscola
+            </div>
+            <div id="req-numero" class="text-red-400 flex items-center gap-1 transition-colors duration-200">
+              <span id="icon-numero">✕</span> Almeno un numero (0-9)
+            </div>
+            <div id="req-speciale" class="text-red-400 flex items-center gap-1 transition-colors duration-200">
+              <span id="icon-speciale">✕</span> Almeno un carattere speciale (!, @, #, $, ?, etc.)
+            </div>
+          </div>
+        </div>
+        <div>
+          <label id="register-name-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Nome del Player</label>
+          <input type="text" id="login-nome" required minlength="3" maxlength="12" placeholder="Max 12 caratteri" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
+        </div>
+        <div>
+          <label id="register-gender-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Seleziona Genere Avatar</label>
+          <select id="login-genere" required class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
+            <option value="" disabled selected>Scegli il tuo stile...</option>
+            <option value="Esploratore">Esploratore 🧑‍🚀</option>
+            <option value="Esploratrice">Esploratrice 👩‍🚀</option>
+          </select>
+        </div>
+        <button id="register-submit-btn" type="submit" class="w-full bg-yellow-500 text-gray-950 font-bold py-3 rounded-xl shadow-lg hover:bg-yellow-400 transition-colors cursor-pointer">
+          CREA ACCOUNT 🌟
         </button>
-        <button onclick="window.apriSchermata('wishlist')" class="flex flex-col items-center justify-center text-yellow-500 hover:text-yellow-400 transition-colors">
-            <span class="text-2xl">📋</span>
-            <span class="text-[10px] font-bold">Wishlist</span>
+      </form>
+    </div>
+  </div>
+
+  <!-- SCHERMATA RECUPERO PASSWORD -->
+  <div id="schermata-recupero" class="fixed inset-0 bg-gray-950 z-[999999] flex flex-col justify-center items-center p-6 hidden">
+    <div class="max-w-sm w-full bg-gray-800 p-6 rounded-2xl border-2 border-yellow-500 shadow-xl text-center">
+      <span class="text-5xl">🔑</span>
+      <h2 id="recovery-title" class="text-2xl font-bold text-yellow-400 mt-2">RECUPERO PASSWORD</h2>
+      <p id="recovery-subtitle" class="text-gray-400 text-xs mb-6">Inserisci la tua email per ricevere il link di reimpostazione</p>
+
+      <form id="form-recupero" onsubmit="window.gestisciRecupero(event)" class="text-left space-y-4">
+        <div>
+          <label id="recovery-email-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Indirizzo Email dell'account</label>
+          <input type="email" id="recupero-email" required class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-yellow-400 text-white">
+        </div>
+        <button id="recovery-submit-btn" type="submit" class="w-full bg-yellow-500 text-gray-950 font-bold py-3 rounded-xl shadow-lg hover:bg-yellow-400 transition-colors cursor-pointer">
+          INVIA EMAIL DI RECUPERO 📨
         </button>
-    </nav>
+        <button id="recovery-back-btn" type="button" onclick="tornaAlLogin()" class="w-full bg-transparent border border-gray-600 text-gray-400 hover:text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm text-center block">
+          Annulla e Torna Indietro
+        </button>
+      </form>
+    </div>
+  </div>
 
-    <!-- SCHERMATA AMICI -->
-    <div id="schermata-amici" class="schermata-full hidden">
-        <div class="flex justify-between items-end mb-6 border-b border-gray-800 pb-4">
-            <div>
-                <h2 id="titolo-sezione-amici" class="text-xl font-bold text-blue-400 flex items-center gap-2">
-                    👥 Il mio Clan
-                    <span class="text-xs bg-gray-800 text-gray-400 px-2 py-0.5 rounded-full font-mono font-normal" id="conteggio-clan">0 utenti</span>
-                </h2> 
-                <p id="sottotitolo-sezione-amici" class="text-[11px] text-gray-400 mt-0.5">Classifica dei punteggi</p>
-            </div>
-            <div class="flex items-center gap-1 bg-gray-950 p-1 rounded-xl border border-gray-800 shadow-inner">
-                <button id="btn-tab-classifica" onclick="window.switchAmiciTab('classifica')" class="bg-blue-600 text-white font-bold text-[11px] px-3 py-2 rounded-lg cursor-pointer transition-all uppercase tracking-wider flex items-center gap-1">◀ Clan</button>
-                <button id="btn-tab-feed" onclick="window.switchAmiciTab('feed')" class="bg-gray-700 text-gray-400 font-bold text-[11px] px-3 py-2 rounded-lg cursor-pointer transition-all uppercase tracking-wider flex items-center gap-1 hover:text-white">Attività ▶</button>
-            </div>
+  <!-- POPUP IMPOSTAZIONI -->
+  <div id="popup-impostazioni-hub" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden" style="z-index: 9999999 !important;">
+    <div class="bg-gray-800 p-6 rounded-2xl max-w-sm w-full border-2 border-yellow-500 shadow-2xl">
+      <div class="flex justify-between items-center mb-4">
+        <h3 id="hub-title" class="text-lg font-bold text-yellow-400">⚙️ Impostazioni profilo</h3>
+        <button onclick="window.chiudiPopupHubImpostazioni()" class="text-gray-400 hover:text-white text-lg cursor-pointer">✕</button>
+      </div>
+      <div class="space-y-3">
+        <button id="hub-general-btn" onclick="window.apriPopupImpostazioniGenerali()" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-xl transition-colors cursor-pointer text-sm text-left px-4">
+          🌐 Impostazioni generali
+        </button>
+        <button id="hub-avatar-btn" onclick="window.apriPopupAvatarCustomization()" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-xl transition-colors cursor-pointer text-sm text-left px-4">
+          🧑‍🚀 Personalizzazione avatar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP IMPOSTAZIONI GENERALI -->
+  <div id="popup-impostazioni-generali" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden" style="z-index: 9999999 !important;">
+    <div class="bg-gray-800 p-6 rounded-2xl max-w-sm w-full border-2 border-yellow-500 shadow-2xl">
+      <div class="flex justify-between items-center mb-4">
+        <h3 id="general-title" class="text-lg font-bold text-yellow-400">🌐 Impostazioni generali</h3>
+        <button onclick="window.ritornaAlMenuImpostazioni()" class="text-gray-400 hover:text-white text-lg cursor-pointer">✕</button>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label id="general-language-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Lingua</label>
+          <select id="general-language-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm focus:outline-none focus:border-yellow-400 text-white">
+            <option value="it">Italiano</option>
+            <option value="en">English</option>
+          </select>
         </div>
+        <button id="btn-salva-impostazioni-generali" type="button" onclick="window.salvaImpostazioniGenerali()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm">
+          Salva impostazioni
+        </button>
+        <button id="general-back-btn" type="button" onclick="window.ritornaAlMenuImpostazioni()" class="w-full bg-transparent border border-gray-600 text-gray-400 hover:text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm text-center block">
+          Indietro
+        </button>
+      </div>
+    </div>
+  </div>
 
-        <div id="sezione-aggiungi-amico" class="mb-4 bg-gray-900/60 p-3 rounded-xl border border-gray-700">
-            <p class="text-[11px] text-gray-400 mb-1.5 font-semibold">🤝 AGGIUNGI UN COMPAGNO DI SQUADRA</p>
-            <div class="flex gap-2">
-                <input type="text" id="input-codice-amico" placeholder="Incolla il Codice Squadra..." class="flex-grow bg-gray-800 border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
-                <button onclick="window.aggiungiAmico()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer">Aggiungi</button>
-            </div>
+  <!-- POPUP PROFILO -->
+  <div id="popup-profilo" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden" style="z-index: 9999999 !important;">
+    <div class="bg-gray-800 p-6 rounded-2xl max-w-sm w-full border-2 border-yellow-500 shadow-2xl">
+      <div class="flex justify-between items-center mb-4">
+        <h3 id="profile-title" class="text-lg font-bold text-yellow-400">🧑‍🚀 Personalizzazione avatar</h3>
+        <button onclick="window.chiudiPopupProfilo()" class="text-gray-400 hover:text-white text-lg cursor-pointer">✕</button>
+      </div>
+      <div class="space-y-4">
+        <button id="profile-back-btn" type="button" onclick="window.ritornaAlMenuImpostazioni()" class="w-full bg-transparent border border-gray-600 text-gray-400 hover:text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm text-center block">
+          Torna al menu impostazioni
+        </button>
+        <div>
+          <label id="profile-name-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Modifica Nome</label>
+          <input type="text" id="edit-nome" maxlength="12" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm focus:outline-none focus:border-yellow-400 text-white">
         </div>
-
-        <!-- SEZIONE INVIO MESSAGGIO -->
-        <div id="sezione-invia-messaggio" class="hidden mb-4">
-            <div class="flex gap-2">
-                <input type="text" id="input-messaggio-chat" placeholder="Scrivi un messaggio alla squadra..." class="flex-grow bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
-                <button onclick="window.inviaMessaggioChat()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors cursor-pointer shadow-md">
-                    Invia ✉️
-                </button>
-            </div>
-            <div class="flex gap-2 mt-2">
-                <button onclick="window.marcaIstantaneaTuttiMessaggi()" class="bg-green-700/50 hover:bg-green-700 text-white font-bold px-3 py-1 rounded-lg text-[10px] transition-colors cursor-pointer">
-                    👁️ Segna tutti come letti
-                </button>
-                <button onclick="window.eliminaTuttiMessaggiChat()" class="bg-red-700/50 hover:bg-red-700 text-white font-bold px-3 py-1 rounded-lg text-[10px] transition-colors cursor-pointer">
-                    🗑️ Elimina tutti i miei messaggi
-                </button>
-            </div>
+        <div>
+          <label id="profile-gender-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Modifica Genere Avatar</label>
+          <select id="edit-genere" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm focus:outline-none focus:border-yellow-400 text-white">
+            <option value="Esploratore">Esploratore 🧑‍🚀</option>
+            <option value="Esploratrice">Esploratrice 👩‍🚀</option>
+          </select>
         </div>
+        <div>
+          <label id="profile-photo-label" class="block text-xs font-bold uppercase text-gray-400 mb-1">Foto Profilo</label>
+          <div class="flex items-center gap-3 mb-2">
+            <div id="edit-avatar-preview" class="w-12 h-12 bg-gray-700 rounded-full overflow-hidden flex items-center justify-center text-xl font-bold">👤</div>
+            <input type="file" id="edit-foto-file" accept="image/*" class="text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-yellow-500 file:text-gray-950 hover:file:bg-yellow-400 cursor-pointer">
+          </div>
+        </div>
+        <button id="btn-salva-profilo" type="button" onclick="window.salvaModificheProfilo()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl transition-colors cursor-pointer text-sm">
+          Salva Modifiche
+        </button>
+      </div>
+    </div>
+  </div>
 
-        <!-- CODICE SQUADRA -->
-        <div id="box-squadra" class="bg-gray-800/50 border border-gray-700/60 p-4 rounded-2xl mb-6">
-            <div class="flex justify-between items-center"> 
-                <div>
-                    <span class="text-gray-400 block font-bold uppercase text-[10px]">Il tuo Codice Squadra:</span>
-                    <span id="mio-codice-txt" class="font-mono font-semibold text-yellow-400 tracking-wider">Caricamento...</span>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="window.copiaCodiceAmico()" class="bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg text-white font-bold text-xs cursor-pointer">📋 Copia</button>
-                    <button onclick="window.condividiCodiceAmico()" class="bg-yellow-600 hover:bg-yellow-500 px-3 py-1.5 rounded-lg text-gray-950 font-bold text-xs cursor-pointer">🔗 Condividi</button> 
-                </div> 
-            </div> 
+  <!-- MAPPA CONTAINER -->
+  <div id="map-container">
+    <main id="map"></main>
+  </div>
+
+  <!-- FILTRI -->
+  <nav id="filtri-nav" class="bg-gray-850 p-2 flex gap-2 justify-center z-10 border-b border-gray-800 hidden">
+    <button id="btn-filtro-tutti" onclick="window.filtraCategoria('tutti')" class="bg-gray-700 hover:bg-gray-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer outline outline-3 outline-yellow-400">🌍 Tutti</button>
+    <button id="btn-filtro-monumento" onclick="window.filtraCategoria('monumento')" class="bg-amber-700 hover:bg-amber-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer">🏛️ Monumenti</button>
+    <button id="btn-filtro-parco" onclick="window.filtraCategoria('parco')" class="bg-green-700 hover:bg-green-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer">🌳 Parchi</button>
+    <button id="btn-filtro-supermercato" onclick="window.filtraCategoria('supermercato')" class="bg-blue-700 hover:bg-blue-600 text-xs font-bold px-3 py-1 rounded-full cursor-pointer">🛒 Spesa</button>
+  </nav>
+
+  <!-- POPUP SCOPERTA -->
+  <div id="popup-scoperta" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden" style="z-index: 9999999 !important;">
+    <div class="bg-gray-800 p-6 rounded-2xl max-w-sm w-full text-center border-2 border-yellow-400 shadow-2xl">
+      <span class="text-5xl">🏆</span>
+      <h3 id="popup-badge-title" class="text-2xl font-bold text-yellow-400 mt-2">BADGE SBLOCCATO!</h3>
+      <p id="popup-nome" class="text-xl font-semibold mt-1">Nome Posto</p>
+      <p id="popup-desc" class="text-gray-300 text-sm mt-3 px-2"></p>
+      <div class="mt-4 text-green-400 font-bold font-mono text-lg">+100 XP GUADAGNATI!</div>
+      <button id="popup-continue-btn" onclick="window.chiudiPopupScoperta()" class="mt-5 w-full bg-yellow-500 text-gray-950 font-bold py-2 rounded-xl cursor-pointer hover:bg-yellow-400">
+        Continua la Caccia
+      </button>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 h-16 bg-gray-900 border-t border-gray-800 flex justify-around items-center z-[9999] hidden">
+    <button onclick="window.apriSchermata('amici')" class="flex flex-col items-center justify-center text-blue-400 hover:text-blue-300 transition-colors">
+      <span class="text-2xl">👥</span>
+      <span class="text-[10px] font-bold">Amici</span>
+    </button>
+    <button onclick="window.apriSchermata('mappa')" class="flex flex-col items-center justify-center text-yellow-400 hover:text-yellow-300 transition-colors">
+      <span class="text-2xl">🌍</span>
+      <span class="text-[10px] font-bold">Mappa</span>
+    </button>
+    <button onclick="window.apriSchermata('wishlist')" class="flex flex-col items-center justify-center text-yellow-500 hover:text-yellow-400 transition-colors">
+      <span class="text-2xl">📋</span>
+      <span class="text-[10px] font-bold">Wishlist</span>
+    </button>
+  </nav>
+
+  <!-- SCHERMATA AMICI -->
+  <div id="schermata-amici" class="schermata-full hidden">
+    <div class="flex justify-between items-end mb-6 border-b border-gray-800 pb-4">
+      <div>
+        <h2 id="titolo-sezione-amici" class="text-xl font-bold text-blue-400 flex items-center gap-2">
+          👥 Il mio Clan
+          <span class="text-xs bg-gray-800 text-gray-400 px-2 py-0.5 rounded-full font-mono font-normal" id="conteggio-clan">0 utenti</span>
+        </h2> 
+        <p id="sottotitolo-sezione-amici" class="text-[11px] text-gray-400 mt-0.5">Classifica dei punteggi</p>
+      </div>
+      <div class="flex items-center gap-1 bg-gray-950 p-1 rounded-xl border border-gray-800 shadow-inner">
+        <button id="btn-tab-classifica" onclick="window.switchAmiciTab('classifica')" class="bg-blue-600 text-white font-bold text-[11px] px-3 py-2 rounded-lg cursor-pointer transition-all uppercase tracking-wider flex items-center gap-1">◀ Clan</button>
+        <button id="btn-tab-feed" onclick="window.switchAmiciTab('feed')" class="bg-gray-700 text-gray-400 font-bold text-[11px] px-3 py-2 rounded-lg cursor-pointer transition-all uppercase tracking-wider flex items-center gap-1 hover:text-white">Attività ▶</button>
+      </div>
+    </div>
+
+    <div id="sezione-aggiungi-amico" class="mb-4 bg-gray-900/60 p-3 rounded-xl border border-gray-700">
+      <p class="text-[11px] text-gray-400 mb-1.5 font-semibold">🤝 AGGIUNGI UN COMPAGNO DI SQUADRA</p>
+      <div class="flex gap-2">
+        <input type="text" id="input-codice-amico" placeholder="Incolla il Codice Squadra..." class="flex-grow bg-gray-800 border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
+        <button onclick="window.aggiungiAmico()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer">Aggiungi</button>
+      </div>
+    </div>
+
+    <!-- SEZIONE INVIO MESSAGGIO -->
+    <div id="sezione-invia-messaggio" class="hidden mb-4">
+      <div class="flex gap-2">
+        <input type="text" id="input-messaggio-chat" placeholder="Scrivi un messaggio alla squadra..." class="flex-grow bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+        <button onclick="window.inviaMessaggioChat()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors cursor-pointer shadow-md">
+          Invia ✉️
+        </button>
+      </div>
+      <div class="flex gap-2 mt-2">
+        <button onclick="window.marcaIstantaneaTuttiMessaggi()" class="bg-green-700/50 hover:bg-green-700 text-white font-bold px-3 py-1 rounded-lg text-[10px] transition-colors cursor-pointer">
+          👁️ Segna tutti come letti
+        </button>
+        <button onclick="window.eliminaTuttiMessaggiChat()" class="bg-red-700/50 hover:bg-red-700 text-white font-bold px-3 py-1 rounded-lg text-[10px] transition-colors cursor-pointer">
+          🗑️ Elimina tutti i miei messaggi
+        </button>
+      </div>
+    </div>
+
+    <!-- CODICE SQUADRA -->
+    <div id="box-squadra" class="bg-gray-800/50 border border-gray-700/60 p-4 rounded-2xl mb-6">
+      <div class="flex justify-between items-center"> 
+        <div>
+          <span class="text-gray-400 block font-bold uppercase text-[10px]">Il tuo Codice Squadra:</span>
+          <span id="mio-codice-txt" class="font-mono font-semibold text-yellow-400 tracking-wider">Caricamento...</span>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="window.copiaCodiceAmico()" class="bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg text-white font-bold text-xs cursor-pointer">📋 Copia</button>
+          <button onclick="window.condividiCodiceAmico()" class="bg-yellow-600 hover:bg-yellow-500 px-3 py-1.5 rounded-lg text-gray-950 font-bold text-xs cursor-pointer">🔗 Condividi</button> 
         </div> 
+      </div> 
+    </div> 
 
-        <div id="pannello-classifica">
-            <h4 class="text-xs font-bold uppercase text-gray-400 mb-3 flex items-center gap-1">🏆 Classifica della Squadra (Tu + Amici)</h4>
-            <div id="lista-amici-classifica" class="space-y-2 overflow-y-auto flex-grow pr-1 text-xs">
-                <p class="text-gray-500 text-center py-4 text-sm">Nessun amico nel clan. Condividi il tuo codice!</p>
-            </div>
-        </div>
-
-        <div id="pannello-feed" class="hidden">
-            <h4 class="text-xs font-bold uppercase text-gray-400 mb-3 flex items-center gap-1">⚡ Bacheca & Successi della Squadra</h4>
-            <div id="lista-amici-feed" class="space-y-3 overflow-y-auto flex-grow pr-1">
-                <p class="text-gray-500 text-center py-4 text-sm">Nessun successo o messaggio da mostrare per questa squadra.</p>
-            </div>
-        </div>
+    <div id="pannello-classifica">
+      <h4 class="text-xs font-bold uppercase text-gray-400 mb-3 flex items-center gap-1">🏆 Classifica della Squadra (Tu + Amici)</h4>
+      <div id="lista-amici-classifica" class="space-y-2 overflow-y-auto flex-grow pr-1 text-xs">
+        <p class="text-gray-500 text-center py-4 text-sm">Nessun amico nel clan. Condividi il tuo codice!</p>
+      </div>
     </div>
 
-    <!-- SCHERMATA WISHLIST -->
-    <div id="schermata-wishlist" class="schermata-full hidden">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-yellow-400">📋 La mia Wishlist</h2>
-            <div class="flex gap-2">
-                <select id="filtro-wishlist" onchange="window.filtraWishlist(this.value)" class="bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-yellow-400 cursor-pointer">
-                    <option value="tutti">🌍 Tutti</option>
-                    <option value="monumento">🏛️ Monumenti</option>
-                    <option value="parco">🌳 Parchi</option>
-                    <option value="supermercato">🛒 Supermercati</option>
-                </select>
+    <div id="pannello-feed" class="hidden">
+      <h4 class="text-xs font-bold uppercase text-gray-400 mb-3 flex items-center gap-1">⚡ Bacheca & Successi della Squadra</h4>
+      <div id="lista-amici-feed" class="space-y-3 overflow-y-auto flex-grow pr-1">
+        <p class="text-gray-500 text-center py-4 text-sm">Nessun successo o messaggio da mostrare per questa squadra.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCHERMATA WISHLIST -->
+  <div id="schermata-wishlist" class="schermata-full hidden">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold text-yellow-400">📋 La mia Wishlist</h2>
+      <div class="flex gap-2">
+        <select id="filtro-wishlist" onchange="window.filtraWishlist(this.value)" class="bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-yellow-400 cursor-pointer">
+          <option value="tutti">🌍 Tutti</option>
+          <option value="monumento">🏛️ Monumenti</option>
+          <option value="parco">🌳 Parchi</option>
+          <option value="supermercato">🛒 Supermercati</option>
+        </select>
+      </div>
+    </div>
+    <div id="lista-monumenti-full" class="space-y-3 overflow-y-auto flex-grow"></div>
+  </div>
+
+  <!-- WISHLIST SIDEBAR -->
+  <div id="wishlist-sidebar" class="fixed top-0 right-0 h-full w-72 bg-gray-950 border-l border-gray-800 transition-transform duration-300 ease-in-out overflow-y-auto p-6 shadow-2xl translate-x-full" style="z-index: 999999 !important;">
+    <div class="flex flex-col gap-4 mb-6 mt-2 relative" style="z-index: 1000000 !important;">
+      <button id="wishlist-close-btn" onclick="window.toggleWishlist();" class="w-full bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold py-2.5 px-4 rounded-xl text-xs transition-colors border-none tracking-wider block text-center shadow-lg cursor-pointer relative" style="z-index: 1000005 !important;">
+        ✕ CHIUDI ELENCO
+      </button>
+      <h2 id="wishlist-title" class="text-xl font-bold text-yellow-400 mt-2">⚔️ La mia Wishlist</h2>
+    </div>
+    <div id="lista-monumenti" class="space-y-3"></div>
+  </div>
+
+  <script>
+    // ============================================
+    // FUNZIONI DI GESTIONE SCHERMATE FULL
+    // ============================================
+    window.apriSchermata = function(tipo) {
+      document.getElementById('schermata-amici').classList.add('hidden');
+      document.getElementById('schermata-wishlist').classList.add('hidden');
+      
+      const loginBar = document.getElementById('login-bar');
+      const mapContainer = document.getElementById('map-container');
+      
+      if (tipo === 'mappa') {
+        loginBar.classList.add('visible');
+        mapContainer.classList.add('with-login-bar');
+        document.getElementById('filtri-nav').classList.remove('hidden');
+        if (typeof map !== 'undefined' && map) map.invalidateSize();
+      } else {
+        loginBar.classList.remove('visible');
+        mapContainer.classList.remove('with-login-bar');
+        document.getElementById('filtri-nav').classList.add('hidden');
+      }
+      
+      const bottoniNav = document.querySelectorAll("#bottom-nav button");
+      bottoniNav.forEach(btn => {
+        btn.classList.remove("text-blue-400", "text-yellow-400", "text-yellow-500");
+        btn.classList.add("text-gray-400");
+      });
+
+      if (tipo === 'mappa') {
+        bottoniNav[1].classList.remove("text-gray-400");
+        bottoniNav[1].classList.add("text-yellow-400");
+      } else if (tipo === 'amici') {
+        document.getElementById('schermata-amici').classList.remove('hidden');
+        bottoniNav[0].classList.remove("text-gray-400");
+        bottoniNav[0].classList.add("text-blue-400");
+        // Aggiorna classifica e attiva il listener feed se siamo sul tab feed
+        if (typeof window.aggiornaElencoClassificaAmici === 'function') {
+          window.aggiornaElencoClassificaAmici();
+        }
+        // Se il tab feed è attivo, avvia il real-time
+        const feedPanel = document.getElementById('pannello-feed');
+        if (feedPanel && !feedPanel.classList.contains('hidden')) {
+          if (typeof window.avviaAscoltoChatRealTime === 'function') {
+            window.avviaAscoltoChatRealTime();
+          }
+        }
+      } else if (tipo === 'wishlist') {
+        document.getElementById('schermata-wishlist').classList.remove('hidden');
+        bottoniNav[2].classList.remove("text-gray-400");
+        bottoniNav[2].classList.add("text-yellow-500");
+        document.getElementById('filtro-wishlist').value = 'tutti';
+        if (typeof window.aggiornaWishlistFull === 'function') {
+          window.aggiornaWishlistFull('tutti');
+        }
+      }
+    }
+
+    window.filtraCategoria = function(categoria) {
+      if (typeof window.aggiornaMappaELista === 'function') {
+        window.aggiornaMappaELista(categoria);
+      }
+    };
+
+    window.chiudiPopupScoperta = function() {
+      document.getElementById('popup-scoperta').classList.add('hidden');
+    };
+
+    window.toggleWishlist = function() {
+      const sidebar = document.getElementById('wishlist-sidebar');
+      if (sidebar) sidebar.classList.toggle('translate-x-full');
+    };
+
+    window.filtraWishlist = function(categoria) {
+      if (typeof window.aggiornaWishlistFull === 'function') {
+        window.aggiornaWishlistFull(categoria);
+      }
+    };
+
+    window.aggiornaWishlistFull = function(categoriaFiltro = 'tutti') {
+      const container = document.getElementById('lista-monumenti-full');
+      if (!container) return;
+      
+      if (typeof monumenti === 'undefined') {
+        container.innerHTML = "<p class='text-gray-400 text-xs text-center py-4 animate-pulse'>Caricamento luoghi in corso...</p>";
+        return;
+      }
+
+      let monumentiFiltrati = monumenti;
+      if (categoriaFiltro !== 'tutti') {
+        monumentiFiltrati = monumenti.filter(m => m.categoria === categoriaFiltro);
+      }
+      
+      if (monumentiFiltrati.length === 0) {
+        container.innerHTML = "<p class='text-gray-400 text-xs text-center py-4'>Nessun luogo trovato in questa categoria.</p>";
+        return;
+      }
+
+      container.innerHTML = "";
+      monumentiFiltrati.forEach(m => {
+        const item = document.createElement('div');
+        const safeId = m.nome.replace(/[^a-zA-Z0-9]/g, '-');
+        item.id = `monumento-full-${safeId}`;
+        item.className = `p-3 rounded-xl flex justify-between items-center transition-all bg-gray-800 border ${
+          m.scoperto ? 'bg-green-950/40 border-green-500' : 'bg-gray-700/50 border-gray-600'
+        }`;
+        
+        item.innerHTML = `
+          <div class="flex-1 pr-2">
+            <p class="font-semibold text-sm ${m.scoperto ? 'text-green-400' : 'text-gray-200'}">${m.nome}</p>
+            <p class="text-[10px] text-gray-400 mt-0.5">${m.desc}</p>
+            <p class="text-xs text-gray-400 font-mono label-distanza-full mt-1">${m.scoperto ? '🏁 Obiettivo Conquistato' : '📍 Distanza: Calcolo in corso...'}</p>
+          </div>
+          <div class="text-sm font-mono text-gray-400 bg-gray-800 px-2 py-1 rounded-md badge-xp shrink-0">
+            ${m.scoperto ? '✅' : '+100 XP'}
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    };
+
+    window.mostraListaWishlistInSchermata = function() {
+      const contenitore = document.getElementById("lista-monumenti");
+      if (!contenitore || typeof monumenti === 'undefined') return;
+
+      contenitore.innerHTML = "";
+
+      monumenti.forEach(m => {
+        const giaScoperto = m.scoperto || false;
+        const item = document.createElement("div");
+        
+        if (giaScoperto) {
+          item.className = "p-4 rounded-2xl border-2 border-green-500 bg-green-950/20 flex flex-col gap-3 transition-all shadow-md shadow-green-950/50";
+        } else {
+          item.className = "p-4 rounded-2xl border-2 border-gray-800 bg-gray-900/40 flex flex-col gap-3 transition-all";
+        }
+        
+        let iconaCat = m.categoria === 'monumento' ? '🏛️' : (m.categoria === 'parco' ? '🌳' : '🛒');
+        let descrizioneLuogo = m.desc ? m.desc : "Nessuna descrizione disponibile per questo luogo.";
+        let categoriaLabel = m.categoria === 'monumento' ? 'Monumento' : (m.categoria === 'parco' ? 'Parco' : 'Supermercato');
+
+        item.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div class="flex items-start gap-2 flex-1">
+              <span class="text-xl">${iconaCat}</span>
+              <div class="flex-1">
+                <p class="font-bold text-sm ${giaScoperto ? 'text-green-400' : 'text-gray-200'}">${m.nome}</p>
+                <p class="text-[10px] text-gray-500">${categoriaLabel}</p>
+              </div>
             </div>
-        </div>
-        <div id="lista-monumenti-full" class="space-y-3 overflow-y-auto flex-grow"></div>
-    </div>
+          </div>
+          <div class="text-[10px] text-gray-300 px-3 py-2 bg-gray-900/60 rounded-lg border border-gray-800/50">
+            ${descrizioneLuogo}
+          </div>
+          <div class="flex justify-between items-center pt-1">
+            <p class="text-[10px] text-gray-500 font-mono">
+              ${giaScoperto ? '✅ Scoperto' : '📍 Da Trovare'}
+            </p>
+            <span class="text-xs font-mono ${giaScoperto ? 'text-green-400' : 'text-yellow-400'} bg-gray-800/70 px-2.5 py-1 rounded-md font-bold">
+              ${giaScoperto ? '✓' : '+100 XP'}
+            </span>
+          </div>
+        `;
+        contenitore.appendChild(item);
+      });
+    };
 
-    <!-- WISHLIST SIDEBAR -->
-    <div id="wishlist-sidebar" class="fixed top-0 right-0 h-full w-72 bg-gray-950 border-l border-gray-800 transition-transform duration-300 ease-in-out overflow-y-auto p-6 shadow-2xl translate-x-full" style="z-index: 999999 !important;">
-        <div class="flex flex-col gap-4 mb-6 mt-2 relative" style="z-index: 1000000 !important;">
-            <button id="wishlist-close-btn" onclick="window.toggleWishlist();" class="w-full bg-yellow-500 hover:bg-yellow-400 text-gray-950 font-bold py-2.5 px-4 rounded-xl text-xs transition-colors border-none tracking-wider block text-center shadow-lg cursor-pointer relative" style="z-index: 1000005 !important;">
-                ✕ CHIUDI ELENCO
-            </button>
-            <h2 id="wishlist-title" class="text-xl font-bold text-yellow-400 mt-2">⚔️ La mia Wishlist</h2>
-        </div>
-        <div id="lista-monumenti" class="space-y-3"></div>
-    </div>
+    // ============================================
+    // FUNZIONI DI VALIDAZIONE PASSWORD
+    // ============================================
+    function validaPasswordInTempoReale() {
+      const password = document.getElementById('login-password').value;
+      const reqLunghezza = document.getElementById('req-lunghezza');
+      const iconLunghezza = document.getElementById('icon-lunghezza');
+      const reqMaiuscola = document.getElementById('req-maiuscola');
+      const iconMaiuscola = document.getElementById('icon-maiuscola');
+      const reqNumero = document.getElementById('req-numero');
+      const iconNumero = document.getElementById('icon-numero');
+      const reqSpeciale = document.getElementById('req-speciale');
+      const iconSpeciale = document.getElementById('icon-speciale');
 
-    <script>
-        // ============================================
-        // FUNZIONI DI GESTIONE SCHERMATE FULL
-        // ============================================
-        window.apriSchermata = function(tipo) {
-            document.getElementById('schermata-amici').classList.add('hidden');
-            document.getElementById('schermata-wishlist').classList.add('hidden');
-            
-            const loginBar = document.getElementById('login-bar');
-            const mapContainer = document.getElementById('map-container');
-            
-            if (tipo === 'mappa') {
-                loginBar.classList.add('visible');
-                mapContainer.classList.add('with-login-bar');
-                document.getElementById('filtri-nav').classList.remove('hidden');
-                if (typeof map !== 'undefined' && map) map.invalidateSize();
-            } else {
-                loginBar.classList.remove('visible');
-                mapContainer.classList.remove('with-login-bar');
-                document.getElementById('filtri-nav').classList.add('hidden');
-            }
-            
-            const bottoniNav = document.querySelectorAll("#bottom-nav button");
-            bottoniNav.forEach(btn => {
-                btn.classList.remove("text-blue-400", "text-yellow-400", "text-yellow-500");
-                btn.classList.add("text-gray-400");
-            });
+      const vLunghezza = password.length >= 6 && password.length <= 15;
+      const vMaiuscola = /[A-Z]/.test(password);
+      const vNumero = /\d/.test(password);
+      const vSpeciale = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
 
-            if (tipo === 'mappa') {
-                bottoniNav[1].classList.remove("text-gray-400");
-                bottoniNav[1].classList.add("text-yellow-400");
-            } else if (tipo === 'amici') {
-                document.getElementById('schermata-amici').classList.remove('hidden');
-                bottoniNav[0].classList.remove("text-gray-400");
-                bottoniNav[0].classList.add("text-blue-400");
-                if (typeof window.aggiornaElencoClassificaAmici === 'function') {
-                    window.aggiornaElencoClassificaAmici();
-                }
-            } else if (tipo === 'wishlist') {
-                document.getElementById('schermata-wishlist').classList.remove('hidden');
-                bottoniNav[2].classList.remove("text-gray-400");
-                bottoniNav[2].classList.add("text-yellow-500");
-                document.getElementById('filtro-wishlist').value = 'tutti';
-                if (typeof window.aggiornaWishlistFull === 'function') {
-                    window.aggiornaWishlistFull('tutti');
-                }
-            }
-        }
+      if (vLunghezza) {
+        reqLunghezza.className = "text-green-400 flex items-center gap-1";
+        iconLunghezza.innerText = "✓";
+      } else {
+        reqLunghezza.className = "text-red-400 flex items-center gap-1";
+        iconLunghezza.innerText = "✕";
+      }
 
-        window.switchAmiciTab = function(tab) {
-            const btnClassifica = document.getElementById('btn-tab-classifica');
-            const btnFeed = document.getElementById('btn-tab-feed');
-            const listaClassifica = document.getElementById('lista-amici-classifica');
-            const listaFeed = document.getElementById('lista-amici-feed');
-            const titoloSezione = document.getElementById('titolo-sezione-amici');
-            const sottotitoloSezione = document.getElementById('sottotitolo-sezione-amici');
-            
-            const sezAggiungiAmico = document.getElementById('sezione-aggiungi-amico');
-            const sezInviaMessaggio = document.getElementById('sezione-invia-messaggio');
-            const boxSquadra = document.getElementById('box-squadra');
+      if (vMaiuscola) {
+        reqMaiuscola.className = "text-green-400 flex items-center gap-1";
+        iconMaiuscola.innerText = "✓";
+      } else {
+        reqMaiuscola.className = "text-red-400 flex items-center gap-1";
+        iconMaiuscola.innerText = "✕";
+      }
 
-            if (!btnClassifica || !btnFeed || !listaClassifica || !listaFeed) return;
+      if (vNumero) {
+        reqNumero.className = "text-green-400 flex items-center gap-1";
+        iconNumero.innerText = "✓";
+      } else {
+        reqNumero.className = "text-red-400 flex items-center gap-1";
+        iconNumero.innerText = "✕";
+      }
 
-            if (tab === 'classifica') {
-                btnClassifica.className = "bg-blue-600 text-white font-bold text-[11px] px-3 py-2 rounded-lg cursor-pointer transition-all uppercase tracking-wider flex items-center gap-1";
-                btnFeed.className = "bg-gray-700 text-gray-400 font-bold text-[11px] px-3 py-2 rounded-lg cursor-pointer transition-all uppercase tracking-wider flex items-center gap-1 hover:text-white";
-                listaClassifica.classList.remove('hidden');
-                listaFeed.classList.add('hidden');
-                document.getElementById('pannello-classifica').classList.remove('hidden');
-                document.getElementById('pannello-feed').classList.add('hidden');
-                
-                if (sezAggiungiAmico) sezAggiungiAmico.classList.remove('hidden');
-                if (sezInviaMessaggio) sezInviaMessaggio.classList.add('hidden');
-                if (boxSquadra) boxSquadra.style.display = 'flex';
-                
-                if (titoloSezione) titoloSezione.innerText = "👥 Il mio Clan";
-                if (sottotitoloSezione) sottotitoloSezione.innerText = "Classifica dei punteggi";
-            } else {
-                btnClassifica.className = "bg-gray-700 text-gray-400 font-bold text-[11px] px-3 py-2 rounded-lg cursor-pointer transition-all uppercase tracking-wider flex items-center gap-1 hover:text-white";
-                btnFeed.className = "bg-blue-600 text-white font-bold text-[11px] px-3 py-2 rounded-lg cursor-pointer transition-all uppercase tracking-wider flex items-center gap-1";
-                listaClassifica.classList.add('hidden');
-                listaFeed.classList.remove('hidden');
-                document.getElementById('pannello-classifica').classList.add('hidden');
-                document.getElementById('pannello-feed').classList.remove('hidden');
-                
-                if (sezAggiungiAmico) sezAggiungiAmico.classList.add('hidden');
-                if (sezInviaMessaggio) sezInviaMessaggio.classList.remove('hidden');
-                if (boxSquadra) boxSquadra.style.display = 'none';
-                
-                if (titoloSezione) titoloSezione.innerText = "⚡ Bacheca & Successi della Squadra";
-                if (sottotitoloSezione) sottotitoloSezione.innerText = "Messaggi e conquiste dei compagni";
-                
-                window.aggiornaFeedSuccessiAmici();
-            }
+      if (vSpeciale) {
+        reqSpeciale.className = "text-green-400 flex items-center gap-1";
+        iconSpeciale.innerText = "✓";
+      } else {
+        reqSpeciale.className = "text-red-400 flex items-center gap-1";
+        iconSpeciale.innerText = "✕";
+      }
+    }
+
+    function switchAuthTab(tab) {
+      const formAccedi = document.getElementById('form-accedi');
+      const formRegistrati = document.getElementById('form-registrati');
+      const btnAccedi = document.getElementById('tab-accedi');
+      const btnRegistrati = document.getElementById('tab-registrati');
+
+      if (tab === 'accedi') {
+        formAccedi.className = "space-y-4";
+        formRegistrati.className = "space-y-4 hidden";
+        btnAccedi.className = "w-1/2 py-2 text-sm font-bold rounded-lg bg-yellow-500 text-gray-950 transition-colors cursor-pointer";
+        btnRegistrati.className = "w-1/2 py-2 text-sm font-bold rounded-lg text-gray-400 hover:text-white transition-colors cursor-pointer";
+      } else {
+        formAccedi.className = "space-y-4 hidden";
+        formRegistrati.className = "space-y-4";
+        btnAccedi.className = "w-1/2 py-2 text-sm font-bold rounded-lg text-gray-400 hover:text-white transition-colors cursor-pointer";
+        btnRegistrati.className = "w-1/2 py-2 text-sm font-bold rounded-lg bg-yellow-500 text-gray-950 transition-colors cursor-pointer";
+      }
+    }
+
+    function mostraRecuperoPassword() {
+      document.getElementById('schermata-login').classList.add('hidden');
+      document.getElementById('schermata-recupero').classList.remove('hidden');
+    }
+
+    function tornaAlLogin() {
+      document.getElementById('schermata-recupero').classList.add('hidden');
+      document.getElementById('schermata-login').classList.remove('hidden');
+    }
+  </script>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="monumenti.js"></script>
+  <script src="app.js"></script>
+
+  <!-- FIREBASE MODULE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc, arrayUnion, arrayRemove, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDJeMeCgX5MfwWH8Dyok44d7XKacLGFiBc",
+      authDomain: "brescia-quest-1ddda.firebaseapp.com",
+      projectId: "brescia-quest-1ddda",
+      storageBucket: "brescia-quest-1ddda.firebasestorage.app",
+      messagingSenderId: "57771185253",
+      appId: "1:57771185253:web:92273ba5ed320363a0228c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let utenteCorrenteId = null;
+    let datiUtenteLocale = null;
+    let isAuthProcessing = false;
+    let linguaCorrente = localStorage.getItem('preferredLanguage') || 'it';
+    let fotoProfiloLocale = null;
+    
+    // VARIABILI PER IL REAL-TIME FEED
+    let chatUnsubscribers = [];
+    let cacheDatiMembri = {};
+
+    const UI_TRANSLATIONS = {
+      it: {
+        title: 'Brescia Quest - Il Gioco Esplorativo',
+        loginSubtitle: 'Inizia la tua avventura urbana',
+        loginEmailLabel: 'Indirizzo Email',
+        loginPasswordLabel: 'Password',
+        forgotPassword: 'Hai dimenticato la password?',
+        loginSubmit: 'ENTRA NEL GIOCO 🚀',
+        registerEmailLabel: 'Indirizzo Email',
+        registerPasswordLabel: 'Password',
+        registerNameLabel: 'Nome del Player',
+        registerGenderLabel: 'Seleziona Genere Avatar',
+        registerSubmit: 'CREA ACCOUNT 🌟',
+        recoveryTitle: 'RECUPERO PASSWORD',
+        recoverySubtitle: 'Inserisci la tua email per ricevere il link di reimpostazione',
+        recoveryEmailLabel: "Indirizzo Email dell'account",
+        recoverySubmit: 'INVIA EMAIL DI RECUPERO 📨',
+        recoveryBack: 'Annulla e Torna Indietro',
+        hubTitle: '⚙️ Impostazioni profilo',
+        hubGeneral: '🌐 Impostazioni generali',
+        hubAvatar: '🧑‍🚀 Personalizzazione avatar',
+        generalTitle: '🌐 Impostazioni generali',
+        languageLabel: 'Lingua',
+        saveSettings: 'Salva impostazioni',
+        back: 'Indietro',
+        profileTitle: '🧑‍🚀 Personalizzazione avatar',
+        profileBack: 'Torna al menu impostazioni',
+        profileName: 'Modifica Nome',
+        profileGender: 'Modifica Genere Avatar',
+        profilePhoto: 'Foto Profilo',
+        saveProfile: 'Salva Modifiche',
+        logout: '🚪 Esci dal Gioco (Logout)',
+        levelLabel: 'LIVELLO',
+        wishlistTitle: '⚔️ La mia Wishlist',
+        wishlistClose: '✕ CHIUDI ELENCO',
+        badgeTitle: 'BADGE SBLOCCATO!',
+        continueHunt: 'Continua la Caccia',
+        filterAll: '🌍 Tutti',
+        filterMonument: '🏛️ Monumenti',
+        filterPark: '🌳 Parchi',
+        filterShop: '🛒 Spesa',
+        playerRole: 'Esploratore'
+      },
+      en: {
+        title: 'Brescia Quest - The Exploratory Game',
+        loginSubtitle: 'Start your urban adventure',
+        loginEmailLabel: 'Email Address',
+        loginPasswordLabel: 'Password',
+        forgotPassword: 'Forgot your password?',
+        loginSubmit: 'ENTER THE GAME 🚀',
+        registerEmailLabel: 'Email Address',
+        registerPasswordLabel: 'Password',
+        registerNameLabel: 'Player Name',
+        registerGenderLabel: 'Choose Avatar Gender',
+        registerSubmit: 'CREATE ACCOUNT 🌟',
+        recoveryTitle: 'PASSWORD RECOVERY',
+        recoverySubtitle: 'Enter your email to receive the reset link',
+        recoveryEmailLabel: 'Account email address',
+        recoverySubmit: 'SEND RECOVERY EMAIL 📨',
+        recoveryBack: 'Cancel and Go Back',
+        hubTitle: '⚙️ Profile settings',
+        hubGeneral: '🌐 General settings',
+        hubAvatar: '🧑‍🚀 Avatar customization',
+        generalTitle: '🌐 General settings',
+        languageLabel: 'Language',
+        saveSettings: 'Save settings',
+        back: 'Back',
+        profileTitle: '🧑‍🚀 Avatar customization',
+        profileBack: 'Back to settings menu',
+        profileName: 'Edit Name',
+        profileGender: 'Edit Avatar Gender',
+        profilePhoto: 'Profile Photo',
+        saveProfile: 'Save Changes',
+        logout: '🚪 Log out',
+        levelLabel: 'LEVEL',
+        wishlistTitle: '⚔️ My Wishlist',
+        wishlistClose: '✕ CLOSE LIST',
+        badgeTitle: 'BADGE UNLOCKED!',
+        continueHunt: 'Continue Hunt',
+        filterAll: '🌍 All',
+        filterMonument: '🏛️ Monuments',
+        filterPark: '🌳 Parks',
+        filterShop: '🛒 Shopping',
+        playerRole: 'Explorer'
+      }
+    };
+
+    function setText(id, value) {
+      const element = document.getElementById(id);
+      if (element) element.textContent = value;
+    }
+
+    function setHtml(id, value) {
+      const element = document.getElementById(id);
+      if (element) element.innerHTML = value;
+    }
+
+    function getAvatarMarkup(fotoUrl, genere) {
+      if (fotoUrl) {
+        return `<img src="${fotoUrl}" class="w-full h-full object-cover">`;
+      }
+      const emoji = genere === 'Esploratore' ? '🧑‍🚀' : '👩‍🚀';
+      return `<span class="text-xl">${emoji}</span>`;
+    }
+
+    function aggiornaAvatarUI(fotoUrl, genere) {
+      const avatarContainer = document.getElementById('avatar-login-bar');
+      if (avatarContainer) {
+        avatarContainer.innerHTML = getAvatarMarkup(fotoUrl, genere);
+      }
+      const preview = document.getElementById('edit-avatar-preview');
+      if (preview) {
+        preview.innerHTML = getAvatarMarkup(fotoUrl, genere);
+      }
+    }
+
+    function getPlayerRoleLabel(lang) {
+      return (UI_TRANSLATIONS[lang] || UI_TRANSLATIONS.it).playerRole;
+    }
+
+    function refreshLocalizedGameplay() {
+      if (typeof aggiornaMappaELista === 'function' && typeof map !== 'undefined' && map) {
+        aggiornaMappaELista();
+      }
+    }
+
+    function applyLanguage(lang) {
+      const translations = UI_TRANSLATIONS[lang] || UI_TRANSLATIONS.it;
+
+      linguaCorrente = lang;
+      localStorage.setItem('preferredLanguage', lang);
+      document.documentElement.lang = lang;
+      document.title = translations.title;
+
+      setText('login-subtitle', translations.loginSubtitle);
+      setText('login-accedi-email-label', translations.loginEmailLabel);
+      setText('login-accedi-password-label', translations.loginPasswordLabel);
+      setText('login-forgot-password', translations.forgotPassword);
+      setText('login-submit-btn', translations.loginSubmit);
+      setText('register-email-label', translations.registerEmailLabel);
+      setText('register-password-label', translations.registerPasswordLabel);
+      setText('register-name-label', translations.registerNameLabel);
+      setText('register-gender-label', translations.registerGenderLabel);
+      setText('register-submit-btn', translations.registerSubmit);
+      setText('recovery-title', translations.recoveryTitle);
+      setText('recovery-subtitle', translations.recoverySubtitle);
+      setText('recovery-email-label', translations.recoveryEmailLabel);
+      setText('recovery-submit-btn', translations.recoverySubmit);
+      setText('recovery-back-btn', translations.recoveryBack);
+      setText('hub-title', translations.hubTitle);
+      setHtml('hub-general-btn', translations.hubGeneral);
+      setHtml('hub-avatar-btn', translations.hubAvatar);
+      setText('general-title', translations.generalTitle);
+      setText('general-language-label', translations.languageLabel);
+      setText('btn-salva-impostazioni-generali', translations.saveSettings);
+      setText('general-back-btn', translations.back);
+      setText('profile-title', translations.profileTitle);
+      setText('profile-back-btn', translations.profileBack);
+      setText('profile-name-label', translations.profileName);
+      setText('profile-gender-label', translations.profileGender);
+      setText('profile-photo-label', translations.profilePhoto);
+      setText('btn-salva-profilo', translations.saveProfile);
+      setText('profile-logout-btn', translations.logout);
+      setText('level-label', translations.levelLabel);
+      setText('wishlist-title', translations.wishlistTitle);
+      setText('wishlist-close-btn', translations.wishlistClose);
+      setText('popup-badge-title', translations.badgeTitle);
+      setText('popup-continue-btn', translations.continueHunt);
+      setHtml('btn-filtro-tutti', translations.filterAll);
+      setHtml('btn-filtro-monumento', translations.filterMonument);
+      setHtml('btn-filtro-parco', translations.filterPark);
+      setHtml('btn-filtro-supermercato', translations.filterShop);
+
+      if (document.getElementById('player-display-role')) {
+        setText('player-display-role', getPlayerRoleLabel(lang));
+      }
+
+      refreshLocalizedGameplay();
+    }
+
+    function mostraSoloPopup(apriId) {
+      ['popup-impostazioni-hub', 'popup-impostazioni-generali', 'popup-profilo'].forEach((id) => {
+        const elemento = document.getElementById(id);
+        if (elemento) elemento.classList.add('hidden');
+      });
+      const target = document.getElementById(apriId);
+      if (target) target.classList.remove('hidden');
+    }
+
+    window.apriPopupHubImpostazioni = function() {
+      mostraSoloPopup('popup-impostazioni-hub');
+    }
+
+    window.chiudiPopupHubImpostazioni = function() {
+      const popup = document.getElementById('popup-impostazioni-hub');
+      if (popup) popup.classList.add('hidden');
+    }
+
+    window.apriPopupImpostazioniGenerali = function() {
+      const select = document.getElementById('general-language-select');
+      if (select) select.value = linguaCorrente;
+      mostraSoloPopup('popup-impostazioni-generali');
+    }
+
+    window.apriPopupAvatarCustomization = function() {
+      if (datiUtenteLocale) {
+        const nome = document.getElementById('edit-nome');
+        const genere = document.getElementById('edit-genere');
+        if (nome) nome.value = datiUtenteLocale.nome || '';
+        if (genere) genere.value = datiUtenteLocale.genere || 'Esploratore';
+        fotoProfiloLocale = datiUtenteLocale.fotoProfilo || null;
+        aggiornaAvatarUI(fotoProfiloLocale, datiUtenteLocale.genere || 'Esploratore');
+      }
+      mostraSoloPopup('popup-profilo');
+    }
+
+    window.apriPopupProfilo = window.apriPopupAvatarCustomization;
+
+    window.ritornaAlMenuImpostazioni = function() {
+      mostraSoloPopup('popup-impostazioni-hub');
+    }
+
+    window.chiudiPopupProfilo = function() {
+      const popup = document.getElementById('popup-profilo');
+      if (popup) popup.classList.add('hidden');
+    }
+
+    window.salvaImpostazioniGenerali = function() {
+      const select = document.getElementById('general-language-select');
+      const linguaSelezionata = select ? select.value : linguaCorrente;
+      applyLanguage(linguaSelezionata);
+      alert(linguaSelezionata === 'en' ? 'Settings saved.' : 'Impostazioni salvate.');
+    }
+
+    const inputFotoProfilo = document.getElementById('edit-foto-file');
+    if (inputFotoProfilo) {
+      inputFotoProfilo.addEventListener('change', async (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          fotoProfiloLocale = reader.result;
+          aggiornaAvatarUI(fotoProfiloLocale, document.getElementById('edit-genere')?.value || 'Esploratore');
         };
+        reader.readAsDataURL(file);
+      });
+    }
 
-        window.filtraCategoria = function(categoria) {
-            if (typeof window.aggiornaMappaELista === 'function') {
-                window.aggiornaMappaELista(categoria);
-            }
-        };
+    applyLanguage(linguaCorrente);
 
-        window.chiudiPopupScoperta = function() {
-            document.getElementById('popup-scoperta').classList.add('hidden');
-        };
+    // ============================================
+    // FUNZIONI DI AUTENTICAZIONE
+    // ============================================
+    window.gestisciAccedi = async function(event) {
+      event.preventDefault();
+      if (isAuthProcessing) return;
+      isAuthProcessing = true;
 
-        window.toggleWishlist = function() {
-            const sidebar = document.getElementById('wishlist-sidebar');
-            if (sidebar) sidebar.classList.toggle('translate-x-full');
-        };
+      const email = document.getElementById('accedi-email').value.trim();
+      const password = document.getElementById('accedi-password').value;
 
-        window.filtraWishlist = function(categoria) {
-            if (typeof window.aggiornaWishlistFull === 'function') {
-                window.aggiornaWishlistFull(categoria);
-            }
-        };
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
 
-        window.aggiornaWishlistFull = function(categoriaFiltro = 'tutti') {
-            const container = document.getElementById('lista-monumenti-full');
-            if (!container) return;
-            
-            if (typeof monumenti === 'undefined') {
-                container.innerHTML = "<p class='text-gray-400 text-xs text-center py-4 animate-pulse'>Caricamento luoghi in corso...</p>";
-                return;
-            }
-
-            let monumentiFiltrati = monumenti;
-            if (categoriaFiltro !== 'tutti') {
-                monumentiFiltrati = monumenti.filter(m => m.categoria === categoriaFiltro);
-            }
-            
-            if (monumentiFiltrati.length === 0) {
-                container.innerHTML = "<p class='text-gray-400 text-xs text-center py-4'>Nessun luogo trovato in questa categoria.</p>";
-                return;
-            }
-
-            container.innerHTML = "";
-            monumentiFiltrati.forEach(m => {
-                const item = document.createElement('div');
-                const safeId = m.nome.replace(/[^a-zA-Z0-9]/g, '-');
-                item.id = `monumento-full-${safeId}`;
-                item.className = `p-3 rounded-xl flex justify-between items-center transition-all bg-gray-800 border ${
-                    m.scoperto ? 'bg-green-950/40 border-green-500' : 'bg-gray-700/50 border-gray-600'
-                }`;
-                
-                item.innerHTML = `
-                    <div class="flex-1 pr-2">
-                        <p class="font-semibold text-sm ${m.scoperto ? 'text-green-400' : 'text-gray-200'}">${m.nome}</p>
-                        <p class="text-[10px] text-gray-400 mt-0.5">${m.desc}</p>
-                        <p class="text-xs text-gray-400 font-mono label-distanza-full mt-1">${m.scoperto ? '🏁 Obiettivo Conquistato' : '📍 Distanza: Calcolo in corso...'}</p>
-                    </div>
-                    <div class="text-sm font-mono text-gray-400 bg-gray-800 px-2 py-1 rounded-md badge-xp shrink-0">
-                        ${m.scoperto ? '✅' : '+100 XP'}
-                    </div>
-                `;
-                container.appendChild(item);
-            });
-        };
-
-        window.mostraListaWishlistInSchermata = function() {
-            const contenitore = document.getElementById("lista-monumenti");
-            if (!contenitore || typeof monumenti === 'undefined') return;
-
-            contenitore.innerHTML = "";
-
-            monumenti.forEach(m => {
-                const giaScoperto = m.scoperto || false;
-                const item = document.createElement("div");
-                
-                if (giaScoperto) {
-                    item.className = "p-4 rounded-2xl border-2 border-green-500 bg-green-950/20 flex flex-col gap-3 transition-all shadow-md shadow-green-950/50";
-                } else {
-                    item.className = "p-4 rounded-2xl border-2 border-gray-800 bg-gray-900/40 flex flex-col gap-3 transition-all";
-                }
-                
-                let iconaCat = m.categoria === 'monumento' ? '🏛️' : (m.categoria === 'parco' ? '🌳' : '🛒');
-                let descrizioneLuogo = m.desc ? m.desc : "Nessuna descrizione disponibile per questo luogo.";
-                let categoriaLabel = m.categoria === 'monumento' ? 'Monumento' : (m.categoria === 'parco' ? 'Parco' : 'Supermercato');
-
-                item.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div class="flex items-start gap-2 flex-1">
-                            <span class="text-xl">${iconaCat}</span>
-                            <div class="flex-1">
-                                <p class="font-bold text-sm ${giaScoperto ? 'text-green-400' : 'text-gray-200'}">${m.nome}</p>
-                                <p class="text-[10px] text-gray-500">${categoriaLabel}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-[10px] text-gray-300 px-3 py-2 bg-gray-900/60 rounded-lg border border-gray-800/50">
-                        ${descrizioneLuogo}
-                    </div>
-                    <div class="flex justify-between items-center pt-1">
-                        <p class="text-[10px] text-gray-500 font-mono">
-                            ${giaScoperto ? '✅ Scoperto' : '📍 Da Trovare'}
-                        </p>
-                        <span class="text-xs font-mono ${giaScoperto ? 'text-green-400' : 'text-yellow-400'} bg-gray-800/70 px-2.5 py-1 rounded-md font-bold">
-                            ${giaScoperto ? '✓' : '+100 XP'}
-                        </span>
-                    </div>
-                `;
-                contenitore.appendChild(item);
-            });
-        };
-
-        // ============================================
-        // FUNZIONI DI VALIDAZIONE PASSWORD
-        // ============================================
-        function validaPasswordInTempoReale() {
-            const password = document.getElementById('login-password').value;
-            const reqLunghezza = document.getElementById('req-lunghezza');
-            const iconLunghezza = document.getElementById('icon-lunghezza');
-            const reqMaiuscola = document.getElementById('req-maiuscola');
-            const iconMaiuscola = document.getElementById('icon-maiuscola');
-            const reqNumero = document.getElementById('req-numero');
-            const iconNumero = document.getElementById('icon-numero');
-            const reqSpeciale = document.getElementById('req-speciale');
-            const iconSpeciale = document.getElementById('icon-speciale');
-
-            const vLunghezza = password.length >= 6 && password.length <= 15;
-            const vMaiuscola = /[A-Z]/.test(password);
-            const vNumero = /\d/.test(password);
-            const vSpeciale = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
-
-            if (vLunghezza) {
-                reqLunghezza.className = "text-green-400 flex items-center gap-1";
-                iconLunghezza.innerText = "✓";
-            } else {
-                reqLunghezza.className = "text-red-400 flex items-center gap-1";
-                iconLunghezza.innerText = "✕";
-            }
-
-            if (vMaiuscola) {
-                reqMaiuscola.className = "text-green-400 flex items-center gap-1";
-                iconMaiuscola.innerText = "✓";
-            } else {
-                reqMaiuscola.className = "text-red-400 flex items-center gap-1";
-                iconMaiuscola.innerText = "✕";
-            }
-
-            if (vNumero) {
-                reqNumero.className = "text-green-400 flex items-center gap-1";
-                iconNumero.innerText = "✓";
-            } else {
-                reqNumero.className = "text-red-400 flex items-center gap-1";
-                iconNumero.innerText = "✕";
-            }
-
-            if (vSpeciale) {
-                reqSpeciale.className = "text-green-400 flex items-center gap-1";
-                iconSpeciale.innerText = "✓";
-            } else {
-                reqSpeciale.className = "text-red-400 flex items-center gap-1";
-                iconSpeciale.innerText = "✕";
-            }
+        if (!user.emailVerified) {
+          alert("⚠️ Il tuo indirizzo email non è ancora stato verificato! Controlla la tua casella di posta elettronica.");
+          await auth.signOut();
+          isAuthProcessing = false;
+          return;
         }
 
-        function switchAuthTab(tab) {
-            const formAccedi = document.getElementById('form-accedi');
-            const formRegistrati = document.getElementById('form-registrati');
-            const btnAccedi = document.getElementById('tab-accedi');
-            const btnRegistrati = document.getElementById('tab-registrati');
-
-            if (tab === 'accedi') {
-                formAccedi.className = "space-y-4";
-                formRegistrati.className = "space-y-4 hidden";
-                btnAccedi.className = "w-1/2 py-2 text-sm font-bold rounded-lg bg-yellow-500 text-gray-950 transition-colors cursor-pointer";
-                btnRegistrati.className = "w-1/2 py-2 text-sm font-bold rounded-lg text-gray-400 hover:text-white transition-colors cursor-pointer";
-            } else {
-                formAccedi.className = "space-y-4 hidden";
-                formRegistrati.className = "space-y-4";
-                btnAccedi.className = "w-1/2 py-2 text-sm font-bold rounded-lg text-gray-400 hover:text-white transition-colors cursor-pointer";
-                btnRegistrati.className = "w-1/2 py-2 text-sm font-bold rounded-lg bg-yellow-500 text-gray-950 transition-colors cursor-pointer";
-            }
-        }
-
-        function mostraRecuperoPassword() {
-            document.getElementById('schermata-login').classList.add('hidden');
-            document.getElementById('schermata-recupero').classList.remove('hidden');
-        }
-
-        function tornaAlLogin() {
-            document.getElementById('schermata-recupero').classList.add('hidden');
-            document.getElementById('schermata-login').classList.remove('hidden');
-        }
-    </script>
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="monumenti.js"></script>
-    <script src="app.js"></script>
-
-    <!-- FIREBASE MODULE -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDJeMeCgX5MfwWH8Dyok44d7XKacLGFiBc",
-            authDomain: "brescia-quest-1ddda.firebaseapp.com",
-            projectId: "brescia-quest-1ddda",
-            storageBucket: "brescia-quest-1ddda.firebasestorage.app",
-            messagingSenderId: "57771185253",
-            appId: "1:57771185253:web:92273ba5ed320363a0228c"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        let utenteCorrenteId = null;
-        let datiUtenteLocale = null;
-        let isAuthProcessing = false;
-        let linguaCorrente = localStorage.getItem('preferredLanguage') || 'it';
-        let fotoProfiloLocale = null;
-        let unsubscribeFeed = null;
-
-        const UI_TRANSLATIONS = {
-            it: {
-                title: 'Brescia Quest - Il Gioco Esplorativo',
-                loginSubtitle: 'Inizia la tua avventura urbana',
-                loginEmailLabel: 'Indirizzo Email',
-                loginPasswordLabel: 'Password',
-                forgotPassword: 'Hai dimenticato la password?',
-                loginSubmit: 'ENTRA NEL GIOCO 🚀',
-                registerEmailLabel: 'Indirizzo Email',
-                registerPasswordLabel: 'Password',
-                registerNameLabel: 'Nome del Player',
-                registerGenderLabel: 'Seleziona Genere Avatar',
-                registerSubmit: 'CREA ACCOUNT 🌟',
-                recoveryTitle: 'RECUPERO PASSWORD',
-                recoverySubtitle: 'Inserisci la tua email per ricevere il link di reimpostazione',
-                recoveryEmailLabel: "Indirizzo Email dell'account",
-                recoverySubmit: 'INVIA EMAIL DI RECUPERO 📨',
-                recoveryBack: 'Annulla e Torna Indietro',
-                hubTitle: '⚙️ Impostazioni profilo',
-                hubGeneral: '🌐 Impostazioni generali',
-                hubAvatar: '🧑‍🚀 Personalizzazione avatar',
-                generalTitle: '🌐 Impostazioni generali',
-                languageLabel: 'Lingua',
-                saveSettings: 'Salva impostazioni',
-                back: 'Indietro',
-                profileTitle: '🧑‍🚀 Personalizzazione avatar',
-                profileBack: 'Torna al menu impostazioni',
-                profileName: 'Modifica Nome',
-                profileGender: 'Modifica Genere Avatar',
-                profilePhoto: 'Foto Profilo',
-                saveProfile: 'Salva Modifiche',
-                logout: '🚪 Esci dal Gioco (Logout)',
-                levelLabel: 'LIVELLO',
-                wishlistTitle: '⚔️ La mia Wishlist',
-                wishlistClose: '✕ CHIUDI ELENCO',
-                badgeTitle: 'BADGE SBLOCCATO!',
-                continueHunt: 'Continua la Caccia',
-                filterAll: '🌍 Tutti',
-                filterMonument: '🏛️ Monumenti',
-                filterPark: '🌳 Parchi',
-                filterShop: '🛒 Spesa',
-                playerRole: 'Esploratore'
-            },
-            en: {
-                title: 'Brescia Quest - The Exploratory Game',
-                loginSubtitle: 'Start your urban adventure',
-                loginEmailLabel: 'Email Address',
-                loginPasswordLabel: 'Password',
-                forgotPassword: 'Forgot your password?',
-                loginSubmit: 'ENTER THE GAME 🚀',
-                registerEmailLabel: 'Email Address',
-                registerPasswordLabel: 'Password',
-                registerNameLabel: 'Player Name',
-                registerGenderLabel: 'Choose Avatar Gender',
-                registerSubmit: 'CREATE ACCOUNT 🌟',
-                recoveryTitle: 'PASSWORD RECOVERY',
-                recoverySubtitle: 'Enter your email to receive the reset link',
-                recoveryEmailLabel: 'Account email address',
-                recoverySubmit: 'SEND RECOVERY EMAIL 📨',
-                recoveryBack: 'Cancel and Go Back',
-                hubTitle: '⚙️ Profile settings',
-                hubGeneral: '🌐 General settings',
-                hubAvatar: '🧑‍🚀 Avatar customization',
-                generalTitle: '🌐 General settings',
-                languageLabel: 'Language',
-                saveSettings: 'Save settings',
-                back: 'Back',
-                profileTitle: '🧑‍🚀 Avatar customization',
-                profileBack: 'Back to settings menu',
-                profileName: 'Edit Name',
-                profileGender: 'Edit Avatar Gender',
-                profilePhoto: 'Profile Photo',
-                saveProfile: 'Save Changes',
-                logout: '🚪 Log out',
-                levelLabel: 'LEVEL',
-                wishlistTitle: '⚔️ My Wishlist',
-                wishlistClose: '✕ CLOSE LIST',
-                badgeTitle: 'BADGE UNLOCKED!',
-                continueHunt: 'Continue Hunt',
-                filterAll: '🌍 All',
-                filterMonument: '🏛️ Monuments',
-                filterPark: '🌳 Parks',
-                filterShop: '🛒 Shopping',
-                playerRole: 'Explorer'
-            }
-        };
-
-        function setText(id, value) {
-            const element = document.getElementById(id);
-            if (element) element.textContent = value;
-        }
-
-        function setHtml(id, value) {
-            const element = document.getElementById(id);
-            if (element) element.innerHTML = value;
-        }
-
-        function getAvatarMarkup(fotoUrl, genere) {
-            if (fotoUrl) {
-                return `<img src="${fotoUrl}" class="w-full h-full object-cover">`;
-            }
-            const emoji = genere === 'Esploratore' ? '🧑‍🚀' : '👩‍🚀';
-            return `<span class="text-xl">${emoji}</span>`;
-        }
-
-        function aggiornaAvatarUI(fotoUrl, genere) {
-            const avatarContainer = document.getElementById('avatar-login-bar');
-            if (avatarContainer) {
-                avatarContainer.innerHTML = getAvatarMarkup(fotoUrl, genere);
-            }
-            const preview = document.getElementById('edit-avatar-preview');
-            if (preview) {
-                preview.innerHTML = getAvatarMarkup(fotoUrl, genere);
-            }
-        }
-
-        function getPlayerRoleLabel(lang) {
-            return (UI_TRANSLATIONS[lang] || UI_TRANSLATIONS.it).playerRole;
-        }
-
-        function refreshLocalizedGameplay() {
-            if (typeof aggiornaMappaELista === 'function' && typeof map !== 'undefined' && map) {
-                aggiornaMappaELista();
-            }
-        }
-
-        function applyLanguage(lang) {
-            const translations = UI_TRANSLATIONS[lang] || UI_TRANSLATIONS.it;
-
-            linguaCorrente = lang;
-            localStorage.setItem('preferredLanguage', lang);
-            document.documentElement.lang = lang;
-            document.title = translations.title;
-
-            setText('login-subtitle', translations.loginSubtitle);
-            setText('login-accedi-email-label', translations.loginEmailLabel);
-            setText('login-accedi-password-label', translations.loginPasswordLabel);
-            setText('login-forgot-password', translations.forgotPassword);
-            setText('login-submit-btn', translations.loginSubmit);
-            setText('register-email-label', translations.registerEmailLabel);
-            setText('register-password-label', translations.registerPasswordLabel);
-            setText('register-name-label', translations.registerNameLabel);
-            setText('register-gender-label', translations.registerGenderLabel);
-            setText('register-submit-btn', translations.registerSubmit);
-            setText('recovery-title', translations.recoveryTitle);
-            setText('recovery-subtitle', translations.recoverySubtitle);
-            setText('recovery-email-label', translations.recoveryEmailLabel);
-            setText('recovery-submit-btn', translations.recoverySubmit);
-            setText('recovery-back-btn', translations.recoveryBack);
-            setText('hub-title', translations.hubTitle);
-            setHtml('hub-general-btn', translations.hubGeneral);
-            setHtml('hub-avatar-btn', translations.hubAvatar);
-            setText('general-title', translations.generalTitle);
-            setText('general-language-label', translations.languageLabel);
-            setText('btn-salva-impostazioni-generali', translations.saveSettings);
-            setText('general-back-btn', translations.back);
-            setText('profile-title', translations.profileTitle);
-            setText('profile-back-btn', translations.profileBack);
-            setText('profile-name-label', translations.profileName);
-            setText('profile-gender-label', translations.profileGender);
-            setText('profile-photo-label', translations.profilePhoto);
-            setText('btn-salva-profilo', translations.saveProfile);
-            setText('profile-logout-btn', translations.logout);
-            setText('level-label', translations.levelLabel);
-            setText('wishlist-title', translations.wishlistTitle);
-            setText('wishlist-close-btn', translations.wishlistClose);
-            setText('popup-badge-title', translations.badgeTitle);
-            setText('popup-continue-btn', translations.continueHunt);
-            setHtml('btn-filtro-tutti', translations.filterAll);
-            setHtml('btn-filtro-monumento', translations.filterMonument);
-            setHtml('btn-filtro-parco', translations.filterPark);
-            setHtml('btn-filtro-supermercato', translations.filterShop);
-
-            if (document.getElementById('player-display-role')) {
-                setText('player-display-role', getPlayerRoleLabel(lang));
-            }
-
-            refreshLocalizedGameplay();
-        }
-
-        function mostraSoloPopup(apriId) {
-            ['popup-impostazioni-hub', 'popup-impostazioni-generali', 'popup-profilo'].forEach((id) => {
-                const elemento = document.getElementById(id);
-                if (elemento) elemento.classList.add('hidden');
-            });
-            const target = document.getElementById(apriId);
-            if (target) target.classList.remove('hidden');
-        }
-
-        window.apriPopupHubImpostazioni = function() {
-            mostraSoloPopup('popup-impostazioni-hub');
-        }
-
-        window.chiudiPopupHubImpostazioni = function() {
-            const popup = document.getElementById('popup-impostazioni-hub');
-            if (popup) popup.classList.add('hidden');
-        }
-
-        window.apriPopupImpostazioniGenerali = function() {
-            const select = document.getElementById('general-language-select');
-            if (select) select.value = linguaCorrente;
-            mostraSoloPopup('popup-impostazioni-generali');
-        }
-
-        window.apriPopupAvatarCustomization = function() {
-            if (datiUtenteLocale) {
-                const nome = document.getElementById('edit-nome');
-                const genere = document.getElementById('edit-genere');
-                if (nome) nome.value = datiUtenteLocale.nome || '';
-                if (genere) genere.value = datiUtenteLocale.genere || 'Esploratore';
-                fotoProfiloLocale = datiUtenteLocale.fotoProfilo || null;
-                aggiornaAvatarUI(fotoProfiloLocale, datiUtenteLocale.genere || 'Esploratore');
-            }
-            mostraSoloPopup('popup-profilo');
-        }
-
-        window.apriPopupProfilo = window.apriPopupAvatarCustomization;
-
-        window.ritornaAlMenuImpostazioni = function() {
-            mostraSoloPopup('popup-impostazioni-hub');
-        }
-
-        window.chiudiPopupProfilo = function() {
-            const popup = document.getElementById('popup-profilo');
-            if (popup) popup.classList.add('hidden');
-        }
-
-        window.salvaImpostazioniGenerali = function() {
-            const select = document.getElementById('general-language-select');
-            const linguaSelezionata = select ? select.value : linguaCorrente;
-            applyLanguage(linguaSelezionata);
-            alert(linguaSelezionata === 'en' ? 'Settings saved.' : 'Impostazioni salvate.');
-        }
-
-        const inputFotoProfilo = document.getElementById('edit-foto-file');
-        if (inputFotoProfilo) {
-            inputFotoProfilo.addEventListener('change', async (event) => {
-                const file = event.target.files && event.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = () => {
-                    fotoProfiloLocale = reader.result;
-                    aggiornaAvatarUI(fotoProfiloLocale, document.getElementById('edit-genere')?.value || 'Esploratore');
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        applyLanguage(linguaCorrente);
-
-        // ============================================
-        // FUNZIONI DI AUTENTICAZIONE
-        // ============================================
-        window.gestisciAccedi = async function(event) {
-            event.preventDefault();
-            if (isAuthProcessing) return;
-            isAuthProcessing = true;
-
-            const email = document.getElementById('accedi-email').value.trim();
-            const password = document.getElementById('accedi-password').value;
-
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-
-                if (!user.emailVerified) {
-                    alert("⚠️ Il tuo indirizzo email non è ancora stato verificato! Controlla la tua casella di posta elettronica.");
-                    await auth.signOut();
-                    isAuthProcessing = false;
-                    return;
-                }
-
-                await caricaEAvviaGioco(user);
-            } catch (error) {
-                alert("❌ Errore d'accesso: Credenziali errate o non valide. " + error.message);
-                isAuthProcessing = false;
-            }
-        }
-
-        window.gestisciRegistrazione = async function(event) {
-            event.preventDefault();
-            if (isAuthProcessing) return;
-
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value;
-            const nome = document.getElementById('login-nome').value.trim();
-            const genere = document.getElementById('login-genere').value;
-
-            const regexPassword = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,15}$/;
-
-            if (!regexPassword.test(password)) {
-                alert("❌ Impossibile procedere! La password inserita non rispetta tutti i requisiti indicati in basso.");
-                return;
-            }
-
-            isAuthProcessing = true;
-
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-
-                await sendEmailVerification(user);
-
-                const statoMonumenti = (typeof monumenti !== 'undefined') ? monumenti.map(m => ({ nome: m.nome, scoperto: false })) : [];
-                await setDoc(doc(db, "utenti", user.uid), {
-                    nome: nome,
-                    genere: genere,
-                    xp: 0,
-                    livello: 1,
-                    monumenti: statoMonumenti,
-                    fotoProfilo: null,
-                    amici: [],
-                    messaggi: [],
-                    status: "online",
-                    ultimoAccesso: new Date().toISOString()
-                });
-
-                alert("📧 Ti abbiamo inviato una mail di conferma! Clicca sul link ricevuto per attivare il tuo account e poi effettua l'accesso.");
-                await auth.signOut();
-                window.location.reload();
-            } catch (error) {
-                alert("❌ Errore durante la registrazione: " + error.message);
-                isAuthProcessing = false;
-            }
-        }
-
-        window.gestisciRecupero = async function(event) {
-            event.preventDefault();
-            const email = document.getElementById('recupero-email').value.trim();
-
-            try {
-                await sendPasswordResetEmail(auth, email);
-                alert("📨 Email di ripristino inviata con successo! Segui le istruzioni ricevute via email per impostare una nuova password.");
-                tornaAlLogin();
-            } catch (error) {
-                alert("❌ Impossibile inoltrare la richiesta di ripristino: " + error.message);
-            }
-        }
-
-        async function caricaEAvviaGioco(user) {
-            utenteCorrenteId = user.uid;
-            localStorage.setItem('giocatoreEmail', user.email);
-            document.getElementById('mio-codice-txt').innerText = user.uid;
-
-            const timestampCorrente = new Date().toISOString();
-            const userRef = doc(db, "utenti", user.uid);
-            const docSnap = await getDoc(userRef);
-
-            if (docSnap.exists()) {
-                await updateDoc(userRef, {
-                    status: "online",
-                    ultimoAccesso: timestampCorrente
-                });
-                datiUtenteLocale = docSnap.data();
-                datiUtenteLocale.amici = datiUtenteLocale.amici || [];
-                datiUtenteLocale.messaggi = datiUtenteLocale.messaggi || [];
-                fotoProfiloLocale = datiUtenteLocale.fotoProfilo || null;
-                window.entraNelGioco(datiUtenteLocale.nome, datiUtenteLocale.genere, datiUtenteLocale.xp, datiUtenteLocale.livello, datiUtenteLocale.monumenti);
-            } else {
-                const statoMonumenti = (typeof monumenti !== 'undefined') ? monumenti.map(m => ({ nome: m.nome, scoperto: false })) : [];
-                datiUtenteLocale = {
-                    nome: "Esploratore",
-                    genere: "Esploratore",
-                    xp: 0,
-                    livello: 1,
-                    monumenti: statoMonumenti,
-                    fotoProfilo: null,
-                    amici: [],
-                    messaggi: [],
-                    status: "online",
-                    ultimoAccesso: timestampCorrente
-                };
-                await setDoc(userRef, datiUtenteLocale);
-                fotoProfiloLocale = null;
-                window.entraNelGioco("Esploratore", "Esploratore", 0, 1, statoMonumenti);
-            }
-            isAuthProcessing = false;
-        }
-
-        // ============================================
-        // FUNZIONI DI LOGOUT E PROFILO
-        // ============================================
-        window.eseguiLogout = async function() {
-            if (!confirm("Vuoi davvero uscire dal gioco?")) return;
-            try {
-                if (utenteCorrenteId) {
-                    await updateDoc(doc(db, "utenti", utenteCorrenteId), { status: "offline" });
-                }
-                await signOut(auth);
-                window.location.reload();
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        window.salvaModificheProfilo = async function() {
-            const nuovoNome = document.getElementById('edit-nome').value.trim();
-            const nuovoGenere = document.getElementById('edit-genere').value;
-            if (!nuovoNome) return;
-
-            const fotoProfiloDaSalvare = fotoProfiloLocale !== null ? fotoProfiloLocale : (datiUtenteLocale && datiUtenteLocale.fotoProfilo) ? datiUtenteLocale.fotoProfilo : null;
-
-            try {
-                await updateDoc(doc(db, "utenti", utenteCorrenteId), {
-                    nome: nuovoNome,
-                    genere: nuovoGenere,
-                    fotoProfilo: fotoProfiloDaSalvare
-                });
-                datiUtenteLocale = {
-                    ...(datiUtenteLocale || {}),
-                    nome: nuovoNome,
-                    genere: nuovoGenere,
-                    fotoProfilo: fotoProfiloDaSalvare
-                };
-                aggiornaAvatarUI(fotoProfiloDaSalvare, nuovoGenere);
-                document.getElementById('login-bar-name').innerText = nuovoNome;
-                document.getElementById('login-bar-role').innerText = getPlayerRoleLabel(linguaCorrente);
-                alert("✨ Profilo aggiornato con successo!");
-                window.chiudiPopupProfilo();
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        window.salvaProgressoSuCloud = async function(xp, livello, listaMonumenti) {
-            if (!utenteCorrenteId) return;
-            try {
-                const statoMonumenti = listaMonumenti.map(m => ({ nome: m.nome, scoperto: m.scoperto || false }));
-                await updateDoc(doc(db, "utenti", utenteCorrenteId), {
-                    xp: xp,
-                    livello: livello,
-                    monumenti: statoMonumenti
-                });
-            } catch (e) {
-                console.error("Errore salvataggio cloud: ", e);
-            }
-        }
-
-        // ============================================
-        // FUNZIONI GESTIONE AMICI
-        // ============================================
-        window.copiaCodiceAmico = function() {
-            if (!utenteCorrenteId) return;
-            navigator.clipboard.writeText(utenteCorrenteId);
-            alert("📋 Codice copiato negli appunti! Invialo ai tuoi amici.");
-        }
-
-        window.condividiCodiceAmico = function() {
-            if (!utenteCorrenteId) return;
-            const testoCondivisione = `Unisciti alla mia squadra su Brescia Quest! 🎮 Usa il mio Codice Squadra per scalare la classifica insieme: ${utenteCorrenteId}`;
-
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Brescia Quest',
-                    text: testoCondivisione
-                }).catch(console.error);
-            } else {
-                navigator.clipboard.writeText(testoCondivisione);
-                alert("🔗 Link stile Monopoly GO generato e copiato! Incollalo dove vuoi per condividerlo.");
-            }
-        }
-
-        window.aggiungiAmico = async function() {
-            const codiceAmico = document.getElementById('input-codice-amico').value.trim();
-            if (!codiceAmico) return;
-            if (codiceAmico === utenteCorrenteId) {
-                alert("❌ Non puoi aggiungere te stesso come amico!");
-                return;
-            }
-
-            try {
-                const amicoSnap = await getDoc(doc(db, "utenti", codiceAmico));
-                if (!amicoSnap.exists()) {
-                    alert("❌ Nessun giocatore trovato con questo codice. Controlla e riprova.");
-                    return;
-                }
-
-                await updateDoc(doc(db, "utenti", utenteCorrenteId), { amici: arrayUnion(codiceAmico) });
-                await updateDoc(doc(db, "utenti", codiceAmico), { amici: arrayUnion(utenteCorrenteId) });
-
-                alert(`🤝 Compagno aggiunto con successo!`);
-                document.getElementById('input-codice-amico').value = "";
-                window.aggiornaElencoClassificaAmici();
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        window.rimuoviAmico = async function(idAmico) {
-            if (!confirm("Sei sicuro di voler rimuovere questo amico dalla tua classifica?")) return;
-            try {
-                await updateDoc(doc(db, "utenti", utenteCorrenteId), { amici: arrayRemove(idAmico) });
-                await updateDoc(doc(db, "utenti", idAmico), { amici: arrayRemove(utenteCorrenteId) });
-                window.aggiornaElencoClassificaAmici();
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        window.aggiornaElencoClassificaAmici = async function() {
-            const container = document.getElementById('lista-amici-classifica');
-            const conteggioClan = document.getElementById('conteggio-clan');
-            if (!container || !utenteCorrenteId) return;
-            container.innerHTML = "<p class='text-gray-400 animate-pulse text-center py-4'>Sincronizzazione punteggi...</p>";
-
-            try {
-                const mioSnap = await getDoc(doc(db, "utenti", utenteCorrenteId));
-                if (!mioSnap.exists()) return;
-                const mieiDati = mioSnap.data();
-                const listaIdAmici = mieiDati.amici || [];
-
-                let partecipanti = [];
-                partecipanti.push({
-                    id: utenteCorrenteId,
-                    nome: mieiDati.nome + " (Tu)",
-                    livello: mieiDati.livello,
-                    xp: mieiDati.xp,
-                    status: "online",
-                    ultimoAccesso: mieiDati.ultimoAccesso
-                });
-
-                for (let idAmico of listaIdAmici) {
-                    const snapAmico = await getDoc(doc(db, "utenti", idAmico));
-                    if (snapAmico.exists()) {
-                        const dAmico = snapAmico.data();
-                        partecipanti.push({
-                            id: idAmico,
-                            nome: dAmico.nome,
-                            livello: dAmico.livello,
-                            xp: dAmico.xp,
-                            status: dAmico.status || "offline",
-                            ultimoAccesso: dAmico.ultimoAccesso
-                        });
-                    }
-                }
-
-                if (conteggioClan) {
-                    conteggioClan.innerText = `${partecipanti.length} ${partecipanti.length === 1 ? 'utente' : 'utenti'}`;
-                }
-
-                partecipanti.sort((a, b) => {
-                    if (b.livello !== a.livello) return b.livello - a.livello;
-                    return b.xp - a.xp;
-                });
-
-                container.innerHTML = "";
-                partecipanti.forEach((p, index) => {
-                    let dataTxt = "Mai";
-                    if (p.ultimoAccesso) {
-                        const d = new Date(p.ultimoAccesso);
-                        dataTxt = d.toLocaleDateString() + " " + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    }
-
-                    const isMe = p.id === utenteCorrenteId;
-                    const badgePiazzamento = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `${index + 1}.`;
-
-                    const riga = document.createElement('div');
-                    riga.className = `p-3 rounded-xl flex justify-between items-center border ${isMe ? 'bg-yellow-950/30 border-yellow-500/70' : 'bg-gray-700/40 border-gray-700'}`;
-
-                    riga.innerHTML = `
-                        <div class="flex items-center gap-2">
-                            <span class="font-mono font-bold text-sm text-gray-400 w-5">${badgePiazzamento}</span>
-                            <div>
-                                <div class="font-bold flex items-center gap-1.5">
-                                    ${p.nome}
-                                    <span class="w-2 h-2 rounded-full ${p.status === 'online' ? 'bg-green-500' : 'bg-gray-500'}"></span>
-                                </div>
-                                <div class="text-[10px] text-gray-400">Accesso: ${dataTxt}</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="text-right">
-                                <span class="text-xs font-bold text-green-400 block">Lvl ${p.livello}</span>
-                                <span class="text-[10px] text-gray-400">${p.xp} XP</span>
-                            </div>
-                            ${!isMe ? `<button onclick="window.rimuoviAmico('${p.id}')" class="text-red-400 hover:text-red-500 text-sm p-1 cursor-pointer hover:bg-red-950/20 rounded-lg transition-colors">✕</button>` : ''}
-                        </div>
-                    `;
-                    container.appendChild(riga);
-                });
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        // ============================================
-        // FUNZIONI PER GESTIONE MESSAGGI CHAT - CORRETTE
-        // ============================================
-
-        // Genera le spunte stile WhatsApp
-        function getSpunteMessaggio(visualizzato) {
-            if (visualizzato) {
-                return `<span class="spunta-blu">✓✓</span>`;
-            } else {
-                return `<span class="spunta-grigia">✓✓</span>`;
-            }
-        }
-
-        // 1. FUNZIONE PER MARCARE UN MESSAGGIO COME VISUALIZZATO (CORRETTA)
-        window.marcaMessaggioVisualizzato = async function(idMessaggio) {
-            if (!utenteCorrenteId || !idMessaggio) {
-                console.error("Mancano utente o id messaggio");
-                return;
-            }
-            
-            try {
-                // CERCA IL MITTENTE DEL MESSAGGIO
-                let mittenteId = null;
-                let messaggioTrovato = null;
-                
-                const mioSnap = await getDoc(doc(db, "utenti", utenteCorrenteId));
-                if (mioSnap.exists()) {
-                    const mieiDati = mioSnap.data();
-                    const listaIdAmici = mieiDati.amici || [];
-                    const tuttiMembri = [utenteCorrenteId, ...listaIdAmici];
-                    
-                    for (let idUtente of tuttiMembri) {
-                        const snapUtente = await getDoc(doc(db, "utenti", idUtente));
-                        if (snapUtente.exists()) {
-                            const dUtente = snapUtente.data();
-                            const messaggi = dUtente.messaggi || [];
-                            const trovato = messaggi.find(m => m.id === idMessaggio);
-                            if (trovato) {
-                                mittenteId = idUtente;
-                                messaggioTrovato = trovato;
-                                break;
-                            }
-                        }
-                    }
-                }
-                
-                if (!mittenteId || !messaggioTrovato) {
-                    console.error("Messaggio non trovato");
-                    return;
-                }
-                
-                // SE GIÀ VISUALIZZATO, ESCE
-                if (messaggioTrovato.visualizzato) {
-                    console.log("Messaggio già visualizzato");
-                    return;
-                }
-                
-                // AGGIORNA IL MESSAGGIO NEL DOCUMENTO DEL MITTENTE
-                const mittenteRef = doc(db, "utenti", mittenteId);
-                const mittenteSnap = await getDoc(mittenteRef);
-                
-                if (mittenteSnap.exists()) {
-                    const mittenteData = mittenteSnap.data();
-                    const messaggi = mittenteData.messaggi || [];
-                    
-                    let visualizzatoDa = messaggioTrovato.visualizzatoDa || [];
-                    if (!visualizzatoDa.includes(utenteCorrenteId)) {
-                        visualizzatoDa.push(utenteCorrenteId);
-                    }
-                    
-                    const messaggiAggiornati = messaggi.map(m => {
-                        if (m.id === idMessaggio) {
-                            return { 
-                                ...m, 
-                                visualizzato: true, 
-                                visualizzatoIl: new Date().toISOString(),
-                                visualizzatoDa: visualizzatoDa
-                            };
-                        }
-                        return m;
-                    });
-                    
-                    await updateDoc(mittenteRef, {
-                        messaggi: messaggiAggiornati
-                    });
-                    
-                    console.log("✅ Messaggio marcato come visualizzato!");
-                }
-                
-            } catch (e) {
-                console.error("Errore durante la marcatura del messaggio: ", e);
-            }
-        };
-
-        // 2. FUNZIONE PER ELIMINARE UN MESSAGGIO
-        window.eliminaMessaggioChat = async function(idMessaggio) {
-            if (!utenteCorrenteId || !idMessaggio) return;
-            
-            if (!confirm("Sei sicuro di voler eliminare questo messaggio?")) return;
-            
-            try {
-                const userRef = doc(db, "utenti", utenteCorrenteId);
-                const userSnap = await getDoc(userRef);
-                
-                if (userSnap.exists()) {
-                    const userData = userSnap.data();
-                    const messaggi = userData.messaggi || [];
-                    
-                    const messaggiAggiornati = messaggi.filter(m => m.id !== idMessaggio);
-                    
-                    await updateDoc(userRef, {
-                        messaggi: messaggiAggiornati
-                    });
-                    
-                    alert("✅ Messaggio eliminato con successo!");
-                }
-            } catch (e) {
-                console.error("Errore durante l'eliminazione del messaggio: ", e);
-                alert("❌ Errore durante l'eliminazione del messaggio.");
-            }
-        };
-
-        // 3. FUNZIONE PER ELIMINARE TUTTI I MESSAGGI
-        window.eliminaTuttiMessaggiChat = async function() {
-            if (!utenteCorrenteId) return;
-            
-            if (!confirm("Sei sicuro di voler eliminare TUTTI i tuoi messaggi?")) return;
-            
-            try {
-                await updateDoc(doc(db, "utenti", utenteCorrenteId), {
-                    messaggi: []
-                });
-                
-                alert("✅ Tutti i messaggi eliminati con successo!");
-            } catch (e) {
-                console.error("Errore durante l'eliminazione di tutti i messaggi: ", e);
-                alert("❌ Errore durante l'eliminazione dei messaggi.");
-            }
-        };
-
-        // 4. MARCA TUTTI I MESSAGGI COME VISUALIZZATI
-        window.marcaIstantaneaTuttiMessaggi = async function() {
-            if (!utenteCorrenteId) return;
-            
-            try {
-                const mioSnap = await getDoc(doc(db, "utenti", utenteCorrenteId));
-                if (!mioSnap.exists()) return;
-                
-                const mieiDati = mioSnap.data();
-                const listaIdAmici = mieiDati.amici || [];
-                const tuttiMembri = [utenteCorrenteId, ...listaIdAmici];
-                
-                for (let idUtente of tuttiMembri) {
-                    if (idUtente === utenteCorrenteId) continue;
-                    
-                    const snapUtente = await getDoc(doc(db, "utenti", idUtente));
-                    if (snapUtente.exists()) {
-                        const dUtente = snapUtente.data();
-                        const messaggi = dUtente.messaggi || [];
-                        let modificato = false;
-                        
-                        const messaggiAggiornati = messaggi.map(m => {
-                            if (!m.visualizzato) {
-                                const visualizzatoDa = m.visualizzatoDa || [];
-                                if (!visualizzatoDa.includes(utenteCorrenteId)) {
-                                    visualizzatoDa.push(utenteCorrenteId);
-                                }
-                                modificato = true;
-                                return { 
-                                    ...m, 
-                                    visualizzato: true, 
-                                    visualizzatoIl: new Date().toISOString(),
-                                    visualizzatoDa: visualizzatoDa
-                                };
-                            }
-                            return m;
-                        });
-                        
-                        if (modificato) {
-                            await updateDoc(doc(db, "utenti", idUtente), {
-                                messaggi: messaggiAggiornati
-                            });
-                        }
-                    }
-                }
-                
-                alert("✅ Tutti i messaggi segnati come letti!");
-                
-            } catch (e) {
-                console.error("Errore durante la marcatura di tutti i messaggi: ", e);
-                alert("❌ Errore durante la marcatura dei messaggi.");
-            }
-        };
-
-        // 5. FUNZIONE PER INVIARE MESSAGGI
-        window.inviaMessaggioChat = async function() {
-            const input = document.getElementById('input-messaggio-chat');
-            if (!input) return;
-            const testo = input.value.trim();
-            if (!testo || !utenteCorrenteId) {
-                alert("Scrivi un messaggio prima di inviare!");
-                return;
-            }
-
-            try {
-                const idMessaggio = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-                
-                const userRef = doc(db, "utenti", utenteCorrenteId);
-                const userSnap = await getDoc(userRef);
-                
-                if (userSnap.exists()) {
-                    const userData = userSnap.data();
-                    if (!userData.messaggi) {
-                        await updateDoc(userRef, { messaggi: [] });
-                    }
-                }
-
-                await updateDoc(doc(db, "utenti", utenteCorrenteId), {
-                    messaggi: arrayUnion({
-                        id: idMessaggio,
-                        testo: testo,
-                        timestamp: new Date().toISOString(),
-                        visualizzato: false,
-                        visualizzatoIl: null,
-                        visualizzatoDa: []
-                    })
-                });
-                
-                input.value = "";
-                console.log("✅ Messaggio inviato!");
-            } catch (e) {
-                console.error("Errore durante l'invio del messaggio: ", e);
-                alert("❌ Errore nell'invio del messaggio.");
-            }
-        };
-
-        // 6. FUNZIONE PER IL FEED CON onSnapshot
-        function setupFeedListener() {
-            if (!utenteCorrenteId) {
-                console.log("Nessun utente corrente");
-                return;
-            }
-            
-            if (unsubscribeFeed) {
-                unsubscribeFeed();
-                unsubscribeFeed = null;
-            }
-            
-            const container = document.getElementById('lista-amici-feed');
-            if (!container) {
-                console.log("Container feed non trovato");
-                return;
-            }
-            
-            console.log("📡 Listener feed attivato per:", utenteCorrenteId);
-            
-            unsubscribeFeed = onSnapshot(doc(db, "utenti", utenteCorrenteId), async (docSnap) => {
-                if (!docSnap.exists()) {
-                    console.log("Documento utente non esiste");
-                    return;
-                }
-                
-                console.log("🔄 Aggiornamento feed in tempo reale!");
-                
-                const mieiDati = docSnap.data();
-                const listaIdAmici = mieiDati.amici || [];
-                const tuttiMembri = [utenteCorrenteId, ...listaIdAmici];
-                let eventiBacheca = [];
-
-                for (let idUtente of tuttiMembri) {
-                    const snapUtente = await getDoc(doc(db, "utenti", idUtente));
-                    if (snapUtente.exists()) {
-                        const dUtente = snapUtente.data();
-                        const nomeVisualizzato = idUtente === utenteCorrenteId ? "Tu" : (dUtente.nome || "Esploratore");
-                        const isMittente = idUtente === utenteCorrenteId;
-                        
-                        // MONUMENTI SCOPERTI
-                        const monumentiUtente = dUtente.monumenti || [];
-                        monumentiUtente.forEach(m => {
-                            if (m.scoperto) {
-                                eventiBacheca.push({
-                                    timestamp: m.timestamp || dUtente.ultimoAccesso || new Date().toISOString(),
-                                    html: `🎉 <strong>${nomeVisualizzato}</strong> ha scoperto <span class="text-green-400 font-semibold">${m.nome}</span>!`,
-                                    tipo: 'scoperta',
-                                    id: `scoperta_${m.nome}_${idUtente}`,
-                                    mittente: idUtente
-                                });
-                            }
-                        });
-
-                        // MESSAGGI
-                        const messaggiUtente = dUtente.messaggi || [];
-                        messaggiUtente.forEach(msg => {
-                            const isVisualizzato = msg.visualizzato || false;
-                            const spunte = getSpunteMessaggio(isVisualizzato);
-                            
-                            let pulsantiElimina = '';
-                            if (isMittente) {
-                                pulsantiElimina = `
-                                    <button onclick="window.eliminaMessaggioChat('${msg.id}')" class="text-red-400 hover:text-red-600 text-xs ml-1 cursor-pointer" title="Elimina messaggio">🗑️</button>
-                                    <button onclick="window.marcaMessaggioVisualizzato('${msg.id}')" class="text-blue-400 hover:text-blue-600 text-xs ml-1 cursor-pointer" title="Segna come letto">👁️</button>
-                                `;
-                            }
-                            
-                            const classeMsg = isVisualizzato ? 'visualizzato' : 'non-visualizzato';
-                            const classeMittente = isMittente ? 'msg-mittente' : 'msg-destinatario';
-                            
-                            eventiBacheca.push({
-                                timestamp: msg.timestamp || new Date().toISOString(),
-                                html: `
-                                    <div class="msg-container ${classeMsg} ${classeMittente} pl-2 pr-2 py-1 rounded-lg">
-                                        <div class="flex items-start gap-1">
-                                            <span class="font-semibold ${isMittente ? 'text-yellow-400' : 'text-blue-300'}">${nomeVisualizzato}:</span>
-                                            <span class="text-gray-200 break-words flex-1">${msg.testo}</span>
-                                        </div>
-                                        <div class="flex items-center justify-end gap-1 mt-0.5">
-                                            <span class="text-[9px]">${spunte}</span>
-                                            ${pulsantiElimina}
-                                        </div>
-                                    </div>
-                                `,
-                                tipo: 'messaggio',
-                                id: msg.id || `msg_${Date.now()}_${Math.random()}`,
-                                mittente: idUtente,
-                                visualizzato: isVisualizzato,
-                                msgData: msg,
-                                isMittente: isMittente
-                            });
-                        });
-                    }
-                }
-
-                eventiBacheca.sort((a, b) => {
-                    if (a.timestamp > b.timestamp) return -1;
-                    if (a.timestamp < b.timestamp) return 1;
-                    return 0;
-                });
-
-                if (eventiBacheca.length > 30) {
-                    eventiBacheca = eventiBacheca.slice(0, 30);
-                }
-
-                container.innerHTML = "";
-                if (eventiBacheca.length === 0) {
-                    container.innerHTML = "<p class='text-gray-500 text-center py-4'>Ancora nessuna attività o messaggio in questa squadra.</p>";
-                    return;
-                }
-
-                let dataCorrente = '';
-                eventiBacheca.forEach(evento => {
-                    const data = new Date(evento.timestamp);
-                    const dataStr = data.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
-                    
-                    if (dataStr !== dataCorrente) {
-                        dataCorrente = dataStr;
-                        const separatore = document.createElement('div');
-                        separatore.className = "text-[10px] text-gray-500 font-bold uppercase mt-3 mb-1.5 border-b border-gray-700/50 pb-1";
-                        separatore.innerText = dataStr;
-                        container.appendChild(separatore);
-                    }
-                    
-                    const riga = document.createElement('div');
-                    let bgClass = 'bg-gray-900/90 border border-gray-700/60';
-                    if (evento.tipo === 'messaggio' && evento.isMittente) {
-                        bgClass = 'bg-gray-800/70 border border-yellow-600/30';
-                    } else if (evento.tipo === 'messaggio') {
-                        bgClass = 'bg-gray-900/90 border border-gray-700/60';
-                    } else {
-                        bgClass = 'bg-gray-800/50 border border-gray-700/30';
-                    }
-                    
-                    riga.className = `p-2.5 rounded-xl ${bgClass} text-gray-200 leading-relaxed mb-1.5 shadow-sm text-xs`;
-                    
-                    const ora = data.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-                    riga.innerHTML = `<span class="text-gray-500 mr-1.5">${ora}</span> ${evento.html}`;
-                    container.appendChild(riga);
-                });
-            }, (error) => {
-                console.error("❌ Errore nel listener del feed: ", error);
-            });
-        }
-
-        // ============================================
-        // AVVIO AUTENTICAZIONE
-        // ============================================
-        window.addEventListener('DOMContentLoaded', () => {
-            auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    if (user.emailVerified) {
-                        await caricaEAvviaGioco(user);
-                    } else {
-                        await signOut(auth);
-                        document.getElementById('schermata-login').classList.remove('hidden');
-                    }
-                } else {
-                    document.getElementById('schermata-login').classList.remove('hidden');
-                }
-            });
+        await caricaEAvviaGioco(user);
+      } catch (error) {
+        alert("❌ Errore d'accesso: Credenziali errate o non valide. " + error.message);
+        isAuthProcessing = false;
+      }
+    }
+
+    window.gestisciRegistrazione = async function(event) {
+      event.preventDefault();
+      if (isAuthProcessing) return;
+
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const nome = document.getElementById('login-nome').value.trim();
+      const genere = document.getElementById('login-genere').value;
+
+      const regexPassword = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,15}$/;
+
+      if (!regexPassword.test(password)) {
+        alert("❌ Impossibile procedere! La password inserita non rispetta tutti i requisiti indicati in basso.");
+        return;
+      }
+
+      isAuthProcessing = true;
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        await sendEmailVerification(user);
+
+        const statoMonumenti = (typeof monumenti !== 'undefined') ? monumenti.map(m => ({ nome: m.nome, scoperto: false })) : [];
+        await setDoc(doc(db, "utenti", user.uid), {
+          nome: nome,
+          genere: genere,
+          xp: 0,
+          livello: 1,
+          monumenti: statoMonumenti,
+          fotoProfilo: null,
+          amici: [],
+          messaggi: [],
+          status: "online",
+          ultimoAccesso: new Date().toISOString()
         });
 
-        // ============================================
-        // FUNZIONE DI ENTRATA NEL GIOCO
-        // ============================================
-        window.entraNelGioco = function(nome, genere, xp, livello, datiMonumenti) {
-            document.getElementById('schermata-login').classList.add('hidden');
-            document.getElementById('schermata-recupero').classList.add('hidden');
+        alert("📧 Ti abbiamo inviato una mail di conferma! Clicca sul link ricevuto per attivare il tuo account e poi effettua l'accesso.");
+        await auth.signOut();
+        window.location.reload();
+      } catch (error) {
+        alert("❌ Errore durante la registrazione: " + error.message);
+        isAuthProcessing = false;
+      }
+    }
 
-            document.getElementById('login-bar').classList.add('visible');
-            document.getElementById('login-bar-name').innerText = nome;
-            document.getElementById('login-bar-role').innerText = getPlayerRoleLabel(linguaCorrente);
-            document.getElementById('login-bar-level').innerText = `Lv.${livello}`;
-            document.getElementById('login-bar-xp').innerText = `${xp} XP`;
-            
-            aggiornaAvatarUI(fotoProfiloLocale || (datiUtenteLocale && datiUtenteLocale.fotoProfilo) || null, genere);
+    window.gestisciRecupero = async function(event) {
+      event.preventDefault();
+      const email = document.getElementById('recupero-email').value.trim();
 
-            if (typeof monumenti !== 'undefined' && datiMonumenti) {
-                monumenti.forEach(m => {
-                    const salvato = datiMonumenti.find(s => s.nome === m.nome);
-                    if (salvato) m.scoperto = salvato.scoperto;
-                });
-            }
+      try {
+        await sendPasswordResetEmail(auth, email);
+        alert("📨 Email di ripristino inviata con successo! Segui le istruzioni ricevute via email per impostare una nuova password.");
+        tornaAlLogin();
+      } catch (error) {
+        alert("❌ Impossibile inoltrare la richiesta di ripristino: " + error.message);
+      }
+    }
 
-            if (typeof initGioco === 'function') {
-                initGioco();
-            }
+    async function caricaEAvviaGioco(user) {
+      utenteCorrenteId = user.uid;
+      localStorage.setItem('giocatoreEmail', user.email);
+      document.getElementById('mio-codice-txt').innerText = user.uid;
 
-            if (datiUtenteLocale) {
-                aggiornaAvatarUI(datiUtenteLocale.fotoProfilo || fotoProfiloLocale || null, datiUtenteLocale.genere || genere);
-            }
-            
-            document.getElementById('bottom-nav').classList.remove('hidden');
-            
-            setupFeedListener();
-            
-            window.apriSchermata('mappa');
+      const timestampCorrente = new Date().toISOString();
+      const userRef = doc(db, "utenti", user.uid);
+      const docSnap = await getDoc(userRef);
+
+      if (docSnap.exists()) {
+        await updateDoc(userRef, {
+          status: "online",
+          ultimoAccesso: timestampCorrente
+        });
+        datiUtenteLocale = docSnap.data();
+        datiUtenteLocale.amici = datiUtenteLocale.amici || [];
+        datiUtenteLocale.messaggi = datiUtenteLocale.messaggi || [];
+        fotoProfiloLocale = datiUtenteLocale.fotoProfilo || null;
+        window.entraNelGioco(datiUtenteLocale.nome, datiUtenteLocale.genere, datiUtenteLocale.xp, datiUtenteLocale.livello, datiUtenteLocale.monumenti);
+      } else {
+        const statoMonumenti = (typeof monumenti !== 'undefined') ? monumenti.map(m => ({ nome: m.nome, scoperto: false })) : [];
+        datiUtenteLocale = {
+          nome: "Esploratore",
+          genere: "Esploratore",
+          xp: 0,
+          livello: 1,
+          monumenti: statoMonumenti,
+          fotoProfilo: null,
+          amici: [],
+          messaggi: [],
+          status: "online",
+          ultimoAccesso: timestampCorrente
+        };
+        await setDoc(userRef, datiUtenteLocale);
+        fotoProfiloLocale = null;
+        window.entraNelGioco("Esploratore", "Esploratore", 0, 1, statoMonumenti);
+      }
+      isAuthProcessing = false;
+    }
+
+    // ============================================
+    // FUNZIONI DI LOGOUT E PROFILO
+    // ============================================
+    window.eseguiLogout = async function() {
+      if (!confirm("Vuoi davvero uscire dal gioco?")) return;
+      try {
+        // Ferma il real-time prima del logout
+        window.stoppaAscoltoChatRealTime();
+        if (utenteCorrenteId) {
+          await updateDoc(doc(db, "utenti", utenteCorrenteId), { status: "offline" });
         }
-    </script>
+        await signOut(auth);
+        window.location.reload();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    window.salvaModificheProfilo = async function() {
+      const nuovoNome = document.getElementById('edit-nome').value.trim();
+      const nuovoGenere = document.getElementById('edit-genere').value;
+      if (!nuovoNome) return;
+
+      const fotoProfiloDaSalvare = fotoProfiloLocale !== null ? fotoProfiloLocale : (datiUtenteLocale && datiUtenteLocale.fotoProfilo) ? datiUtenteLocale.fotoProfilo : null;
+
+      try {
+        await updateDoc(doc(db, "utenti", utenteCorrenteId), {
+          nome: nuovoNome,
+          genere: nuovoGenere,
+          fotoProfilo: fotoProfiloDaSalvare
+        });
+        datiUtenteLocale = {
+          ...(datiUtenteLocale || {}),
+          nome: nuovoNome,
+          genere: nuovoGenere,
+          fotoProfilo: fotoProfiloDaSalvare
+        };
+        aggiornaAvatarUI(fotoProfiloDaSalvare, nuovoGenere);
+        document.getElementById('login-bar-name').innerText = nuovoNome;
+        document.getElementById('login-bar-role').innerText = getPlayerRoleLabel(linguaCorrente);
+        alert("✨ Profilo aggiornato con successo!");
+        window.chiudiPopupProfilo();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    window.salvaProgressoSuCloud = async function(xp, livello, listaMonumenti) {
+      if (!utenteCorrenteId) return;
+      try {
+        const statoMonumenti = listaMonumenti.map(m => ({ nome: m.nome, scoperto: m.scoperto || false }));
+        await updateDoc(doc(db, "utenti", utenteCorrenteId), {
+          xp: xp,
+          livello: livello,
+          monumenti: statoMonumenti
+        });
+      } catch (e) {
+        console.error("Errore salvataggio cloud: ", e);
+      }
+    }
+
+    // ============================================
+    // FUNZIONI GESTIONE AMICI
+    // ============================================
+    window.copiaCodiceAmico = function() {
+      if (!utenteCorrenteId) return;
+      navigator.clipboard.writeText(utenteCorrenteId);
+      alert("📋 Codice copiato negli appunti! Invialo ai tuoi amici.");
+    }
+
+    window.condividiCodiceAmico = function() {
+      if (!utenteCorrenteId) return;
+      const testoCondivisione = `Unisciti alla mia squadra su Brescia Quest! 🎮 Usa il mio Codice Squadra per scalare la classifica insieme: ${utenteCorrenteId}`;
+
+      if (navigator.share) {
+        navigator.share({
+          title: 'Brescia Quest',
+          text: testoCondivisione
+        }).catch(console.error);
+      } else {
+        navigator.clipboard.writeText(testoCondivisione);
+        alert("🔗 Link stile Monopoly GO generato e copiato! Incollalo dove vuoi per condividerlo.");
+      }
+    }
+
+    window.aggiungiAmico = async function() {
+      const codiceAmico = document.getElementById('input-codice-amico').value.trim();
+      if (!codiceAmico) return;
+      if (codiceAmico === utenteCorrenteId) {
+        alert("❌ Non puoi aggiungere te stesso come amico!");
+        return;
+      }
+
+      try {
+        const amicoSnap = await getDoc(doc(db, "utenti", codiceAmico));
+        if (!amicoSnap.exists()) {
+          alert("❌ Nessun giocatore trovato con questo codice. Controlla e riprova.");
+          return;
+        }
+
+        await updateDoc(doc(db, "utenti", utenteCorrenteId), { amici: arrayUnion(codiceAmico) });
+        await updateDoc(doc(db, "utenti", codiceAmico), { amici: arrayUnion(utenteCorrenteId) });
+
+        alert(`🤝 Compagno aggiunto con successo!`);
+        document.getElementById('input-codice-amico').value = "";
+        window.aggiornaElencoClassificaAmici();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    window.rimuoviAmico = async function(idAmico) {
+      if (!confirm("Sei sicuro di voler rimuovere questo amico dalla tua classifica?")) return;
+      try {
+        await updateDoc(doc(db, "utenti", utenteCorrenteId), { amici: arrayRemove(idAmico) });
+        await updateDoc(doc(db, "utenti", idAmico), { amici: arrayRemove(utenteCorrenteId) });
+        window.aggiornaElencoClassificaAmici();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    window.aggiornaElencoClassificaAmici = async function() {
+      const container = document.getElementById('lista-amici-classifica');
+      const conteggioClan = document.getElementById('conteggio-clan');
+      if (!container || !utenteCorrenteId) return;
+      container.innerHTML = "<p class='text-gray-400 animate-pulse text-center py-4'>Sincronizzazione punteggi...</p>";
+
+      try {
+        const mioSnap = await getDoc(doc(db, "utenti", utenteCorrenteId));
+        if (!mioSnap.exists()) return;
+        const mieiDati = mioSnap.data();
+        const listaIdAmici = mieiDati.amici || [];
+
+        let partecipanti = [];
+        partecipanti.push({
+          id: utenteCorrenteId,
+          nome: mieiDati.nome + " (Tu)",
+          livello: mieiDati.livello,
+          xp: mieiDati.xp,
+          status: "online",
+          ultimoAccesso: mieiDati.ultimoAccesso
+        });
+
+        for (let idAmico of listaIdAmici) {
+          const snapAmico = await getDoc(doc(db, "utenti", idAmico));
+          if (snapAmico.exists()) {
+            const dAmico = snapAmico.data();
+            partecipanti.push({
+              id: idAmico,
+              nome: dAmico.nome,
+              livello: dAmico.livello,
+              xp: dAmico.xp,
+              status: dAmico.status || "offline",
+              ultimoAccesso: dAmico.ultimoAccesso
+            });
+          }
+        }
+
+        if (conteggioClan) {
+          conteggioClan.innerText = `${partecipanti.length} ${partecipanti.length === 1 ? 'utente' : 'utenti'}`;
+        }
+
+        partecipanti.sort((a, b) => {
+          if (b.livello !== a.livello) return b.livello - a.livello;
+          return b.xp - a.xp;
+        });
+
+        container.innerHTML = "";
+        partecipanti.forEach((p, index) => {
+          let dataTxt = "Mai";
+          if (p.ultimoAccesso) {
+            const d = new Date(p.ultimoAccesso);
+            dataTxt = d.toLocaleDateString() + " " + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+          }
+
+          const isMe = p.id === utenteCorrenteId;
+          const badgePiazzamento = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `${index + 1}.`;
+
+          const riga = document.createElement('div');
+          riga.className = `p-3 rounded-xl flex justify-between items-center border ${isMe ? 'bg-yellow-950/30 border-yellow-500/70' : 'bg-gray-700/40 border-gray-700'}`;
+
+          riga.innerHTML = `
+            <div class="flex items-center gap-2">
+              <span class="font-mono font-bold text-sm text-gray-400 w-5">${badgePiazzamento}</span>
+              <div>
+                <div class="font-bold flex items-center gap-1.5">
+                  ${p.nome}
+                  <span class="w-2 h-2 rounded-full ${p.status === 'online' ? 'bg-green-500' : 'bg-gray-500'}"></span>
+                </div>
+                <div class="text-[10px] text-gray-400">Accesso: ${dataTxt}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="text-right">
+                <span class="text-xs font-bold text-green-400 block">Lvl ${p.livello}</span>
+                <span class="text-[10px] text-gray-400">${p.xp} XP</span>
+              </div>
+              ${!isMe ? `<button onclick="window.rimuoviAmico('${p.id}')" class="text-red-400 hover:text-red-500 text-sm p-1 cursor-pointer hover:bg-red-950/20 rounded-lg transition-colors">✕</button>` : ''}
+            </div>
+          `;
+          container.appendChild(riga);
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // ============================================
+    // FUNZIONI REAL-TIME FEED (CORE)
+    // ============================================
+
+    // Genera le spunte stile WhatsApp
+    function getSpunteMessaggio(visualizzato) {
+      if (visualizzato) {
+        return `<span class="spunta-blu">✓✓</span>`;
+      } else {
+        return `<span class="spunta-grigia">✓✓</span>`;
+      }
+    }
+
+    // FUNZIONE CORE: Attiva l'ascolto in tempo reale dei messaggi e dei successi della squadra
+    window.avviaAscoltoChatRealTime = function() {
+      // Pulizia preventiva per evitare canali duplicati
+      window.stoppaAscoltoChatRealTime();
+      
+      const container = document.getElementById('lista-amici-feed');
+      if (!container || !utenteCorrenteId) {
+        console.log("Container feed non disponibile o utente non autenticato");
+        return;
+      }
+      
+      container.innerHTML = "<p class='text-blue-400 animate-pulse text-center py-4'>Connessione live alla bacheca...</p>";
+      console.log("📡 Avvio ascolto real-time feed per:", utenteCorrenteId);
+
+      // 1. Ascolta te stesso (per mostrare subito i tuoi messaggi inviati e aggiornamenti della lista amici)
+      const unsubIo = onSnapshot(doc(db, "utenti", utenteCorrenteId), (mioSnap) => {
+        if (!mioSnap.exists()) {
+          console.log("Documento utente non esiste");
+          return;
+        }
+        
+        const mieiDati = mioSnap.data();
+        cacheDatiMembri[utenteCorrenteId] = mieiDati;
+        const listaIdAmici = mieiDati.amici || [];
+
+        // Disconnette i vecchi ascoltatori degli amici prima di ri-crearli (in caso la lista amici sia cambiata)
+        while (chatUnsubscribers.length > 1) {
+          const unsub = chatUnsubscribers.pop();
+          if (unsub) unsub();
+        }
+
+        // 2. Apri un canale in tempo reale per ogni amico nella squadra
+        listaIdAmici.forEach((idAmico) => {
+          const unsubAmico = onSnapshot(doc(db, "utenti", idAmico), (snapAmico) => {
+            if (snapAmico.exists()) {
+              cacheDatiMembri[idAmico] = snapAmico.data();
+            }
+            // Ogni volta che un amico scrive o sblocca qualcosa, ridisegna il feed all'istante!
+            renderizzaFeedDinamico();
+          }, (err) => console.error("Errore ascolto live amico:", err));
+          
+          chatUnsubscribers.push(unsubAmico);
+        });
+
+        // Renderizza subito la bacheca con i dati locali iniziali
+        renderizzaFeedDinamico();
+      }, (err) => {
+        console.error("Errore ascolto live utente:", err);
+        container.innerHTML = "<p class='text-red-400 text-center py-4'>Impossibile connettersi in tempo reale.</p>";
+      });
+
+      chatUnsubscribers.unshift(unsubIo); // Mette l'ascoltatore dell'utente in cima alla lista
+    };
+
+    // Disconnette tutti i canali attivi (salva-letture quando chiudi il popup o cambi scheda)
+    window.stoppaAscoltoChatRealTime = function() {
+      if (chatUnsubscribers && chatUnsubscribers.length > 0) {
+        console.log(`🛑 Fermo ${chatUnsubscribers.length} listener feed`);
+        chatUnsubscribers.forEach(unsub => {
+          if (typeof unsub === 'function') unsub();
+        });
+        chatUnsubscribers = [];
+      }
+      cacheDatiMembri = {};
+    };
+
+    // Genera e ordina a schermo i messaggi attingendo dalla bacheca aggiornata live
+    function renderizzaFeedDinamico() {
+      const container = document.getElementById('lista-amici-feed');
+      if (!container) {
+        console.log("Container feed non trovato");
+        return;
+      }
+
+      let eventiBacheca = [];
+      const tuttiIdMembri = Object.keys(cacheDatiMembri);
+
+      tuttiIdMembri.forEach(idUtente => {
+        const dUtente = cacheDatiMembri[idUtente];
+        if (!dUtente) return;
+        
+        const nomeVisualizzato = idUtente === utenteCorrenteId ? "Tu" : (dUtente.nome || "Esploratore");
+        const isMittente = idUtente === utenteCorrenteId;
+        
+        // 1. Estrai Monumenti scoperti
+        const monumentiUtente = dUtente.monumenti || [];
+        monumentiUtente.forEach(m => {
+          if (m.scoperto) {
+            eventiBacheca.push({
+              timestamp: m.timestamp || dUtente.ultimoAccesso || new Date().toISOString(),
+              html: `🎉 <strong>${nomeVisualizzato}</strong> ha scoperto <span class="text-green-400 font-semibold">${m.nome}</span>!`,
+              tipo: 'scoperta',
+              id: `scoperta_${m.nome}_${idUtente}`,
+              mittente: idUtente
+            });
+          }
+        });
+
+        // 2. Estrai Messaggi di testo della chat
+        const messaggiUtente = dUtente.messaggi || [];
+        messaggiUtente.forEach(msg => {
+          const isVisualizzato = msg.visualizzato || false;
+          const spunte = getSpunteMessaggio(isVisualizzato);
+          
+          let pulsantiElimina = '';
+          if (isMittente) {
+            pulsantiElimina = `
+              <button onclick="window.eliminaMessaggioChat('${msg.id}')" class="text-red-400 hover:text-red-600 text-xs ml-1 cursor-pointer" title="Elimina messaggio">🗑️</button>
+              <button onclick="window.marcaMessaggioVisualizzato('${msg.id}')" class="text-blue-400 hover:text-blue-600 text-xs ml-1 cursor-pointer" title="Segna come letto">👁️</button>
+            `;
+          }
+          
+          const classeMsg = isVisualizzato ? 'visualizzato' : 'non-visualizzato';
+          const classeMittente = isMittente ? 'msg-mittente' : 'msg-destinatario';
+          
+          eventiBacheca.push({
+            timestamp: msg.timestamp || new Date().toISOString(),
+            html: `
+              <div class="msg-container ${classeMsg} ${classeMittente} pl-2 pr-2 py-1 rounded-lg">
+                <div class="flex items-start gap-1">
+                  <span class="font-semibold ${isMittente ? 'text-yellow-400' : 'text-blue-300'}">${nomeVisualizzato}:</span>
+                  <span class="text-gray-200 break-words flex-1">${msg.testo}</span>
+                </div>
+                <div class="flex items-center justify-end gap-1 mt-0.5">
+                  <span class="text-[9px]">${spunte}</span>
+                  ${pulsantiElimina}
+                </div>
+              </div>
+            `,
+            tipo: 'messaggio',
+            id: msg.id || `msg_${Date.now()}_${Math.random()}`,
+            mittente: idUtente,
+            visualizzato: isVisualizzato,
+            msgData: msg,
+            isMittente: isMittente
+          });
+        });
+      });
+
+      // Ordina cronologicamente dal più recente in alto al più vecchio in basso
+      eventiBacheca.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+
+      // Limita a 30 eventi per prestazioni
+      if (eventiBacheca.length > 30) {
+        eventiBacheca = eventiBacheca.slice(0, 30);
+      }
+
+      container.innerHTML = "";
+      if (eventiBacheca.length === 0) {
+        container.innerHTML = "<p class='text-gray-500 text-center py-4'>Ancora nessuna attività o messaggio in questa squadra.</p>";
+        return;
+      }
+
+      let dataCorrente = '';
+      eventiBacheca.forEach(evento => {
+        const data = new Date(evento.timestamp);
+        const dataStr = data.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+        
+        if (dataStr !== dataCorrente) {
+          dataCorrente = dataStr;
+          const separatore = document.createElement('div');
+          separatore.className = "text-[10px] text-gray-500 font-bold uppercase mt-3 mb-1.5 border-b border-gray-700/50 pb-1";
+          separatore.innerText = dataStr;
+          container.appendChild(separatore);
+        }
+        
+        const riga = document.createElement('div');
+        let bgClass = 'bg-gray-900/90 border border-gray-700/60';
+        if (evento.tipo === 'messaggio' && evento.isMittente) {
+          bgClass = 'bg-gray-800/70 border border-yellow-600/30';
+        } else if (evento.tipo === 'messaggio') {
+          bgClass = 'bg-gray-900/90 border border-gray-700/60';
+        } else {
+          bgClass = 'bg-gray-800/50 border border-gray-700/30';
+        }
+        
+        riga.className = `p-2.5 rounded-xl ${bgClass} text-gray-200 leading-relaxed mb-1.5 shadow-sm text-xs animate-fadeIn`;
+        
+        const ora = data.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+        riga.innerHTML = `<span class="text-gray-500 mr-1.5">${ora}</span> ${evento.html}`;
+        container.appendChild(riga);
+      });
+    }
+
+    // ============================================
+    // FUNZIONI PER GESTIONE MESSAGGI CHAT
+    // ============================================
+
+    window.marcaMessaggioVisualizzato = async function(idMessaggio) {
+      if (!utenteCorrenteId || !idMessaggio) {
+        console.error("Mancano utente o id messaggio");
+        return;
+      }
+      
+      try {
+        // CERCA IL MITTENTE DEL MESSAGGIO
+        let mittenteId = null;
+        let messaggioTrovato = null;
+        
+        const mioSnap = await getDoc(doc(db, "utenti", utenteCorrenteId));
+        if (mioSnap.exists()) {
+          const mieiDati = mioSnap.data();
+          const listaIdAmici = mieiDati.amici || [];
+          const tuttiMembri = [utenteCorrenteId, ...listaIdAmici];
+          
+          for (let idUtente of tuttiMembri) {
+            const snapUtente = await getDoc(doc(db, "utenti", idUtente));
+            if (snapUtente.exists()) {
+              const dUtente = snapUtente.data();
+              const messaggi = dUtente.messaggi || [];
+              const trovato = messaggi.find(m => m.id === idMessaggio);
+              if (trovato) {
+                mittenteId = idUtente;
+                messaggioTrovato = trovato;
+                break;
+              }
+            }
+          }
+        }
+        
+        if (!mittenteId || !messaggioTrovato) {
+          console.error("Messaggio non trovato");
+          return;
+        }
+        
+        // SE GIÀ VISUALIZZATO, ESCE
+        if (messaggioTrovato.visualizzato) {
+          console.log("Messaggio già visualizzato");
+          return;
+        }
+        
+        // AGGIORNA IL MESSAGGIO NEL DOCUMENTO DEL MITTENTE
+        const mittenteRef = doc(db, "utenti", mittenteId);
+        const mittenteSnap = await getDoc(mittenteRef);
+        
+        if (mittenteSnap.exists()) {
+          const mittenteData = mittenteSnap.data();
+          const messaggi = mittenteData.messaggi || [];
+          
+          let visualizzatoDa = messaggioTrovato.visualizzatoDa || [];
+          if (!visualizzatoDa.includes(utenteCorrenteId)) {
+            visualizzatoDa.push(utenteCorrenteId);
+          }
+          
+          const messaggiAggiornati = messaggi.map(m => {
+            if (m.id === idMessaggio) {
+              return { 
+                ...m, 
+                visualizzato: true, 
+                visualizzatoIl: new Date().toISOString(),
+                visualizzatoDa: visualizzatoDa
+              };
+            }
+            return m;
+          });
+          
+          await updateDoc(mittenteRef, {
+            messaggi: messaggiAggiornati
+          });
+          
+          console.log("✅ Messaggio marcato come visualizzato!");
+        }
+        
+      } catch (e) {
+        console.error("Errore durante la marcatura del messaggio: ", e);
+      }
+    };
+
+    window.eliminaMessaggioChat = async function(idMessaggio) {
+      if (!utenteCorrenteId || !idMessaggio) return;
+      
+      if (!confirm("Sei sicuro di voler eliminare questo messaggio?")) return;
+      
+      try {
+        const userRef = doc(db, "utenti", utenteCorrenteId);
+        const userSnap = await getDoc(userRef);
+        
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          const messaggi = userData.messaggi || [];
+          
+          const messaggiAggiornati = messaggi.filter(m => m.id !== idMessaggio);
+          
+          await updateDoc(userRef, {
+            messaggi: messaggiAggiornati
+          });
+          
+          alert("✅ Messaggio eliminato con successo!");
+        }
+      } catch (e) {
+        console.error("Errore durante l'eliminazione del messaggio: ", e);
+        alert("❌ Errore durante l'eliminazione del messaggio.");
+      }
+    };
+
+    window.eliminaTuttiMessaggiChat = async function() {
+      if (!utenteCorrenteId) return;
+      
+      if (!confirm("Sei sicuro di voler eliminare TUTTI i tuoi messaggi?")) return;
+      
+      try {
+        await updateDoc(doc(db, "utenti", utenteCorrenteId), {
+          messaggi: []
+        });
+        
+        alert("✅ Tutti i messaggi eliminati con successo!");
+      } catch (e) {
+        console.error("Errore durante l'eliminazione di tutti i messaggi: ", e);
+        alert("❌ Errore durante l'eliminazione dei messaggi.");
+      }
+    };
+
+    window.marcaIstantaneaTuttiMessaggi = async function() {
+      if (!utenteCorrenteId) return;
+      
+      try {
+        const mioSnap = await getDoc(doc(db, "utenti", utenteCorrenteId));
+        if (!mioSnap.exists()) return;
+        
+        const mieiDati = mioSnap.data();
+        const listaIdAmici = mieiDati.amici || [];
+        const tuttiMembri = [utenteCorrenteId, ...listaIdAmici];
+        
+        for (let idUtente of tuttiMembri) {
+          if (idUtente === utenteCorrenteId) continue;
+          
+          const snapUtente = await getDoc(doc(db, "utenti", idUtente));
+          if (snapUtente.exists()) {
+            const dUtente = snapUtente.data();
+            const messaggi = dUtente.messaggi || [];
+            let modificato = false;
+            
+            const messaggiAggiornati = messaggi.map(m => {
+              if (!m.visualizzato) {
+                const visualizzatoDa = m.visualizzatoDa || [];
+                if (!visualizzatoDa.includes(utenteCorrenteId)) {
+                  visualizzatoDa.push(utenteCorrenteId);
+                }
+                modificato = true;
+                return { 
+                  ...m, 
+                  visualizzato: true, 
+                  visualizzatoIl: new Date().toISOString(),
+                  visualizzatoDa: visualizzatoDa
+                };
+              }
+              return m;
+            });
+            
+            if (modificato) {
+              await updateDoc(doc(db, "utenti", idUtente), {
+                messaggi: messaggiAggiornati
+              });
+            }
+          }
+        }
+        
+        alert("✅ Tutti i messaggi segnati come letti!");
+        
+      } catch (e) {
+        console.error("Errore durante la marcatura di tutti i messaggi: ", e);
+        alert("❌ Errore durante la marcatura dei messaggi.");
+      }
+    };
+
+    window.inviaMessaggioChat = async function() {
+      const input = document.getElementById('input-messaggio-chat');
+      if (!input) return;
+      const testo = input.value.trim();
+      if (!testo || !utenteCorrenteId) {
+        alert("Scrivi un messaggio prima di inviare!");
+        return;
+      }
+
+      try {
+        const idMessaggio = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        const userRef = doc(db, "utenti", utenteCorrenteId);
+        const userSnap = await getDoc(userRef);
+        
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          if (!userData.messaggi) {
+            await updateDoc(userRef, { messaggi: [] });
+          }
+        }
+
+        await updateDoc(doc(db, "utenti", utenteCorrenteId), {
+          messaggi: arrayUnion({
+            id: idMessaggio,
+            testo: testo,
+            timestamp: new Date().toISOString(),
+            visualizzato: false,
+            visualizzatoIl: null,
+            visualizzatoDa: []
+          })
+        });
+        
+        input.value = "";
+        console.log("✅ Messaggio inviato! Il real-time lo mostrerà a tutti.");
+      } catch (e) {
+        console.error("Errore durante l'invio del messaggio: ", e);
+        alert("❌ Errore nell'invio del messaggio.");
+      }
+    };
+
+    // ============================================
+    // SWITCH DEI TAB CON GESTIONE REAL-TIME
+    // ============================================
+
+    window.switchAmiciTab = function(tab) {
+      const btnClassifica = document.getElementById('btn-tab-classifica');
+      const btnFeed = document.getElementById('btn-tab-feed');
+      const listaClassifica = document.getElementById('lista-amici-classifica');
+      const listaFeed = document.getElementById('lista-amici-feed');
+      const titoloSezione = document.getElementById('titolo-sezione-amici');
+      const sottotitoloSezione = document.getElementById('sottotitolo-sezione-amici');
+      
+      const sezAggiungiAmico = document.getElementById('sezione-aggiungi-amico');
+      const sezInviaMessaggio = document.getElementById('sezione-invia-messaggio');
+      const boxSquadra = document.getElementById('box-squadra');
+      const pannelloClassifica = document.getElementById('pannello-classifica');
+      const pannelloFeed = document.getElementById('pannello-feed');
+
+      if (!btnClassifica || !btnFeed || !listaClassifica || !listaFeed) return;
+
+      if (tab === 'classifica') {
+        btnClassifica.className = "bg-blue-600 text-white font-bold text-[11px] px-3 py-2 rounded-lg cursor-pointer transition-all uppercase tracking-wider flex items-center gap-1";
+        btnFeed.className = "bg-gray-700 text-gray-400 font-bold text-[11px] px-3 py-2 rounded-lg cursor-pointer transition-all uppercase tracking-wider flex items-center gap-1 hover:text-white";
+        listaClassifica.classList.remove('hidden');
+        listaFeed.classList.add('hidden');
+        if (pannelloClassifica) pannelloClassifica.classList.remove('hidden');
+        if (pannelloFeed) pannelloFeed.classList.add('hidden');
+        
+        if (sezAggiungiAmico) sezAggiungiAmico.classList.remove('hidden');
+        if (sezInviaMessaggio) sezInviaMessaggio.classList.add('hidden');
+        if (boxSquadra) boxSquadra.style.display = 'flex';
+        
+        if (titoloSezione) titoloSezione.innerText = "👥 Il mio Clan";
+        if (sottotitoloSezione) sottotitoloSezione.innerText = "Classifica dei punteggi";
+        
+        // STOP real-time quando vai sulla classifica
+        window.stoppaAscoltoChatRealTime();
+        
+      } else {
+        btnClassifica.className = "bg-gray-700 text-gray-400 font-bold text-[11px] px-3 py-2 rounded-lg cursor-pointer transition-all uppercase tracking-wider flex items-center gap-1 hover:text-white";
+        btnFeed.className = "bg-blue-600 text-white font-bold text-[11px] px-3 py-2 rounded-lg cursor-pointer transition-all uppercase tracking-wider flex items-center gap-1";
+        listaClassifica.classList.add('hidden');
+        listaFeed.classList.remove('hidden');
+        if (pannelloClassifica) pannelloClassifica.classList.add('hidden');
+        if (pannelloFeed) pannelloFeed.classList.remove('hidden');
+        
+        if (sezAggiungiAmico) sezAggiungiAmico.classList.add('hidden');
+        if (sezInviaMessaggio) sezInviaMessaggio.classList.remove('hidden');
+        if (boxSquadra) boxSquadra.style.display = 'none';
+        
+        if (titoloSezione) titoloSezione.innerText = "⚡ Bacheca & Successi della Squadra";
+        if (sottotitoloSezione) sottotitoloSezione.innerText = "Messaggi e conquiste dei compagni";
+        
+        // ATTIVA il real-time quando vai sul feed
+        window.avviaAscoltoChatRealTime();
+      }
+    };
+
+    // ============================================
+    // AVVIO AUTENTICAZIONE
+    // ============================================
+    window.addEventListener('DOMContentLoaded', () => {
+      auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          if (user.emailVerified) {
+            await caricaEAvviaGioco(user);
+          } else {
+            await signOut(auth);
+            document.getElementById('schermata-login').classList.remove('hidden');
+          }
+        } else {
+          document.getElementById('schermata-login').classList.remove('hidden');
+        }
+      });
+    });
+
+    // ============================================
+    // FUNZIONE DI ENTRATA NEL GIOCO
+    // ============================================
+    window.entraNelGioco = function(nome, genere, xp, livello, datiMonumenti) {
+      document.getElementById('schermata-login').classList.add('hidden');
+      document.getElementById('schermata-recupero').classList.add('hidden');
+
+      document.getElementById('login-bar').classList.add('visible');
+      document.getElementById('login-bar-name').innerText = nome;
+      document.getElementById('login-bar-role').innerText = getPlayerRoleLabel(linguaCorrente);
+      document.getElementById('login-bar-level').innerText = `Lv.${livello}`;
+      document.getElementById('login-bar-xp').innerText = `${xp} XP`;
+      
+      aggiornaAvatarUI(fotoProfiloLocale || (datiUtenteLocale && datiUtenteLocale.fotoProfilo) || null, genere);
+
+      if (typeof monumenti !== 'undefined' && datiMonumenti) {
+        monumenti.forEach(m => {
+          const salvato = datiMonumenti.find(s => s.nome === m.nome);
+          if (salvato) m.scoperto = salvato.scoperto;
+        });
+      }
+
+      if (typeof initGioco === 'function') {
+        initGioco();
+      }
+
+      if (datiUtenteLocale) {
+        aggiornaAvatarUI(datiUtenteLocale.fotoProfilo || fotoProfiloLocale || null, datiUtenteLocale.genere || genere);
+      }
+      
+      document.getElementById('bottom-nav').classList.remove('hidden');
+      
+      // Avvia il real-time se il tab feed è attivo (default è classifica)
+      // Il listener verrà attivato quando l'utente clicca sul tab feed
+      
+      window.apriSchermata('mappa');
+    }
+
+    // ============================================
+    // CHIUSURA POPUP AMICI CON STOP REAL-TIME
+    // ============================================
+    // Estendiamo la funzione chiudiPopupAmici se esiste già
+    const originalChiudiPopupAmici = window.chiudiPopupAmici;
+    window.chiudiPopupAmici = function() {
+      if (document.getElementById('popup-amici')) {
+        document.getElementById('popup-amici').classList.add('hidden');
+      }
+      // Interrompe l'ascolto cloud per non consumare dati in background
+      window.stoppaAscoltoChatRealTime();
+      if (typeof originalChiudiPopupAmici === 'function') {
+        originalChiudiPopupAmici();
+      }
+    };
+
+    console.log("✅ Brescia Quest real-time feed attivo!");
+  </script>
 </body>
 </html>
