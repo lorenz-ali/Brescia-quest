@@ -49,9 +49,6 @@ function aggiornaMappaELista() {
     aggiornaWishlist();
     aggiornaWishlistFull();
 
-    // Dichiara la variabile senza inizializzarla vuota per evitare il crash di Leaflet
-    let mapBounds; 
-
     // Disegno dei marker sulla mappa
     monumenti.forEach(m => {
         if (categoriaCorrente === 'tutti' || m.categoria === categoriaCorrente) {
@@ -73,22 +70,20 @@ function aggiornaMappaELista() {
             
             markersAttivi.push(marker);
             m.markerRef = marker; // Salviamo il riferimento per aprirlo dinamicamente allo sblocco
-
-            // FIX: Inizializza i confini con il primo marker trovato, estendi per i successivi
-            if (!mapBounds) {
-                mapBounds = L.latLngBounds([m.lat, m.lng], [m.lat, m.lng]);
-            } else {
-                mapBounds.extend([m.lat, m.lng]);
-            }
         }
     });
 
-    // Se esiste il box (cioè c'era almeno un marker), adatta l'inquadratura
-    if (mapBounds) {
-        map.fitBounds(mapBounds, { 
-            padding: [40, 40], // Lascia un po' di margine ai bordi dello schermo
-            maxZoom: 16 // Evita zoom estremi se c'è un solo punto
-        }); 
+    // FIX DEFINITIVO: Raggruppa i marker e aspetta che il CSS della mappa sia caricato
+    if (markersAttivi.length > 0) {
+        const markerGroup = L.featureGroup(markersAttivi);
+        
+        // Aspettiamo 250ms per far calcolare al browser l'altezza del div #map
+        setTimeout(() => {
+            map.fitBounds(markerGroup.getBounds(), { 
+                padding: [40, 40], // Margine per non attaccare i pin ai bordi
+                maxZoom: 16 // Previene zoom eccessivi se filtri una categoria con 1 solo pin
+            });
+        }, 250);
     }
 }
 
