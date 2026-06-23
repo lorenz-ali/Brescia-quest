@@ -146,7 +146,7 @@ const monumenti = [
     },
     {
         // museo delle armi luigi marzoli
-        "id": 15,
+        "id": 16,
         "nome": "Museo delle armi \"Luigi Marzoli\"",
         "lat": 45.5391,
         "lng": 10.2212,
