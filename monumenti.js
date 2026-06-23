@@ -132,6 +132,6 @@ const monumenti = [
         "lng": 10.2192,
         "desc": "Progettata dal Piacentini, la centralissima Piazza Vittoria di Brescia fu inaugurata nel 1932 secondo il nuovo piano urbanistico fascista.",
         "categoria": "parco",
-        "scoperto": true
+        "scoperto": false
     }
 ];
