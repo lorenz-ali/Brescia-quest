@@ -53,5 +53,35 @@ const monumenti = [
         "desc": "Uno dei principali punti di rifornimento per il quartiere di Via Milano. Ottimo per fare scorta di pozioni e provviste prima di partire per l'esplorazione!",
         "categoria": "supermercato",
         "scoperto": false
-    }
+    },
+    {
+        // 45.54291548504585, 10.22517491702765
+        "id": 7,
+        "nome": "Castello di Brescia",
+        "lat": 45.5429,
+        "lng": 10.2251,
+        "desc": "Arroccato sul colle Cidneo, il Castello costituisce uno dei più affascinanti complessi fortificati d’Europa, in cui si possono leggere ancora oggi i segni delle diverse dominazioni.",
+        "categoria": "monumento",
+        "scoperto": false
+    },
+    {
+        // tempio capitolino 45.540073785348596, 10.225765156044563
+        "id": 8,
+        "nome": "Tempio Capitolino (Capitolium)",
+        "lat": 45.5400,
+        "lng": 10.2257,
+        "desc": "Un percorso archeologico tra i più significativi e meglio conservati d’Italia, riconosciuto Patrimonio Mondiale dell’Umanità dall’UNESCO",
+        "categoria": "monumento",
+        "scoperto": false
+    },
+    {
+        // museo diocesano 45.54118088236688, 10.22059547975315
+        "id": 9,
+        "nome": "Museo Diocesano di Brescia",
+        "lat": 45.5411,
+        "lng": 10.2205,
+        "desc" "Punto di riferimento e coordinamento per la promozione, la valorizzazione e la gestione del patrimonio artistico e culturale "sacro" del centro storico di Brescia",
+        "categoria": "monumento",
+        "scoperto": false
+    },
 ];
