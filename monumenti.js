@@ -133,5 +133,25 @@ const monumenti = [
         "desc": "Progettata dal Piacentini, la centralissima Piazza Vittoria di Brescia fu inaugurata nel 1932 secondo il nuovo piano urbanistico fascista.",
         "categoria": "parco",
         "scoperto": false
+    },
+    {
+        // piazza paolo sesto 45.53913435567406, 10.221269766912977
+        "id": 15,
+        "nome": "Piazza Paolo VI",
+        "lat": 45.5391,
+        "lng": 10.2212,
+        "desc": "piazza Paolo VI è un magnifico esempio di architettura medievale e rappresenta il cuore della città per gli importanti edifici storici che vi si affacciano.",
+        "categoria": "parco",
+        "scoperto": false
+    },
+    {
+        // museo delle armi luigi marzoli
+        "id": 15,
+        "nome": "Museo delle armi \"Luigi Marzoli\"",
+        "lat": 45.5391,
+        "lng": 10.2212,
+        "desc": "Il Museo delle Armi Luigi Marzoli ospita una delle più pregiate raccolte europee di armature e armi antiche, che raccontano la lunghissima e prolifica tradizione armiera bresciana.",
+        "categoria": "monumento",
+        "scoperto": false
     }
 ];
