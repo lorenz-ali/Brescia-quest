@@ -12,13 +12,75 @@ let animazioneInCorso = null;
 let primoAvvioGps = true;
 let codaPopup = [];
 
+// ============================================
+// SISTEMA AUDIO RETRÒ (Generati via codice)
+// ============================================
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+// 1. Suono Click a 8-bit (Corto e saltellante)
+window.playClickSuono = function() {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  
+  osc.type = 'square';
+  osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.08);
+  
+  gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+  gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+  
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.08);
+};
+
+// 2. Jingle Trionfale Monumento Sbloccato (Arpeggio in Do Maggiore a 8-bit)
+window.playJingleMonumento = function() {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  
+  const note = [261.63, 329.63, 392.00, 523.25]; // Do, Mi, Sol, Do Alto
+  const tempoInizio = audioCtx.currentTime;
+  
+  note.forEach((freq, indice) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, tempoInizio + (indice * 0.12));
+    
+    gain.gain.setValueAtTime(0.15, tempoInizio + (indice * 0.12));
+    gain.gain.linearRampToValueAtTime(0.01, tempoInizio + (indice * 0.12) + 0.3);
+    
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    osc.start(tempoInizio + (indice * 0.12));
+    osc.stop(tempoInizio + (indice * 0.12) + 0.3);
+  });
+};
+
+// Applica il suono a 8-bit a tutti i bottoni della pagina automaticamente
+document.addEventListener('click', (e) => {
+  if (e.target.closest('button')) {
+    window.playClickSuono();
+  }
+});
+
 // --- INIZIALIZZAZIONE DEL GIOCO ---
 function initGioco() {
     // CONTROLLO DI SICUREZZA: Se la mappa è già stata creata, si ferma ed evita l'errore!
     if (map) {
         console.log("Mappa già inizializzata. Salto la ricreazione.");
         aggiornaMappaELista();
-        setTimeout(() => { map.invalidateSize(); }, 50);
+        setTimeout(() => { 
+            if (map && typeof map.invalidateSize === 'function') {
+                map.invalidateSize(); 
+            }
+        }, 100);
         return;
     }
 
@@ -33,12 +95,18 @@ function initGioco() {
 
     // Forza Leaflet a ridisegnare i tasselli grafici evitando quadrati grigi
     setTimeout(() => {
-        if (map) map.invalidateSize();
-    }, 100);
+        if (map && typeof map.invalidateSize === 'function') {
+            map.invalidateSize();
+        }
+    }, 200);
 }
 
 // --- GESTIONE DEI FILTRI E DEI PIN ---
-function aggiornaMappaELista() {
+function aggiornaMappaELista(categoria) {
+    if (categoria !== undefined) {
+        categoriaCorrente = categoria;
+    }
+    
     if (!map || typeof monumenti === 'undefined') return;
 
     // Svuota i marker precedenti
@@ -72,19 +140,6 @@ function aggiornaMappaELista() {
             m.markerRef = marker; // Salviamo il riferimento per aprirlo dinamicamente allo sblocco
         }
     });
-
-    // FIX DEFINITIVO: Raggruppa i marker e aspetta che il CSS della mappa sia caricato
-    if (markersAttivi.length > 0) {
-        const markerGroup = L.featureGroup(markersAttivi);
-        
-        // Aspettiamo 250ms per far calcolare al browser l'altezza del div #map
-        setTimeout(() => {
-            map.fitBounds(markerGroup.getBounds(), { 
-                padding: [40, 40], // Margine per non attaccare i pin ai bordi
-                maxZoom: 16 // Previene zoom eccessivi se filtri una categoria con 1 solo pin
-            });
-        }, 250);
-    }
 }
 
 function aggiornaWishlist() {
@@ -207,7 +262,7 @@ function filtraCategoria(categoria) {
         pulsanteAttivo.classList.add(...classiContorno);
     }
 
-    aggiornaMappaELista();
+    aggiornaMappaELista(categoria);
 }
 window.filtraCategoria = filtraCategoria;
 
@@ -311,6 +366,11 @@ function controllaProssimita(uLat, uLng) {
             if (distanza <= 50) {
                 m.scoperto = true;
                 
+                // 🎵 RIPRODUCI JINGLE TRIONFALE!
+                if (typeof window.playJingleMonumento === 'function') {
+                    window.playJingleMonumento();
+                }
+                
                 // Aggiorna marker sulla mappa in tempo reale
                 if (m.markerRef) {
                     m.markerRef.setStyle({ fillColor: '#10b981' }); // Diventa verde istantaneamente
@@ -324,7 +384,7 @@ function controllaProssimita(uLat, uLng) {
                 codaPopup.push(m);
                 
                 // Ricarica la grafica della lista
-                aggiornaMappaELista();
+                aggiornaMappaELista(categoriaCorrente);
             }
         }
     });
