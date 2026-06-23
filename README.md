@@ -55,6 +55,6 @@ Gestione chat: I messaggi nella chat possono essere eliminati, se sono i propri,
 
 Contenuto: La sezione wishlist contiene tutti i luoghi che non si ha ancora visitato, includendo la loro distanza dall’utente.
 
-Filtri: In alto a destra è presente un menù a tendina che permette di filtrare il tipo di luogo, così da semplificare la wishlist.
+*Filtri*: In alto a destra è presente un menù a tendina che permette di filtrare il tipo di luogo, così da semplificare la wishlist.
 
 
