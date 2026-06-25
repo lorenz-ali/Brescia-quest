@@ -193,5 +193,18 @@ const monumenti = [
         "desc": "Il Santuario della Madonna del Patrocinio è un piccolo santuario cattolico sorto nel 1720 come piccolo oratorio privato, nell'alta Val Tavareda.",
         "categoria": "monumento",
         "scoperto": false
+    },
+    {
+        // museo auto storiche brescia 45.52432999162205, 10.267033879032244
+        "id": 21,
+        "nome": "Museo Auto Storiche Brescia",
+        "lat": 45.5243,
+        "lng": 10.2670,
+        "desc": "Il Museo delle Auto Storiche di Brescia è un museo automobilistico immersivo che racconta la storia della Mille Miglia e delle auto d’epoca dal 1927 al 1957, ospitato nell’ex monastero benedettino di Sant’Eufemia.",
+        "categoria": "monumento",
+        "scoperto": false
+    },
+    {
+        
     }
 ];
