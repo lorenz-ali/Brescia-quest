@@ -444,5 +444,65 @@ const monumenti = [
         "desc": "Il Parco via Aldo Moro è un'area verde pubblica situata a Brescia, che offre spazi per passeggiate, attività ricreative e momenti di relax immersi nella natura.",
         "categoria": "parco",
         "scoperto": false
+    },
+    {
+        // ELNOS shopping 45.53404195535618, 10.164858903994258
+        "id": 46,
+        "nome": "ELNOS Shopping",
+        "lat": 45.5340,
+        "lng": 10.1648,
+        "desc": "ELNOS Shopping è un centro commerciale situato a Brescia, che offre una vasta gamma di negozi e servizi per i residenti e i visitatori.",
+        "categoria": "shopping",
+        "scoperto": false
+    },
+    {
+        // Rondinelle centro commerciale 45.53470325045572, 10.150809431310071
+        "id": 47,
+        "nome": "Rondinelle",
+        "lat": 45.5347,
+        "lng": 10.1508,
+        "desc": "Rondinelle è un centro commerciale situato a Brescia, che offre una varietà di negozi, ristoranti e servizi per lo shopping e il tempo libero.",
+        "categoria": "shopping",
+        "scoperto": false
+    },
+    {
+        // Paradiso disco 45.49622620488132, 10.257338624970915
+        "id": 48,
+        "nome": "Paradiso Disco",
+        "lat": 45.4962,
+        "lng": 10.2573,
+        "desc": "Paradiso Disco è una discoteca situata a Brescia, che offre un ambiente per la musica, il ballo e l'intrattenimento notturno.",
+        "categoria": "parco",
+        "scoperto": false
+    },
+    {
+        // Museo del marmo botticino 45.54630787879036, 10.319932257738623
+        "id": 49,
+        "nome": "Museo del Marmo Botticino",
+        "lat": 45.5463,
+        "lng": 10.3199,
+        "desc": "Il Museo del Marmo Botticino è un museo situato a Brescia, che conserva e mostra opere d'arte in marmo provenienti dalla tradizione artistica locale.",
+        "categoria": "monumento",
+        "scoperto": false
+    },
+    {
+        // Oratorio Paolo VI 45.58892010133465, 10.237604506719213
+        "id": 50,
+        "nome": "Oratorio Paolo VI",
+        "lat": 45.5889,
+        "lng": 10.2376,
+        "desc": "L'Oratorio Paolo VI è un luogo di aggregazione giovanile e spirituale situato a Brescia, che offre attività educative, ricreative e culturali per bambini e adolescenti.",
+        "categoria": "parco",
+        "scoperto": false
+    },
+    {
+        // Porta Romana 45.542496265933316, 10.23065835788893
+        "id": 51,
+        "nome": "Porta Romana",
+        "lat": 45.5424,
+        "lng": 10.2306,
+        "desc": "Porta Romana è una storica porta cittadina situata a Brescia, che rappresenta un importante esempio di architettura difensiva e offre una vista panoramica sulla città.",
+        "categoria": "monumento",
+        "scoperto": false
     }
 ];
