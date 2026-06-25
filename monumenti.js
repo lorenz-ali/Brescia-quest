@@ -293,5 +293,75 @@ const monumenti = [
         "desc": "Il Centro Sportivo Sanpolino è una struttura dedicata alla pratica di diverse discipline sportive, aree per attività ricreative.",
         "categoria": "parco",
         "scoperto": false
+    },
+    {
+        // Oratorio San Giovanni Bosco 45.553679182640614, 10.072963362816175
+        "id": 31,
+        "nome": "Oratorio San Giovanni Bosco",
+        "lat": 45.5536,
+        "lng": 10.0729,
+        "desc": "L'Oratorio San Giovanni Bosco è un luogo di aggregazione giovanile e spirituale, che offre attività educative, ricreative e culturali per bambini e adolescenti.",
+        "categoria": "parco",
+        "scoperto": false
+    },
+    {
+        // Cimitero comunale di ospitaletto 45.55724089063377, 10.063628009651628
+        "id": 32,
+        "nome": "Cimitero comunale di Ospitaletto",
+        "lat": 45.5572,
+        "lng": 10.0636,
+        "desc": "Il Cimitero comunale di Ospitaletto è un luogo di sepoltura e memoria, che ospita tombe e monumenti commemorativi della comunità locale.",
+        "categoria": "monumento",
+        "scoperto": false
+    },
+    {
+        // castello oldofredi 45.58996696196111, 10.07672702918096
+        "id": 33,
+        "nome": "Castello Oldofredi",
+        "lat": 45.5899,
+        "lng": 10.0767,
+        "desc": "Il Castello Oldofredi è una struttura fortificata storica situata a Brescia, che rappresenta un importante esempio di architettura medievale.",
+        "categoria": "monumento",
+        "scoperto": false
+    },
+    {
+        // Abbazia Benedettina di Rodengo 45.589997500915814, 10.110246520660105
+        "id": 34,
+        "nome": "Abbazia Benedettina di Rodengo",
+        "lat": 45.5899,
+        "lng": 10.1102,
+        "desc": "L'Abbazia Benedettina di Rodengo è un complesso monastico storico situato a Brescia, che offre un esempio significativo di architettura religiosa e spiritualità.",
+        "categoria": "monumento",
+        "scoperto": false
+    },
+    {
+        // Santuario la santissima 45.59111752018351, 10.145327698666181
+        "id": 35,
+        "nome": "Santuario La Santissima",
+        "lat": 45.5911,
+        "lng": 10.1453,
+        "desc": "Il Santuario La Santissima è un luogo di culto e devozione situato a Brescia, che rappresenta un importante punto di riferimento spirituale per la comunità locale.",
+        "categoria": "monumento",
+        "scoperto": false
+    },
+    {
+        // Regesta beach village 45.57915800926663, 10.174600711215527
+        "id": 36,
+        "nome": "Regesta Beach Village",
+        "lat": 45.5791,
+        "lng": 10.1746,
+        "desc": "Il Regesta Beach Village è un luogo di svago e divertimento.",
+        "categoria": "parco",
+        "scoperto": false
+    },
+    {
+        // Forte Garibaldi 45.52298959035238, 10.279295938176238
+        "id": 37,
+        "nome": "Forte Garibaldi",
+        "lat": 45.5229,
+        "lng": 10.2792,
+        "desc": "Il Forte Garibaldi è una struttura militare storica situata a Brescia, che rappresenta un importante esempio di architettura difensiva e offre una vista panoramica sulla città.",
+        "categoria": "monumento",
+        "scoperto": false
     }
 ];
