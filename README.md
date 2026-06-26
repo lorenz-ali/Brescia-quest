@@ -50,8 +50,13 @@ Sotto-sezione attività: Andando nella sub-sezione “attività” in alto a des
 
 Gestione chat: I messaggi nella chat possono essere eliminati, se sono i propri, oppure segnati come “visualizzati”, se sono di un amico.
 
+## 5. Sezione Clan
 
-## 5. Sezione Wishlist
+Creazione clan: è possibile creare un clan da dimensioni fisse al quale si possono unire diversi utenti.
+
+Funzione clan: molto simile alla bacheca amici, la bacheca del clan permette di inviare messaggi in tempo reale e di vedere gli achievement degli altri membri.
+
+## 6. Sezione Wishlist
 
 Contenuto: La sezione wishlist contiene tutti i luoghi che non si ha ancora visitato, includendo la loro distanza dall’utente.
 
