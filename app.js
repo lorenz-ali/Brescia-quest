@@ -351,7 +351,7 @@ function calcolaDistanza(lat1, lon1, lat2, lon2) {
 function controllaProssimita(uLat, uLng) {
     if (typeof monumenti === 'undefined') return;
 
-    document.title = "Brescia Quest - Il Gioco Esplorativo"; // Assicura stabilità titolo
+    document.title = "Venatores Brixiae"; // Assicura stabilità titolo
 
     monumenti.forEach(m => {
         const distanza = calcolaDistanza(uLat, uLng, m.lat, m.lng);
