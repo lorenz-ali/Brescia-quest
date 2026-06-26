@@ -890,22 +890,20 @@
     <div class="w-full max-w-md mx-auto flex flex-col h-full">
       
       <div class="flex justify-between items-center mb-6 pt-2">
-        <h2 class="text-2xl font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">
-          🏅 I TUOI TRAGUARDI
-        </h2>
+        <h2 id="badge-titolo" class="text-2xl font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600"></h2>
         <button onclick="window.chiudiSchermataBadge()" class="text-gray-400 hover:text-white text-4xl font-light transition-colors w-12 h-12 flex items-center justify-center rounded-full hover:bg-white/5">
           &times;
         </button>
       </div>
       
-      <p class="text-xs text-gray-400 mb-6">Esplora Brixia per sbloccare tutti i trofei tematici e personalizzare il tuo profilo.</p>
+      <p id="badge-sottotitolo" class="text-xs text-gray-400 mb-6"></p>
       
       <div id="griglia-badge" class="badge-grid-fullscreen">
         <!-- I badge verranno generati da JavaScript -->
       </div>
       
       <div class="mt-auto pt-4 border-t border-white/5 text-center">
-        <p class="text-[11px] text-gray-500 italic">💡 Clicca su un badge sbloccato per impostarlo come foto profilo</p>
+        <p id="badge-hint" class="text-[11px] text-gray-500 italic"></p>
       </div>
       
     </div>
@@ -931,7 +929,7 @@
       <h3 id="popup-badge-title" class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">BADGE SBLOCCATO!</h3>
       <p id="popup-nome" class="text-xl font-bold mt-2 text-white">Nome Posto</p>
       <p id="popup-desc" class="text-gray-300 text-sm mt-3 px-2 leading-relaxed"></p>
-      <div class="mt-4 text-green-400 font-black text-lg">+100 XP GUADAGNATI!</div>
+      <div id="popup-xp-gained" class="mt-4 text-green-400 font-black text-lg">+100 XP GUADAGNATI!</div>
       <button id="popup-continue-btn" onclick="window.chiudiPopupScoperta()" class="btn-primary w-full mt-5 text-center">
         Continua la Caccia
       </button>
@@ -963,10 +961,8 @@
     <div class="tutorial-box w-full max-w-md rounded-2xl p-4 flex flex-col gap-4 shadow-2xl relative animate-scaleIn">
       
       <div class="flex justify-between items-center">
-        <h3 class="text-xs font-black tracking-wider text-blue-400">📖 GUIDA RAPIDA DI GIOCO</h3>
-        <button onclick="window.chiudiESaltaTutorial()" class="text-gray-400 hover:text-white text-xs font-bold bg-white/5 px-3 py-1.5 rounded-lg cursor-pointer transition-all hover:bg-white/10">
-          Salta ✕
-        </button>
+        <h3 id="tutorial-titolo" class="text-xs font-black tracking-wider text-blue-400"></h3>
+        <button id="tutorial-salta" onclick="window.chiudiESaltaTutorial()" class="text-gray-400 hover:text-white text-xs font-bold bg-white/5 px-3 py-1.5 rounded-lg cursor-pointer transition-all hover:bg-white/10"></button>
       </div>
 
       <div class="w-full aspect-[9/16] max-h-[60vh] bg-black rounded-xl overflow-hidden border border-white/10 relative flex items-center justify-center">
@@ -976,9 +972,7 @@
         </video>
       </div>
 
-      <p class="text-[11px] text-gray-400 text-center leading-relaxed">
-        Scopri come fondare un <strong class="text-purple-400">Clan</strong>, usare la <strong class="text-blue-400">Chat live con le spunte blu</strong> e dominare la mappa sbloccando i <strong class="text-yellow-400">Monumenti</strong>!
-      </p>
+      <p id="tutorial-desc" class="text-[11px] text-gray-400 text-center leading-relaxed"></p>
     </div>
   </div>
 
@@ -990,7 +984,7 @@
       <div>
         <h2 id="titolo-sezione-clan" class="text-xl font-black text-purple-400 flex items-center gap-2">
           🛡️ Squadre & Clan
-          <span class="text-xs bg-purple-400/10 text-purple-300 px-2.5 py-0.5 rounded-full font-mono font-normal" id="conteggio-clan">0 utenti</span>
+            <span class="text-xs bg-purple-400/10 text-purple-300 px-2.5 py-0.5 rounded-full font-mono font-normal" id="conteggio-clan"></span>
         </h2>
         <p id="sottotitolo-sezione-clan" class="text-[11px] text-gray-400 mt-0.5">Unisciti o crea un clan per giocare insieme!</p>
       </div>
@@ -1000,15 +994,15 @@
     <!-- SCHERMATA SENZA CLAN -->
     <div id="clan-no-clan" class="flex-grow flex flex-col gap-4 overflow-y-auto">
       <div class="card-purple p-4 rounded-xl">
-        <p class="text-[11px] text-gray-400 font-bold mb-2">✨ FONDA UN NUOVO CLAN</p>
+        <p id="clan-fonda-titolo" class="text-[11px] text-gray-400 font-bold mb-2"></p>
         <div class="flex gap-2">
           <input type="text" id="input-nome-clan" placeholder="Nome del tuo Clan..." class="flex-grow bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500 transition-all">
-          <button onclick="window.creaNuovoClan()" class="btn-purple text-xs px-4 py-2.5">Crea</button>
+          <button id="clan-crea-btn" onclick="window.creaNuovoClan()" class="btn-purple text-xs px-4 py-2.5"></button>
         </div>
       </div>
       
       <div class="card-purple p-4 rounded-xl flex flex-col flex-grow overflow-hidden">
-        <p class="text-[11px] text-gray-400 font-bold mb-2">🌐 CLAN ATTIVI (MAX 30 MEMBRI)</p>
+        <p id="clan-attivi-titolo" class="text-[11px] text-gray-400 font-bold mb-2"></p>
         <div id="lista-clan-disponibili" class="flex flex-col gap-2 flex-grow overflow-y-auto pr-1"></div>
       </div>
     </div>
@@ -1016,14 +1010,14 @@
     <!-- SCHERMATA CON CLAN -->
     <div id="clan-si-clan" class="hidden flex-grow flex flex-col overflow-hidden">
       <div id="clan-header" class="card-purple p-3 rounded-xl mb-3 text-center">
-        <span id="clan-nome-display" class="text-sm font-bold text-purple-400">Nome Clan</span>
+        <span id="clan-nome-display" class="text-sm font-bold text-purple-400"></span>
         <span id="clan-membri-count" class="text-xs text-gray-400 ml-2">0/30 membri</span>
       </div>
 
       <div class="tab-container flex p-1 mb-3 justify-between items-center">
         <div class="flex gap-1">
-          <button id="btn-clan-tab-classifica" onclick="window.switchClanTab('classifica')" class="tab-btn active text-xs py-1.5 px-3.5">Classifica</button>
-          <button id="btn-clan-tab-feed" onclick="window.switchClanTab('feed')" class="tab-btn inactive text-xs py-1.5 px-3.5">Bacheca</button>
+          <button id="btn-clan-tab-classifica" onclick="window.switchClanTab('classifica')" class="tab-btn active text-xs py-1.5 px-3.5"></button>
+          <button id="btn-clan-tab-feed" onclick="window.switchClanTab('feed')" class="tab-btn inactive text-xs py-1.5 px-3.5"></button>
         </div>
         <div id="opzioni-gestione-clan"></div>
       </div>
@@ -1036,11 +1030,9 @@
       <div id="sezione-invia-messaggio-clan" class="hidden flex flex-col gap-2 pt-3 border-t border-white/5">
         <div class="flex gap-2">
           <input type="text" id="input-messaggio-clan" placeholder="Scrivi al clan..." class="flex-grow bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500 transition-all">
-          <button onclick="window.inviaMessaggioClan()" class="btn-purple text-xs px-4 py-2.5">Invia ✉️</button>
+          <button id="clan-invia-btn" onclick="window.inviaMessaggioClan()" class="btn-purple text-xs px-4 py-2.5"></button>
         </div>
-        <button onclick="window.cancellaMessaggiClan()" class="w-full text-red-400/70 hover:text-red-400 border border-red-500/20 hover:border-red-500/40 py-2 rounded-xl text-[10px] cursor-pointer transition-all font-medium">
-          🗑️ Svuota Chat Clan
-        </button>
+          <button id="clan-svuota-btn" onclick="window.cancellaMessaggiClan()" class="w-full text-red-400/70 hover:text-red-400 border border-red-500/20 hover:border-red-500/40 py-2 rounded-xl text-[10px] cursor-pointer transition-all font-medium"></button>
       </div>
     </div>
   </div>
@@ -1051,68 +1043,62 @@
       <div>
         <h2 id="titolo-sezione-amici" class="text-xl font-black text-blue-400 flex items-center gap-2">
           👥 I miei Amici
-          <span class="text-xs bg-blue-400/10 text-blue-300 px-2.5 py-0.5 rounded-full font-mono font-normal" id="conteggio-amici">0 utenti</span>
+          <span class="text-xs bg-blue-400/10 text-blue-300 px-2.5 py-0.5 rounded-full font-mono font-normal" id="conteggio-amici"></span>
         </h2> 
         <p id="sottotitolo-sezione-amici" class="text-[11px] text-gray-400 mt-0.5">Classifica dei punteggi</p>
       </div>
       <div class="tab-container flex p-1">
-        <button id="btn-tab-classifica" onclick="window.switchAmiciTab('classifica')" class="tab-btn active text-[11px] px-3 py-2">◀ Classifica</button>
-        <button id="btn-tab-feed" onclick="window.switchAmiciTab('feed')" class="tab-btn inactive text-[11px] px-3 py-2">Chat ▶</button>
+        <button id="btn-tab-classifica" onclick="window.switchAmiciTab('classifica')" class="tab-btn active text-[11px] px-3 py-2"></button>
+        <button id="btn-tab-feed" onclick="window.switchAmiciTab('feed')" class="tab-btn inactive text-[11px] px-3 py-2"></button>
       </div>
     </div>
 
     <div id="sezione-aggiungi-amico" class="card-blue p-4 rounded-xl mb-4">
-      <p class="text-[11px] text-gray-400 mb-2 font-semibold">🤝 AGGIUNGI UN AMICO</p>
+      <p id="amici-add-label" class="text-[11px] text-gray-400 mb-2 font-semibold"></p>
       <div class="flex gap-2">
-        <input type="text" id="input-codice-amico" placeholder="Incolla il Codice Amico..." class="flex-grow bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-all">
-        <button onclick="window.aggiungiAmico()" class="btn-success text-xs px-4 py-2.5">Aggiungi</button>
+        <input type="text" id="input-codice-amico" class="flex-grow bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-all">
+        <button id="amici-add-btn" onclick="window.aggiungiAmico()" class="btn-success text-xs px-4 py-2.5"></button>
       </div>
     </div>
 
     <!-- SEZIONE INVIO MESSAGGIO -->
     <div id="sezione-invia-messaggio" class="hidden mb-4 flex flex-col gap-2">
       <div class="flex gap-2">
-        <input type="text" id="input-messaggio-chat" placeholder="Scrivi un messaggio agli amici..." class="flex-grow bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-all">
-        <button onclick="window.inviaMessaggioChat()" class="btn-primary text-xs px-4 py-2.5">Invia ✉️</button>
+        <input type="text" id="input-messaggio-chat" class="flex-grow bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-all">
+        <button id="amici-invia-btn" onclick="window.inviaMessaggioChat()" class="btn-primary text-xs px-4 py-2.5"></button>
       </div>
       <div class="flex gap-2 mt-1">
-        <button onclick="window.marcaIstantaneaTuttiMessaggi()" class="flex-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 font-bold px-3 py-2 rounded-xl text-[10px] transition-colors cursor-pointer">
-          👁️ Segna tutti come letti
-        </button>
-        <button onclick="window.eliminaTuttiMessaggiChat()" class="flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-bold px-3 py-2 rounded-xl text-[10px] transition-colors cursor-pointer">
-          🗑️ Solo i miei
-        </button>
+        <button id="amici-segna-btn" onclick="window.marcaIstantaneaTuttiMessaggi()" class="flex-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 font-bold px-3 py-2 rounded-xl text-[10px] transition-colors cursor-pointer"></button>
+        <button id="amici-solo-miei-btn" onclick="window.eliminaTuttiMessaggiChat()" class="flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-bold px-3 py-2 rounded-xl text-[10px] transition-colors cursor-pointer"></button>
       </div>
-      <button onclick="window.cancellaTuttiIMessaggi()" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-semibold py-2 rounded-xl text-[11px] transition-all cursor-pointer text-center mt-1">
-        🧹 Piazza Pulita - Elimina tutti i messaggi
-      </button>
+      <button id="amici-pulizia-btn" onclick="window.cancellaTuttiIMessaggi()" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-semibold py-2 rounded-xl text-[11px] transition-all cursor-pointer text-center mt-1"></button>
     </div>
 
     <!-- CODICE AMICO -->
     <div id="box-codice" class="card-gold p-4 rounded-2xl mb-6">
       <div class="flex justify-between items-center flex-wrap gap-2"> 
         <div>
-          <span class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider">Il tuo Codice Amico:</span>
-          <span id="mio-codice-txt" class="font-mono font-semibold text-yellow-400 tracking-wider text-sm">Caricamento...</span>
+          <span id="amici-codice-label" class="text-gray-400 block font-bold uppercase text-[10px] tracking-wider"></span>
+          <span id="mio-codice-txt" class="font-mono font-semibold text-yellow-400 tracking-wider text-sm"></span>
         </div>
         <div class="flex gap-2">
-          <button onclick="window.copiaCodiceAmico()" class="glass-light text-white font-bold text-xs px-3 py-2 rounded-xl hover:bg-white/10 transition-all cursor-pointer">📋 Copia</button>
-          <button onclick="window.condividiCodiceAmico()" class="btn-primary text-xs px-3 py-2">🔗 Condividi</button> 
+          <button id="amici-copia-btn" onclick="window.copiaCodiceAmico()" class="glass-light text-white font-bold text-xs px-3 py-2 rounded-xl hover:bg-white/10 transition-all cursor-pointer"></button>
+          <button id="amici-condividi-btn" onclick="window.condividiCodiceAmico()" class="btn-primary text-xs px-3 py-2"></button> 
         </div> 
       </div> 
     </div> 
 
     <div id="pannello-classifica">
-      <h4 class="text-xs font-bold uppercase text-gray-400 mb-3 flex items-center gap-1 tracking-wider">🏆 Classifica (Tu + Amici)</h4>
+      <h4 id="amici-classifica-titolo" class="text-xs font-bold uppercase text-gray-400 mb-3 flex items-center gap-1 tracking-wider"></h4>
       <div id="lista-amici-classifica" class="space-y-2 overflow-y-auto flex-grow pr-1 text-xs">
-        <p class="text-gray-500 text-center py-8 text-sm">Nessun amico. Condividi il tuo codice!</p>
+        <p id="amici-nessun-amico" class="text-gray-500 text-center py-8 text-sm"></p>
       </div>
     </div>
 
     <div id="pannello-feed" class="hidden">
-      <h4 class="text-xs font-bold uppercase text-gray-400 mb-3 flex items-center gap-1 tracking-wider">⚡ Chat & Attività</h4>
+      <h4 id="amici-chat-titolo" class="text-xs font-bold uppercase text-gray-400 mb-3 flex items-center gap-1 tracking-wider"></h4>
       <div id="lista-amici-feed" class="space-y-3 overflow-y-auto flex-grow pr-1">
-        <p class="text-gray-500 text-center py-8 text-sm">Nessun messaggio o attività da mostrare.</p>
+        <p id="amici-nessun-msg" class="text-gray-500 text-center py-8 text-sm"></p>
       </div>
     </div>
   </div>
@@ -1120,12 +1106,12 @@
   <!-- SCHERMATA WISHLIST -->
   <div id="schermata-wishlist" class="schermata-full hidden">
     <div class="flex justify-between items-center mb-6 flex-wrap gap-2">
-      <h2 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">📋 La mia Wishlist</h2>
+      <h2 id="wishlist-full-title" class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600"></h2>
       <select id="filtro-wishlist" onchange="window.filtraWishlist(this.value)" class="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-yellow-400 cursor-pointer appearance-none">
-        <option value="tutti">🌍 Tutti</option>
-        <option value="monumento">🏛️ Monumenti</option>
-        <option value="parco">🌳 Parchi</option>
-        <option value="supermercato">🛒 Supermercati</option>
+        <option id="wishlist-filter-all" value="tutti">🌍 Tutti</option>
+        <option id="wishlist-filter-monumenti" value="monumento">🏛️ Monumenti</option>
+        <option id="wishlist-filter-parchi" value="parco">🌳 Parchi</option>
+        <option id="wishlist-filter-supermercati" value="supermercato">🛒 Supermercati</option>
       </select>
     </div>
     <div id="lista-monumenti-full" class="space-y-3 overflow-y-auto flex-grow"></div>
@@ -1333,7 +1319,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
       if (!container) return;
       
       if (typeof monumenti === 'undefined') {
-        container.innerHTML = "<p class='text-gray-400 text-xs text-center py-8 animate-pulse'>Caricamento luoghi in corso...</p>";
+        container.innerHTML = "<p class='text-gray-400 text-xs text-center py-8 animate-pulse'>" + window.__t('wishlistCaricamento') + "</p>";
         return;
       }
 
@@ -1343,7 +1329,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
       }
       
       if (monumentiFiltrati.length === 0) {
-        container.innerHTML = "<p class='text-gray-400 text-xs text-center py-8'>Nessun luogo trovato in questa categoria.</p>";
+        container.innerHTML = "<p class='text-gray-400 text-xs text-center py-8'>" + window.__t('wishlistNessunLuogo') + "</p>";
         return;
       }
 
@@ -1359,10 +1345,10 @@ document.addEventListener('touchstart', gestisciPrimoClick);
           <div class="flex-1 pr-2">
             <p class="font-bold text-sm ${isScoperto ? 'text-green-400' : 'text-gray-200'}">${m.nome}</p>
             <p class="text-[10px] text-gray-400 mt-0.5">${m.desc}</p>
-            <p class="text-xs text-gray-400 font-mono label-distanza-full mt-1">${isScoperto ? '🏁 Obiettivo Conquistato' : '📍 Distanza: Calcolo in corso...'}</p>
+            <p class="text-xs text-gray-400 font-mono label-distanza-full mt-1">${isScoperto ? window.__t('wishlistConquistato') : window.__t('wishlistCalcolo')}</p>
           </div>
           <div class="badge-xp shrink-0">
-            ${isScoperto ? '✅' : '+100 XP'}
+            ${isScoperto ? '✅' : window.__t('wishlistXpGain')}
           </div>
         `;
         container.appendChild(item);
@@ -1381,8 +1367,8 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         item.className = `card ${giaScoperto ? 'card-green' : 'card'} p-4 rounded-xl flex flex-col gap-3 transition-all`;
         
         let iconaCat = m.categoria === 'monumento' ? '🏛️' : (m.categoria === 'parco' ? '🌳' : '🛒');
-        let descrizioneLuogo = m.desc ? m.desc : "Nessuna descrizione disponibile per questo luogo.";
-        let categoriaLabel = m.categoria === 'monumento' ? 'Monumento' : (m.categoria === 'parco' ? 'Parco' : 'Supermercato');
+        let descrizioneLuogo = m.desc ? m.desc : window.__t('wishlistNessunaDesc');
+        let categoriaLabel = m.categoria === 'monumento' ? window.__t('catMonumento') : (m.categoria === 'parco' ? window.__t('catParco') : window.__t('catSupermercato'));
 
         item.innerHTML = `
           <div class="flex justify-between items-start">
@@ -1399,10 +1385,10 @@ document.addEventListener('touchstart', gestisciPrimoClick);
           </div>
           <div class="flex justify-between items-center pt-1">
             <p class="text-[10px] text-gray-500 font-mono">
-              ${giaScoperto ? '✅ Scoperto' : '📍 Da Trovare'}
+              ${giaScoperto ? window.__t('wishlistScoperto') : window.__t('wishlistDaTrovare')}
             </p>
             <span class="badge-xp">
-              ${giaScoperto ? '✓' : '+100 XP'}
+              ${giaScoperto ? '✓' : window.__t('wishlistXpGain')}
             </span>
           </div>
         `;
@@ -1546,7 +1532,144 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         filterMonument: '🏛️ Monumenti',
         filterPark: '🌳 Parchi',
         filterShop: '🛒 Spesa',
-        playerRole: 'Esploratore'
+        playerRole: 'Esploratore',
+        loginTabAccedi: 'ACCEDI',
+        loginTabRegistrati: 'REGISTRATI',
+        passwordPlaceholder: 'Inserisci la tua password',
+        nomePlaceholder: 'Max 12 caratteri',
+        generePlaceholder: 'Scegli il tuo stile...',
+        textLunghezza: 'Tra 6 e 15 caratteri',
+        textMaiuscola: 'Almeno una lettera maiuscola',
+        textNumero: 'Almeno un numero (0-9)',
+        textSpeciale: 'Almeno un carattere speciale (!, @, #, $, ?, etc.)',
+        navAmici: 'Amici',
+        navClan: 'Clan',
+        navMappa: 'Mappa',
+        navWishlist: 'Wishlist',
+        wishlistCaricamento: 'Caricamento luoghi in corso...',
+        wishlistNessunLuogo: 'Nessun luogo trovato in questa categoria.',
+        wishlistNessunaDesc: 'Nessuna descrizione disponibile.',
+        wishlistScoperto: '✅ SCOPERTO',
+        wishlistDaTrovare: '📍 DA TROVARE',
+        wishlistTuttiScoperti: '🎉 Hai esplorato tutti i luoghi di Brescia! Ottimo lavoro!',
+        wishlistXpGain: '+100 XP',
+        wishlistConquistato: '🏁 Obiettivo Conquistato',
+        wishlistCalcolo: '📍 Distanza: Calcolo in corso...',
+        wishlistDistPrefix: '📍 Distanza:',
+        wishlistDistUnit: 'metri',
+        catMonumento: 'Monumento',
+        catParco: 'Parco',
+        catSupermercato: 'Supermercato',
+        xpGuadagnati: '+100 XP GUADAGNATI!',
+        alertEmailNotVerified: '⚠️ Il tuo indirizzo email non è ancora stato verificato! Controlla la tua casella di posta elettronica.',
+        alertLoginError: '❌ Errore d\'accesso: Credenziali errate o non valide. ',
+        alertRegisterError: '❌ Impossibile procedere! La password inserita non rispetta tutti i requisiti indicati in basso.',
+        alertEmailSent: '📧 Ti abbiamo inviato una mail di conferma! Clicca sul link ricevuto per attivare il tuo account e poi effettua l\'accesso.',
+        alertRegisterGenericError: '❌ Errore durante la registrazione: ',
+        alertRecoverySent: '📨 Email di ripristino inviata con successo! Segui le istruzioni ricevute via email per impostare una nuova password.',
+        alertRecoveryError: '❌ Impossibile inoltrare la richiesta di ripristino: ',
+        alertCopiato: '📋 Codice copiato negli appunti! Invialo ai tuoi amici.',
+        alertCondiviso: '🔗 Link stile Monopoly GO generato e copiato! Incollalo dove vuoi per condividerlo.',
+        alertNoSelfFriend: '❌ Non puoi aggiungere te stesso come amico!',
+        alertNoPlayerFound: '❌ Nessun giocatore trovato con questo codice. Controlla e riprova.',
+        amiciAccesso: 'Accesso:',
+        amiciMai: 'Mai',
+        amiciSincro: 'Sincronizzazione punteggi...',
+        alertFriendAdded: '🤝 Compagno aggiunto con successo!',
+        alertProfileSaved: '✨ Profilo aggiornato con successo!',
+        alertSettingsSaved: 'Impostazioni salvate.',
+        alertLogoutConfirm: 'Vuoi davvero uscire dal gioco?',
+        alertRemoveFriend: 'Sei sicuro di voler rimuovere questo amico dalla tua classifica?',
+        alertNoGps: 'Questo telefono o browser non supporta la geolocalizzazione.',
+        lockedTitle: 'Luogo Bloccato',
+        lockedBody: 'Avvicinati a meno di 50 metri con il GPS per conquistare questo obiettivo!',
+        condividiTesto: 'Unisciti alla mia squadra su Brescia Quest! 🎮 Usa il mio Codice Squadra per scalare la classifica insieme: ',
+        alertScriviMessaggio: 'Scrivi un messaggio prima di inviare!',
+        alertErroreInvioMessaggio: '❌ Errore nell\'invio del messaggio.',
+        alertCancellaTuttiMsg: '⚠️ ATTENZIONE: Sei sicuro di voler cancellare TUTTI i messaggi?',
+        alertPiazzaPulita: '🧹 Piazza pulita completata!',
+        alertErroreEliminazione: '❌ Errore durante l\'eliminazione.',
+        alertEliminaMsg: 'Eliminare questo messaggio?',
+        alertMsgEliminato: '✅ Messaggio eliminato!',
+        alertEliminaTuttiMsg: 'Eliminare TUTTI i tuoi messaggi?',
+        alertTuttiMsgEliminati: '✅ Tutti i tuoi messaggi eliminati!',
+        alertMarcaturaAutomatica: 'La marcatura è automatica!',
+        alertInserisciNomeClan: 'Inserisci un nome per il clan!',
+        alertClanCreato: '✅ Clan "{nome}" creato con successo!',
+        alertErroreCreazioneClan: '❌ Errore durante la creazione del clan.',
+        alertEntratoClan: '✅ Sei entrato nel clan con successo!',
+        alertErroreIngressoClan: '❌ Errore durante l\'ingresso nel clan.',
+        alertClanScioltoCapo: 'Il clan è stato sciolto dal capo.',
+        alertConfermaEsciClan: 'Vuoi davvero uscire da questo Clan?',
+        alertComandoPassato: '👑 Hai passato il comando a un nuovo capo!',
+        alertUscitoClan: '✅ Sei uscito dal clan.',
+        alertErroreUscitaClan: '❌ Errore durante l\'uscita dal clan.',
+        alertConfermaSciogliClan: '🚨 ATTENZIONE CAPO SQUADRA: Vuoi sciogliere definitivamente il clan? Tutti i giocatori verranno espulsi e la chat verrà eliminata per sempre.',
+        alertClanSciolto: '💥 Clan sciolto con successo!',
+        alertErroreScioglimentoClan: '❌ Errore durante lo scioglimento del clan.',
+        alertScriviMsgClan: 'Scrivi un messaggio!',
+        alertCancellaMsgClan: '⚠️ Sei sicuro di voler cancellare TUTTI i messaggi del clan?',
+        alertChatSvuotata: '🧹 Chat del clan svuotata con successo!',
+        alertErroreSvuotaChat: '❌ Errore durante lo svuoto della chat.',
+        badgeUnlocked: '🏅 TRAGUARDO SBLOCCATO!\nHai ottenuto il badge: {badge}\n"{desc}"',
+        amiciCaricamento: 'Caricamento...',
+        clanCaricamento: 'Caricamento squadre...',
+        clanNessunAttivo: 'Nessun clan attivo. Fondane uno tu!',
+        clanErroreCaricamento: 'Errore nel caricamento.',
+        clanNessunMembro: 'Nessun membro nel clan.',
+        feedNessunaAttivita: 'Ancora nessuna attività o messaggio.',
+        feedConnessioneLive: 'Connessione live...',
+        feedImpossibileConnettere: 'Impossibile connettersi.',
+        badgeTitolo: '🏅 I TUOI TRAGUARDI',
+        badgeSottotitolo: 'Esplora Brixia per sbloccare tutti i trofei tematici e personalizzare il tuo profilo.',
+        badgeHint: '💡 Clicca su un badge sbloccato per impostarlo come foto profilo',
+        tutorialTitolo: '📖 GUIDA RAPIDA DI GIOCO',
+        tutorialSalta: 'Salta ✕',
+        tutorialDesc: 'Scopri come fondare un Clan, usare la Chat live con le spunte blu e dominare la mappa sbloccando i Monumenti!',
+        clanFondaTitolo: '✨ FONDA UN NUOVO CLAN',
+        clanInputPlaceholder: 'Nome del tuo Clan...',
+        clanCreaBtn: 'Crea',
+        clanAttiviTitolo: '🌐 CLAN ATTIVI (MAX 30 MEMBRI)',
+        clanTabClassifica: 'Classifica',
+        clanTabBacheca: 'Bacheca',
+        clanChatPlaceholder: 'Scrivi al clan...',
+        clanInviaBtn: 'Invia ✉️',
+        clanSvuotaBtn: '🗑️ Svuota Chat Clan',
+        amiciAddLabel: '🤝 AGGIUNGI UN AMICO',
+        amiciInputPlaceholder: 'Incolla il Codice Amico...',
+        amiciAddBtn: 'Aggiungi',
+        amiciChatPlaceholder: 'Scrivi un messaggio agli amici...',
+        amiciInviaBtn: 'Invia ✉️',
+        amiciSegnaBtn: '👁️ Segna tutti come letti',
+        amiciSoloMieiBtn: '🗑️ Solo i miei',
+        amiciPuliziaBtn: '🧹 Piazza Pulita - Elimina tutti i messaggi',
+        amiciCodiceLabel: 'Il tuo Codice Amico:',
+        amiciCopiaBtn: '📋 Copia',
+        amiciCondividiBtn: '🔗 Condividi',
+        amiciClassificaTitolo: '🏆 Classifica (Tu + Amici)',
+        amiciNessunAmico: 'Nessun amico. Condividi il tuo codice!',
+        amiciChatTitolo: '⚡ Chat & Attività',
+        amiciNessunMsg: 'Nessun messaggio o attività da mostrare.',
+        wishlistFullTitle: '📋 La mia Wishlist',
+        wishlistFilterAll: '🌍 Tutti',
+        wishlistFilterMonumenti: '🏛️ Monumenti',
+        wishlistFilterParchi: '🌳 Parchi',
+        wishlistFilterSupermercati: '🛒 Supermercati',
+        tabClassifica: '◀ Classifica',
+        tabChat: 'Chat ▶',
+        amiciTitolo: '👥 I miei Amici',
+        amiciSottotitolo: 'Classifica dei punteggi',
+        clanTitolo: '🛡️ Squadre & Clan',
+        clanSottotitolo: 'Unisciti o crea un clan per giocare insieme!',
+        clanMembriLabel: 'membri',
+        clanGiocatoriLabel: 'Giocatori:',
+        conteggioSingolare: 'utente',
+        conteggioPlurale: 'utenti',
+        clanEntraBtn: 'Entra 🚪',
+        clanPieno: '🔒 PIENO',
+        clanSciogliBtn: '💥 SCIOGLI',
+        clanEsciBtn: '🚪 ESCI',
+        clanDefaultNome: 'Clan'
       },
       en: {
         title: 'Brescia Quest - The Exploratory Game',
@@ -1588,7 +1711,144 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         filterMonument: '🏛️ Monuments',
         filterPark: '🌳 Parks',
         filterShop: '🛒 Shopping',
-        playerRole: 'Explorer'
+        playerRole: 'Explorer',
+        loginTabAccedi: 'LOGIN',
+        loginTabRegistrati: 'SIGN UP',
+        passwordPlaceholder: 'Enter your password',
+        nomePlaceholder: 'Max 12 characters',
+        generePlaceholder: 'Choose your style...',
+        textLunghezza: 'Between 6 and 15 characters',
+        textMaiuscola: 'At least one uppercase letter',
+        textNumero: 'At least one number (0-9)',
+        textSpeciale: 'At least one special character (!, @, #, $, ?, etc.)',
+        navAmici: 'Friends',
+        navClan: 'Clan',
+        navMappa: 'Map',
+        navWishlist: 'Wishlist',
+        wishlistCaricamento: 'Loading places...',
+        wishlistNessunLuogo: 'No places found in this category.',
+        wishlistNessunaDesc: 'No description available.',
+        wishlistScoperto: '✅ DISCOVERED',
+        wishlistDaTrovare: '📍 TO FIND',
+        wishlistTuttiScoperti: '🎉 You\'ve explored all of Brescia\'s places! Great job!',
+        wishlistXpGain: '+100 XP',
+        wishlistConquistato: '🏁 Objective Conquered',
+        wishlistCalcolo: '📍 Distance: Calculating...',
+        wishlistDistPrefix: '📍 Distance:',
+        wishlistDistUnit: 'meters',
+        catMonumento: 'Monument',
+        catParco: 'Park',
+        catSupermercato: 'Supermarket',
+        xpGuadagnati: '+100 XP EARNED!',
+        alertEmailNotVerified: '⚠️ Your email address has not been verified yet! Check your inbox.',
+        alertLoginError: '❌ Login error: Invalid credentials. ',
+        alertRegisterError: '❌ Cannot proceed! The password does not meet all the requirements below.',
+        alertEmailSent: '📧 We sent you a confirmation email! Click the link to activate your account and then log in.',
+        alertRegisterGenericError: '❌ Error during registration: ',
+        alertRecoverySent: '📨 Recovery email sent successfully! Follow the instructions to reset your password.',
+        alertRecoveryError: '❌ Unable to send recovery request: ',
+        alertCopiato: '📋 Code copied to clipboard! Share it with your friends.',
+        alertCondiviso: '🔗 Share link generated and copied! Paste it anywhere to share.',
+        alertNoSelfFriend: '❌ You cannot add yourself as a friend!',
+        alertNoPlayerFound: '❌ No player found with this code. Check and try again.',
+        amiciAccesso: 'Last access:',
+        amiciMai: 'Never',
+        amiciSincro: 'Syncing scores...',
+        alertFriendAdded: '🤝 Companion added successfully!',
+        alertProfileSaved: '✨ Profile updated successfully!',
+        alertSettingsSaved: 'Settings saved.',
+        alertLogoutConfirm: 'Do you really want to log out?',
+        alertRemoveFriend: 'Are you sure you want to remove this friend from your leaderboard?',
+        alertNoGps: 'This device or browser does not support geolocation.',
+        lockedTitle: 'Location Locked',
+        lockedBody: 'Get within 50 meters using GPS to conquer this objective!',
+        condividiTesto: 'Join my team on Brescia Quest! 🎮 Use my Team Code to climb the leaderboard together: ',
+        alertScriviMessaggio: 'Write a message before sending!',
+        alertErroreInvioMessaggio: '❌ Error sending message.',
+        alertCancellaTuttiMsg: '⚠️ WARNING: Are you sure you want to delete ALL messages?',
+        alertPiazzaPulita: '🧹 Clean sweep completed!',
+        alertErroreEliminazione: '❌ Error during deletion.',
+        alertEliminaMsg: 'Delete this message?',
+        alertMsgEliminato: '✅ Message deleted!',
+        alertEliminaTuttiMsg: 'Delete ALL your messages?',
+        alertTuttiMsgEliminati: '✅ All your messages deleted!',
+        alertMarcaturaAutomatica: 'Marking is automatic!',
+        alertInserisciNomeClan: 'Enter a name for the clan!',
+        alertClanCreato: '✅ Clan "{nome}" created successfully!',
+        alertErroreCreazioneClan: '❌ Error during clan creation.',
+        alertEntratoClan: '✅ You joined the clan successfully!',
+        alertErroreIngressoClan: '❌ Error while joining the clan.',
+        alertClanScioltoCapo: 'The clan has been disbanded by the leader.',
+        alertConfermaEsciClan: 'Do you really want to leave this Clan?',
+        alertComandoPassato: '👑 You passed leadership to a new leader!',
+        alertUscitoClan: '✅ You left the clan.',
+        alertErroreUscitaClan: '❌ Error while leaving the clan.',
+        alertConfermaSciogliClan: '🚨 WARNING SQUAD LEADER: Do you want to permanently disband the clan? All players will be expelled and the chat will be deleted forever.',
+        alertClanSciolto: '💥 Clan disbanded successfully!',
+        alertErroreScioglimentoClan: '❌ Error during clan disbandment.',
+        alertScriviMsgClan: 'Write a message!',
+        alertCancellaMsgClan: '⚠️ Are you sure you want to delete ALL clan messages?',
+        alertChatSvuotata: '🧹 Clan chat cleared successfully!',
+        alertErroreSvuotaChat: '❌ Error while clearing chat.',
+        badgeUnlocked: '🏅 ACHIEVEMENT UNLOCKED!\nYou earned the badge: {badge}\n"{desc}"',
+        amiciCaricamento: 'Loading...',
+        clanCaricamento: 'Loading squads...',
+        clanNessunAttivo: 'No active clans. Found one yourself!',
+        clanErroreCaricamento: 'Error loading.',
+        clanNessunMembro: 'No members in the clan.',
+        feedNessunaAttivita: 'No activity or messages yet.',
+        feedConnessioneLive: 'Live connection...',
+        feedImpossibileConnettere: 'Unable to connect.',
+        badgeTitolo: '🏅 YOUR ACHIEVEMENTS',
+        badgeSottotitolo: 'Explore Brixia to unlock all themed trophies and customize your profile.',
+        badgeHint: '💡 Click on an unlocked badge to set it as profile picture',
+        tutorialTitolo: '📖 QUICK GAME GUIDE',
+        tutorialSalta: 'Skip ✕',
+        tutorialDesc: 'Discover how to found a Clan, use the live Chat with blue ticks, and dominate the map by unlocking Monuments!',
+        clanFondaTitolo: '✨ FOUND A NEW CLAN',
+        clanInputPlaceholder: 'Your Clan name...',
+        clanCreaBtn: 'Create',
+        clanAttiviTitolo: '🌐 ACTIVE CLANS (MAX 30 MEMBERS)',
+        clanTabClassifica: 'Leaderboard',
+        clanTabBacheca: 'Notice Board',
+        clanChatPlaceholder: 'Write to clan...',
+        clanInviaBtn: 'Send ✉️',
+        clanSvuotaBtn: '🗑️ Clear Clan Chat',
+        amiciAddLabel: '🤝 ADD A FRIEND',
+        amiciInputPlaceholder: 'Paste the Friend Code...',
+        amiciAddBtn: 'Add',
+        amiciChatPlaceholder: 'Write a message to friends...',
+        amiciInviaBtn: 'Send ✉️',
+        amiciSegnaBtn: '👁️ Mark all as read',
+        amiciSoloMieiBtn: '🗑️ Only mine',
+        amiciPuliziaBtn: '🧹 Clean Sweep - Delete all messages',
+        amiciCodiceLabel: 'Your Friend Code:',
+        amiciCopiaBtn: '📋 Copy',
+        amiciCondividiBtn: '🔗 Share',
+        amiciClassificaTitolo: '🏆 Leaderboard (You + Friends)',
+        amiciNessunAmico: 'No friends. Share your code!',
+        amiciChatTitolo: '⚡ Chat & Activity',
+        amiciNessunMsg: 'No messages or activities to show.',
+        wishlistFullTitle: '📋 My Wishlist',
+        wishlistFilterAll: '🌍 All',
+        wishlistFilterMonumenti: '🏛️ Monuments',
+        wishlistFilterParchi: '🌳 Parks',
+        wishlistFilterSupermercati: '🛒 Supermarkets',
+        tabClassifica: '◀ Leaderboard',
+        tabChat: 'Chat ▶',
+        amiciTitolo: '👥 My Friends',
+        amiciSottotitolo: 'Score leaderboard',
+        clanTitolo: '🛡️ Squads & Clan',
+        clanSottotitolo: 'Join or create a clan to play together!',
+        clanMembriLabel: 'members',
+        clanGiocatoriLabel: 'Players:',
+        conteggioSingolare: 'user',
+        conteggioPlurale: 'users',
+        clanEntraBtn: 'Join 🚪',
+        clanPieno: '🔒 FULL',
+        clanSciogliBtn: '💥 DISBAND',
+        clanEsciBtn: '🚪 LEAVE',
+        clanDefaultNome: 'Clan'
       }
     };
 
@@ -1600,6 +1860,11 @@ document.addEventListener('touchstart', gestisciPrimoClick);
     function setHtml(id, value) {
       const element = document.getElementById(id);
       if (element) element.innerHTML = value;
+    }
+
+    function setPlaceholder(id, value) {
+      const element = document.getElementById(id);
+      if (element) element.placeholder = value;
     }
 
     function getAvatarMarkup(fotoUrl, genere) {
@@ -1635,6 +1900,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
       const translations = UI_TRANSLATIONS[lang] || UI_TRANSLATIONS.it;
 
       linguaCorrente = lang;
+      window.linguaCorrente = lang;
       localStorage.setItem('preferredLanguage', lang);
       document.documentElement.lang = lang;
       document.title = translations.title;
@@ -1644,11 +1910,17 @@ document.addEventListener('touchstart', gestisciPrimoClick);
       setText('login-accedi-password-label', translations.loginPasswordLabel);
       setText('login-forgot-password', translations.forgotPassword);
       setText('login-submit-btn', translations.loginSubmit);
+      setText('tab-accedi', translations.loginTabAccedi);
+      setText('tab-registrati', translations.loginTabRegistrati);
       setText('register-email-label', translations.registerEmailLabel);
       setText('register-password-label', translations.registerPasswordLabel);
       setText('register-name-label', translations.registerNameLabel);
       setText('register-gender-label', translations.registerGenderLabel);
       setText('register-submit-btn', translations.registerSubmit);
+      setPlaceholder('login-password', translations.passwordPlaceholder);
+      setPlaceholder('login-nome', translations.nomePlaceholder);
+      const generePlaceholder = document.getElementById('genere-placeholder') || document.querySelector('#login-genere option[value=""]');
+      if (generePlaceholder) generePlaceholder.textContent = translations.generePlaceholder;
       setText('recovery-title', translations.recoveryTitle);
       setText('recovery-subtitle', translations.recoverySubtitle);
       setText('recovery-email-label', translations.recoveryEmailLabel);
@@ -1672,14 +1944,72 @@ document.addEventListener('touchstart', gestisciPrimoClick);
       setText('wishlist-close-btn', translations.wishlistClose);
       setText('popup-badge-title', translations.badgeTitle);
       setText('popup-continue-btn', translations.continueHunt);
+      setText('popup-xp-gained', translations.xpGuadagnati);
       setHtml('btn-filtro-tutti', translations.filterAll);
       setHtml('btn-filtro-monumento', translations.filterMonument);
       setHtml('btn-filtro-parco', translations.filterPark);
       setHtml('btn-filtro-supermercato', translations.filterShop);
 
-      if (document.getElementById('player-display-role')) {
-        setText('player-display-role', getPlayerRoleLabel(lang));
+      // Bottom nav labels
+      const navLabels = document.querySelectorAll('#bottom-nav .nav-label');
+      const navTexts = [translations.navAmici, translations.navClan, translations.navMappa, translations.navWishlist];
+      navLabels.forEach((el, i) => { if (navTexts[i]) el.textContent = navTexts[i]; });
+
+      if (document.getElementById('login-bar-role')) {
+        setText('login-bar-role', getPlayerRoleLabel(lang));
       }
+
+      // Badge modal
+      setText('badge-titolo', translations.badgeTitolo);
+      setText('badge-sottotitolo', translations.badgeSottotitolo);
+      setText('badge-hint', translations.badgeHint);
+
+      // Tutorial
+      setText('tutorial-titolo', translations.tutorialTitolo);
+      setText('tutorial-salta', translations.tutorialSalta);
+      setHtml('tutorial-desc', translations.tutorialDesc);
+
+      // Clan section
+      setText('titolo-sezione-clan', translations.clanTitolo);
+      setText('sottotitolo-sezione-clan', translations.clanSottotitolo);
+      setText('clan-fonda-titolo', translations.clanFondaTitolo);
+      setPlaceholder('input-nome-clan', translations.clanInputPlaceholder);
+      setText('clan-crea-btn', translations.clanCreaBtn);
+      setText('clan-attivi-titolo', translations.clanAttiviTitolo);
+      setText('btn-clan-tab-classifica', translations.clanTabClassifica);
+      setText('btn-clan-tab-feed', translations.clanTabBacheca);
+      setPlaceholder('input-messaggio-clan', translations.clanChatPlaceholder);
+      setText('clan-invia-btn', translations.clanInviaBtn);
+      setText('clan-svuota-btn', translations.clanSvuotaBtn);
+
+      // Amici section
+      setText('titolo-sezione-amici', translations.amiciTitolo);
+      setText('sottotitolo-sezione-amici', translations.amiciSottotitolo);
+      setText('btn-tab-classifica', translations.tabClassifica);
+      setText('btn-tab-feed', translations.tabChat);
+      setText('amici-add-label', translations.amiciAddLabel);
+      setPlaceholder('input-codice-amico', translations.amiciInputPlaceholder);
+      setText('amici-add-btn', translations.amiciAddBtn);
+      setPlaceholder('input-messaggio-chat', translations.amiciChatPlaceholder);
+      setText('amici-invia-btn', translations.amiciInviaBtn);
+      setText('amici-segna-btn', translations.amiciSegnaBtn);
+      setText('amici-solo-miei-btn', translations.amiciSoloMieiBtn);
+      setText('amici-pulizia-btn', translations.amiciPuliziaBtn);
+      setText('amici-codice-label', translations.amiciCodiceLabel);
+      setText('amici-copia-btn', translations.amiciCopiaBtn);
+      setText('amici-condividi-btn', translations.amiciCondividiBtn);
+      setText('amici-classifica-titolo', translations.amiciClassificaTitolo);
+      setText('amici-nessun-amico', translations.amiciNessunAmico);
+      setText('amici-chat-titolo', translations.amiciChatTitolo);
+      setText('amici-nessun-msg', translations.amiciNessunMsg);
+      setText('mio-codice-txt', translations.amiciCaricamento);
+
+      // Wishlist full screen
+      setText('wishlist-full-title', translations.wishlistFullTitle);
+      setText('wishlist-filter-all', translations.wishlistFilterAll);
+      setText('wishlist-filter-monumenti', translations.wishlistFilterMonumenti);
+      setText('wishlist-filter-parchi', translations.wishlistFilterParchi);
+      setText('wishlist-filter-supermercati', translations.wishlistFilterSupermercati);
 
       refreshLocalizedGameplay();
     }
@@ -1872,7 +2202,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
       const select = document.getElementById('general-language-select');
       const linguaSelezionata = select ? select.value : linguaCorrente;
       applyLanguage(linguaSelezionata);
-      alert(linguaSelezionata === 'en' ? 'Settings saved.' : 'Impostazioni salvate.');
+      alert(window.__t('alertSettingsSaved'));
     }
 
     const inputFotoProfilo = document.getElementById('edit-foto-file');
@@ -1891,6 +2221,14 @@ document.addEventListener('touchstart', gestisciPrimoClick);
 
     applyLanguage(linguaCorrente);
 
+    window.UI_TRANSLATIONS = UI_TRANSLATIONS;
+    window.linguaCorrente = linguaCorrente;
+    window.__t = function(key) {
+      const lang = window.linguaCorrente || 'it';
+      const tr = (window.UI_TRANSLATIONS[lang] || window.UI_TRANSLATIONS.it);
+      return tr[key] !== undefined ? tr[key] : key;
+    };
+
     const gestisciAccedi = async function(event) {
       event.preventDefault();
       if (isAuthProcessing) return;
@@ -1904,7 +2242,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         const user = userCredential.user;
 
         if (!user.emailVerified) {
-          alert("⚠️ Il tuo indirizzo email non è ancora stato verificato! Controlla la tua casella di posta elettronica.");
+          alert(window.__t('alertEmailNotVerified'));
           await auth.signOut();
           isAuthProcessing = false;
           return;
@@ -1912,7 +2250,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
 
         await caricaEAvviaGioco(user);
       } catch (error) {
-        alert("❌ Errore d'accesso: Credenziali errate o non valide. " + error.message);
+        alert(window.__t('alertLoginError') + error.message);
         isAuthProcessing = false;
       }
     }
@@ -1929,7 +2267,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
       const regexPassword = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,15}$/;
 
       if (!regexPassword.test(password)) {
-        alert("❌ Impossibile procedere! La password inserita non rispetta tutti i requisiti indicati in basso.");
+        alert(window.__t('alertRegisterError'));
         return;
       }
 
@@ -1957,11 +2295,11 @@ document.addEventListener('touchstart', gestisciPrimoClick);
           ultimoAccesso: new Date().toISOString()
         });
 
-        alert("📧 Ti abbiamo inviato una mail di conferma! Clicca sul link ricevuto per attivare il tuo account e poi effettua l'accesso.");
+        alert(window.__t('alertEmailSent'));
         await auth.signOut();
         window.location.reload();
       } catch (error) {
-        alert("❌ Errore durante la registrazione: " + error.message);
+        alert(window.__t('alertRegisterGenericError') + error.message);
         isAuthProcessing = false;
       }
     }
@@ -1972,10 +2310,10 @@ document.addEventListener('touchstart', gestisciPrimoClick);
 
       try {
         await sendPasswordResetEmail(auth, email);
-        alert("📨 Email di ripristino inviata con successo! Segui le istruzioni ricevute via email per impostare una nuova password.");
+        alert(window.__t('alertRecoverySent'));
         tornaAlLogin();
       } catch (error) {
-        alert("❌ Impossibile inoltrare la richiesta di ripristino: " + error.message);
+        alert(window.__t('alertRecoveryError') + error.message);
       }
     }
 
@@ -2029,7 +2367,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
     // FUNZIONI DI LOGOUT E PROFILO
     // ============================================
     const eseguiLogout = async function() {
-      if (!confirm("Vuoi davvero uscire dal gioco?")) return;
+      if (!confirm(window.__t('alertLogoutConfirm'))) return;
       try {
         window.stoppaAscoltoChatRealTime();
         if (clanUnsubscriber) {
@@ -2068,7 +2406,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         aggiornaAvatarUI(fotoProfiloDaSalvare, nuovoGenere);
         document.getElementById('login-bar-name').innerText = nuovoNome;
         document.getElementById('login-bar-role').innerText = getPlayerRoleLabel(linguaCorrente);
-        alert("✨ Profilo aggiornato con successo!");
+        alert(window.__t('alertProfileSaved'));
         window.chiudiPopupProfilo();
       } catch (e) {
         console.error(e);
@@ -2095,12 +2433,12 @@ document.addEventListener('touchstart', gestisciPrimoClick);
     const copiaCodiceAmico = function() {
       if (!utenteCorrenteId) return;
       navigator.clipboard.writeText(utenteCorrenteId);
-      alert("📋 Codice copiato negli appunti! Invialo ai tuoi amici.");
+      alert(window.__t('alertCopiato'));
     }
 
     const condividiCodiceAmico = function() {
       if (!utenteCorrenteId) return;
-      const testoCondivisione = `Unisciti alla mia squadra su Brescia Quest! 🎮 Usa il mio Codice Squadra per scalare la classifica insieme: ${utenteCorrenteId}`;
+      const testoCondivisione = window.__t('condividiTesto') + utenteCorrenteId;
 
       if (navigator.share) {
         navigator.share({
@@ -2109,7 +2447,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         }).catch(console.error);
       } else {
         navigator.clipboard.writeText(testoCondivisione);
-        alert("🔗 Link stile Monopoly GO generato e copiato! Incollalo dove vuoi per condividerlo.");
+        alert(window.__t('alertCondiviso'));
       }
     }
 
@@ -2117,21 +2455,21 @@ document.addEventListener('touchstart', gestisciPrimoClick);
       const codiceAmico = document.getElementById('input-codice-amico').value.trim();
       if (!codiceAmico) return;
       if (codiceAmico === utenteCorrenteId) {
-        alert("❌ Non puoi aggiungere te stesso come amico!");
+        alert(window.__t('alertNoSelfFriend'));
         return;
       }
 
       try {
         const amicoSnap = await getDoc(doc(db, "utenti", codiceAmico));
         if (!amicoSnap.exists()) {
-          alert("❌ Nessun giocatore trovato con questo codice. Controlla e riprova.");
+          alert(window.__t('alertNoPlayerFound'));
           return;
         }
 
         await updateDoc(doc(db, "utenti", utenteCorrenteId), { amici: arrayUnion(codiceAmico) });
         await updateDoc(doc(db, "utenti", codiceAmico), { amici: arrayUnion(utenteCorrenteId) });
 
-        alert(`🤝 Amico aggiunto con successo!`);
+        alert(window.__t('alertFriendAdded'));
         document.getElementById('input-codice-amico').value = "";
         window.aggiornaElencoClassificaAmici();
       } catch (e) {
@@ -2140,7 +2478,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
     }
 
     const rimuoviAmico = async function(idAmico) {
-      if (!confirm("Sei sicuro di voler rimuovere questo amico?")) return;
+      if (!confirm(window.__t('alertRemoveFriend'))) return;
       try {
         await updateDoc(doc(db, "utenti", utenteCorrenteId), { amici: arrayRemove(idAmico) });
         await updateDoc(doc(db, "utenti", idAmico), { amici: arrayRemove(utenteCorrenteId) });
@@ -2154,7 +2492,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
       const container = document.getElementById('lista-amici-classifica');
       const conteggioAmici = document.getElementById('conteggio-amici');
       if (!container || !utenteCorrenteId) return;
-      container.innerHTML = "<p class='text-gray-400 animate-pulse text-center py-8'>Sincronizzazione...</p>";
+      container.innerHTML = "<p class='text-gray-400 animate-pulse text-center py-8'>" + window.__t('amiciSincro') + "</p>";
 
       try {
         const mioSnap = await getDoc(doc(db, "utenti", utenteCorrenteId));
@@ -2188,7 +2526,8 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         }
 
         if (conteggioAmici) {
-          conteggioAmici.innerText = `${partecipanti.length} ${partecipanti.length === 1 ? 'utente' : 'utenti'}`;
+          const label = partecipanti.length === 1 ? window.__t('conteggioSingolare') : window.__t('conteggioPlurale');
+          conteggioAmici.innerText = `${partecipanti.length} ${label}`;
         }
 
         partecipanti.sort((a, b) => {
@@ -2198,7 +2537,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
 
         container.innerHTML = "";
         partecipanti.forEach((p, index) => {
-          let dataTxt = "Mai";
+          let dataTxt = window.__t('amiciMai');
           if (p.ultimoAccesso) {
             const d = new Date(p.ultimoAccesso);
             dataTxt = d.toLocaleDateString() + " " + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -2218,7 +2557,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
                   ${p.nome}
                   <span class="status-dot ${p.status === 'online' ? 'online' : 'offline'}"></span>
                 </div>
-                <div class="text-[10px] text-gray-400">Accesso: ${dataTxt}</div>
+                <div class="text-[10px] text-gray-400">${window.__t('amiciAccesso')} ${dataTxt}</div>
               </div>
             </div>
             <div class="flex items-center gap-3">
@@ -2318,7 +2657,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
 
       container.innerHTML = "";
       if (eventiBacheca.length === 0) {
-        container.innerHTML = "<p class='text-gray-500 text-center py-8'>Ancora nessuna attività o messaggio.</p>";
+        container.innerHTML = "<p class='text-gray-500 text-center py-8'>" + window.__t('feedNessunaAttivita') + "</p>";
         return;
       }
 
@@ -2360,7 +2699,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         return;
       }
       
-      container.innerHTML = "<p class='text-blue-400 animate-pulse text-center py-8'>Connessione live...</p>";
+      container.innerHTML = "<p class='text-blue-400 animate-pulse text-center py-8'>" + window.__t('feedConnessioneLive') + "</p>";
 
       const unsubIo = onSnapshot(doc(db, "utenti", utenteCorrenteId), (mioSnap) => {
         if (!mioSnap.exists()) return;
@@ -2388,7 +2727,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         renderizzaFeedDinamico();
       }, (err) => {
         console.error("Errore ascolto utente:", err);
-        container.innerHTML = "<p class='text-red-400 text-center py-8'>Impossibile connettersi.</p>";
+        container.innerHTML = "<p class='text-red-400 text-center py-8'>" + window.__t('feedImpossibileConnettere') + "</p>";
       });
 
       chatUnsubscribers.unshift(unsubIo);
@@ -2409,7 +2748,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
       if (!input) return;
       const testo = input.value.trim();
       if (!testo || !utenteCorrenteId) {
-        alert("Scrivi un messaggio prima di inviare!");
+        alert(window.__t('alertScriviMessaggio'));
         return;
       }
 
@@ -2438,14 +2777,14 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         input.value = "";
       } catch (e) {
         console.error("Errore invio messaggio: ", e);
-        alert("❌ Errore nell'invio del messaggio.");
+        alert(window.__t('alertErroreInvioMessaggio'));
       }
     };
 
     const cancellaTuttiIMessaggi = async function() {
       if (!utenteCorrenteId) return;
 
-      const conferma = confirm("⚠️ ATTENZIONE: Sei sicuro di voler cancellare TUTTI i messaggi?");
+      const conferma = confirm(window.__t('alertCancellaTuttiMsg'));
       if (!conferma) return;
 
       try {
@@ -2462,10 +2801,10 @@ document.addEventListener('touchstart', gestisciPrimoClick);
           }
         }
 
-        alert("🧹 Piazza pulita completata!");
+        alert(window.__t('alertPiazzaPulita'));
       } catch (e) {
         console.error("Errore rimozione messaggi: ", e);
-        alert("❌ Errore durante l'eliminazione.");
+        alert(window.__t('alertErroreEliminazione'));
       }
     };
 
@@ -2475,7 +2814,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
 
     const eliminaMessaggioChat = async function(idMessaggio) {
       if (!utenteCorrenteId || !idMessaggio) return;
-      if (!confirm("Eliminare questo messaggio?")) return;
+      if (!confirm(window.__t('alertEliminaMsg'))) return;
       
       try {
         const userRef = doc(db, "utenti", utenteCorrenteId);
@@ -2486,31 +2825,31 @@ document.addEventListener('touchstart', gestisciPrimoClick);
           const messaggi = userData.messaggi || [];
           const messaggiAggiornati = messaggi.filter(m => m.id !== idMessaggio);
           await updateDoc(userRef, { messaggi: messaggiAggiornati });
-          alert("✅ Messaggio eliminato!");
+          alert(window.__t('alertMsgEliminato'));
         }
       } catch (e) {
         console.error("Errore eliminazione messaggio: ", e);
-        alert("❌ Errore durante l'eliminazione.");
+        alert(window.__t('alertErroreEliminazione'));
       }
     };
 
     const eliminaTuttiMessaggiChat = async function() {
       if (!utenteCorrenteId) return;
-      if (!confirm("Eliminare TUTTI i tuoi messaggi?")) return;
+      if (!confirm(window.__t('alertEliminaTuttiMsg'))) return;
       
       try {
         await updateDoc(doc(db, "utenti", utenteCorrenteId), {
           messaggi: []
         });
-        alert("✅ Tutti i tuoi messaggi eliminati!");
+        alert(window.__t('alertTuttiMsgEliminati'));
       } catch (e) {
         console.error("Errore eliminazione messaggi: ", e);
-        alert("❌ Errore durante l'eliminazione.");
+        alert(window.__t('alertErroreEliminazione'));
       }
     };
 
     const marcatstantaneaTuttiMessaggi = async function() {
-      alert("La marcatura è automatica!");
+      alert(window.__t('alertMarcaturaAutomatica'));
     };
 
     // ============================================
@@ -2616,7 +2955,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
       const input = document.getElementById('input-nome-clan');
       const nome = input.value.trim();
       if (!nome || !utenteCorrenteId) {
-        alert("Inserisci un nome per il clan!");
+        alert(window.__t('alertInserisciNomeClan'));
         return;
       }
 
@@ -2630,25 +2969,25 @@ document.addEventListener('touchstart', gestisciPrimoClick);
 
         await updateDoc(doc(db, "utenti", utenteCorrenteId), { idClan: nuovoClanRef.id });
         input.value = "";
-        alert(`✅ Clan "${nome}" creato con successo!`);
+        alert(window.__t('alertClanCreato').replace('{nome}', nome));
         window.inizializzaSchermataClan();
       } catch (e) {
         console.error("Errore creazione clan:", e);
-        alert("❌ Errore durante la creazione del clan.");
+        alert(window.__t('alertErroreCreazioneClan'));
       }
     };
 
     const caricaListaClanDisponibili = async function() {
       const container = document.getElementById('lista-clan-disponibili');
       if (!container) return;
-      container.innerHTML = "<p class='text-gray-500 text-center text-xs py-8'>Caricamento squadre...</p>";
+      container.innerHTML = "<p class='text-gray-500 text-center text-xs py-8'>" + window.__t('clanCaricamento') + "</p>";
 
       try {
         const querySnapshot = await getDocs(collection(db, "clan"));
         container.innerHTML = "";
 
         if (querySnapshot.empty) {
-          container.innerHTML = "<p class='text-gray-500 text-center text-xs py-8'>Nessun clan attivo. Fondane uno tu!</p>";
+          container.innerHTML = "<p class='text-gray-500 text-center text-xs py-8'>" + window.__t('clanNessunAttivo') + "</p>";
           return;
         }
 
@@ -2667,7 +3006,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
           infoDiv.className = "flex flex-col";
           infoDiv.innerHTML = `
             <p class="text-xs font-bold text-white">${nomeClan}</p>
-            <p class="text-[10px] text-gray-400">Giocatori: ${numMembri}/30</p>
+            <p class="text-[10px] text-gray-400">${window.__t('clanGiocatoriLabel')} ${numMembri}/30</p>
           `;
           riga.appendChild(infoDiv);
 
@@ -2675,7 +3014,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
           if (numMembri < 30) {
             const btnEntra = document.createElement('button');
             btnEntra.className = "btn-purple text-[11px] px-3 py-1.5";
-            btnEntra.innerText = "Entra 🚪";
+            btnEntra.innerText = window.__t('clanEntraBtn');
             
             btnEntra.addEventListener('click', () => {
               window.entraNelClan(idDelClan);
@@ -2683,7 +3022,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
             
             azioneDiv.appendChild(btnEntra);
           } else {
-            azioneDiv.innerHTML = `<span class="text-red-400 text-[10px] font-bold">🔒 PIENO</span>`;
+            azioneDiv.innerHTML = `<span class="text-red-400 text-[10px] font-bold">${window.__t('clanPieno')}</span>`;
           }
           riga.appendChild(azioneDiv);
 
@@ -2691,7 +3030,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         });
       } catch (e) {
         console.error("Errore nel caricamento dei clan:", e);
-        container.innerHTML = "<p class='text-red-400 text-center text-xs py-8'>Errore nel caricamento.</p>";
+        container.innerHTML = "<p class='text-red-400 text-center text-xs py-8'>" + window.__t('clanErroreCaricamento') + "</p>";
       }
     };
 
@@ -2707,11 +3046,11 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         
         await updateDoc(doc(db, "utenti", utenteCorrenteId), { idClan: idClan });
 
-        alert("✅ Sei entrato nel clan con successo!");
+        alert(window.__t('alertEntratoClan'));
         window.inizializzaSchermataClan();
       } catch (e) {
         console.error("Errore entrata nel clan:", e);
-        alert("❌ Errore durante l'ingresso nel clan.");
+        alert(window.__t('alertErroreIngressoClan'));
       }
     };
 
@@ -2724,7 +3063,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
       clanUnsubscriber = onSnapshot(doc(db, "clan", idClan), async (clanSnap) => {
         if (!clanSnap.exists()) {
           await updateDoc(doc(db, "utenti", utenteCorrenteId), { idClan: "" });
-          alert("Il clan è stato sciolto dal capo.");
+          alert(window.__t('alertClanScioltoCapo'));
           window.inizializzaSchermataClan();
           return;
         }
@@ -2735,25 +3074,26 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         const membriCount = document.getElementById('clan-membri-count');
         const conteggioClan = document.getElementById('conteggio-clan');
         
-        if (nomeDisplay) nomeDisplay.textContent = datiClanCorrente.nome || "Clan";
+        if (nomeDisplay) nomeDisplay.textContent = datiClanCorrente.nome || window.__t('clanDefaultNome');
         if (membriCount) {
           const numMembri = datiClanCorrente.membri ? datiClanCorrente.membri.length : 0;
-          membriCount.textContent = `${numMembri}/30 membri`;
+          membriCount.textContent = `${numMembri}/30 ${window.__t('clanMembriLabel')}`;
         }
         if (conteggioClan) {
           const numMembri = datiClanCorrente.membri ? datiClanCorrente.membri.length : 0;
-          conteggioClan.innerText = `${numMembri} ${numMembri === 1 ? 'utente' : 'utenti'}`;
+          const label = numMembri === 1 ? window.__t('conteggioSingolare') : window.__t('conteggioPlurale');
+          conteggioClan.innerText = `${numMembri} ${label}`;
         }
 
         const containerOpzioni = document.getElementById('opzioni-gestione-clan');
         if (datiClanCorrente.creatore === utenteCorrenteId) {
           containerOpzioni.innerHTML = `
-            <button onclick="window.disciogliClan()" class="text-red-400 hover:text-red-300 font-bold text-[10px] cursor-pointer bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-md transition-colors mr-1">💥 SCIOGLI</button>
-            <button onclick="window.esciDalClan()" class="text-orange-400 hover:text-orange-300 font-bold text-[10px] cursor-pointer bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-md transition-colors">🚪 ESCI</button>
+            <button onclick="window.disciogliClan()" class="text-red-400 hover:text-red-300 font-bold text-[10px] cursor-pointer bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-md transition-colors mr-1">${window.__t('clanSciogliBtn')}</button>
+            <button onclick="window.esciDalClan()" class="text-orange-400 hover:text-orange-300 font-bold text-[10px] cursor-pointer bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-md transition-colors">${window.__t('clanEsciBtn')}</button>
           `;
         } else {
           containerOpzioni.innerHTML = `
-            <button onclick="window.esciDalClan()" class="text-orange-400 hover:text-orange-300 font-bold text-[10px] cursor-pointer bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-md transition-colors">🚪 ESCI</button>
+            <button onclick="window.esciDalClan()" class="text-orange-400 hover:text-orange-300 font-bold text-[10px] cursor-pointer bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-md transition-colors">${window.__t('clanEsciBtn')}</button>
           `;
         }
 
@@ -2783,7 +3123,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
     const esciDalClan = async function() {
       if (!utenteCorrenteId || !idClanAttivoCorrente) return;
       
-      if (!confirm("Vuoi davvero uscire da questo Clan?")) return;
+      if (!confirm(window.__t('alertConfermaEsciClan'))) return;
       
       try {
         if (clanUnsubscriber) {
@@ -2804,7 +3144,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
               creatore: nuovoCapo,
               membri: membriAggiornati
             });
-            alert(`👑 Hai passato il comando a un nuovo capo!`);
+            alert(window.__t('alertComandoPassato'));
           } else {
             await updateDoc(clanRef, { membri: membriAggiornati });
           }
@@ -2813,18 +3153,18 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         await updateDoc(doc(db, "utenti", utenteCorrenteId), { idClan: "" });
         idClanAttivoCorrente = "";
         
-        alert("✅ Sei uscito dal clan.");
+        alert(window.__t('alertUscitoClan'));
         window.inizializzaSchermataClan();
       } catch (e) {
         console.error("Errore uscita dal clan:", e);
-        alert("❌ Errore durante l'uscita dal clan.");
+        alert(window.__t('alertErroreUscitaClan'));
       }
     };
 
     const disciogliClan = async function() {
       if (!utenteCorrenteId || !idClanAttivoCorrente) return;
       
-      if (!confirm("🚨 ATTENZIONE CAPO SQUADRA: Vuoi sciogliere definitivamente il clan? Tutti i giocatori verranno espulsi e la chat verrà eliminata per sempre.")) return;
+      if (!confirm(window.__t('alertConfermaSciogliClan'))) return;
       
       try {
         if (clanUnsubscriber) {
@@ -2845,11 +3185,11 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         await deleteDoc(clanRef);
         idClanAttivoCorrente = "";
         
-        alert("💥 Clan sciolto con successo!");
+        alert(window.__t('alertClanSciolto'));
         window.inizializzaSchermataClan();
       } catch (e) {
         console.error("Errore scioglimento clan:", e);
-        alert("❌ Errore durante lo scioglimento del clan.");
+        alert(window.__t('alertErroreScioglimentoClan'));
       }
     };
 
@@ -2859,7 +3199,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
       
       const testo = input.value.trim();
       if (!testo) {
-        alert("Scrivi un messaggio!");
+        alert(window.__t('alertScriviMsgClan'));
         return;
       }
 
@@ -2881,21 +3221,21 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         input.value = "";
       } catch (e) {
         console.error("Errore invio messaggio clan:", e);
-        alert("❌ Errore nell'invio del messaggio.");
+        alert(window.__t('alertErroreInvioMessaggio'));
       }
     };
 
     const cancellaMessaggiClan = async function() {
       if (!idClanAttivoCorrente) return;
       
-      if (!confirm("⚠️ Sei sicuro di voler cancellare TUTTI i messaggi del clan?")) return;
+      if (!confirm(window.__t('alertCancellaMsgClan'))) return;
       
       try {
         await updateDoc(doc(db, "clan", idClanAttivoCorrente), { messaggi: [] });
-        alert("🧹 Chat del clan svuotata con successo!");
+        alert(window.__t('alertChatSvuotata'));
       } catch (e) {
         console.error("Errore svuoto chat clan:", e);
-        alert("❌ Errore durante lo svuoto della chat.");
+        alert(window.__t('alertErroreSvuotaChat'));
       }
     };
 
@@ -2904,7 +3244,7 @@ document.addEventListener('touchstart', gestisciPrimoClick);
       if (!container) return;
       
       if (membri.length === 0) {
-        container.innerHTML = "<p class='text-gray-500 text-center py-8 text-xs'>Nessun membro nel clan.</p>";
+        container.innerHTML = "<p class='text-gray-500 text-center py-8 text-xs'>" + window.__t('clanNessunMembro') + "</p>";
         return;
       }
       
