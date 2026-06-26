@@ -2244,21 +2244,11 @@ document.addEventListener('touchstart', gestisciPrimoClick);
       const password = document.getElementById('accedi-password').value;
 
       try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        if (!user.emailVerified) {
-          alert(window.__t('alertEmailNotVerified'));
-          await auth.signOut();
-          isAuthProcessing = false;
-          return;
-        }
-
-        await caricaEAvviaGioco(user);
+        await signInWithEmailAndPassword(auth, email, password);
       } catch (error) {
         alert(window.__t('alertLoginError') + error.message);
-        isAuthProcessing = false;
       }
+      isAuthProcessing = false;
     }
 
     const gestisciRegistrazione = async function(event) {
@@ -2323,50 +2313,59 @@ document.addEventListener('touchstart', gestisciPrimoClick);
       }
     }
 
+    let caricamentoInCorso = false;
+
     async function caricaEAvviaGioco(user) {
-      utenteCorrenteId = user.uid;
-      localStorage.setItem('giocatoreEmail', user.email);
-      document.getElementById('mio-codice-txt').innerText = user.uid;
+      if (caricamentoInCorso) return;
+      caricamentoInCorso = true;
 
-      const timestampCorrente = new Date().toISOString();
-      const userRef = doc(db, "utenti", user.uid);
-      const docSnap = await getDoc(userRef);
+      try {
+        utenteCorrenteId = user.uid;
+        localStorage.setItem('giocatoreEmail', user.email);
+        document.getElementById('mio-codice-txt').innerText = user.uid;
 
-      if (docSnap.exists()) {
-        await updateDoc(userRef, {
-          status: "online",
-          ultimoAccesso: timestampCorrente
-        });
-        datiUtenteLocale = docSnap.data();
-        datiUtenteLocale.amici = datiUtenteLocale.amici || [];
-        datiUtenteLocale.messaggi = datiUtenteLocale.messaggi || [];
-        datiUtenteLocale.idClan = datiUtenteLocale.idClan || "";
-        datiUtenteLocale.tutorialVisto = datiUtenteLocale.tutorialVisto || false;
-        fotoProfiloLocale = datiUtenteLocale.fotoProfilo || null;
-        window.entraNelGioco(datiUtenteLocale.nome, datiUtenteLocale.genere, datiUtenteLocale.xp, datiUtenteLocale.livello, datiUtenteLocale.monumenti);
-        window.controllaMostraTutorial();
-      } else {
-        const statoMonumenti = (typeof monumenti !== 'undefined') ? monumenti.map(m => ({ nome: m.nome, scoperto: false })) : [];
-        datiUtenteLocale = {
-          nome: "Esploratore",
-          genere: "Esploratore",
-          xp: 0,
-          livello: 1,
-          monumenti: statoMonumenti,
-          fotoProfilo: null,
-          amici: [],
-          messaggi: [],
-          idClan: "",
-          tutorialVisto: false,
-          status: "online",
-          ultimoAccesso: timestampCorrente
-        };
-        await setDoc(userRef, datiUtenteLocale);
-        fotoProfiloLocale = null;
-        window.entraNelGioco("Esploratore", "Esploratore", 0, 1, statoMonumenti);
-        window.controllaMostraTutorial();
+        const timestampCorrente = new Date().toISOString();
+        const userRef = doc(db, "utenti", user.uid);
+        const docSnap = await getDoc(userRef);
+
+        if (docSnap.exists()) {
+          await updateDoc(userRef, {
+            status: "online",
+            ultimoAccesso: timestampCorrente
+          });
+          datiUtenteLocale = docSnap.data();
+          datiUtenteLocale.amici = datiUtenteLocale.amici || [];
+          datiUtenteLocale.messaggi = datiUtenteLocale.messaggi || [];
+          datiUtenteLocale.idClan = datiUtenteLocale.idClan || "";
+          datiUtenteLocale.tutorialVisto = datiUtenteLocale.tutorialVisto || false;
+          fotoProfiloLocale = datiUtenteLocale.fotoProfilo || null;
+          window.entraNelGioco(datiUtenteLocale.nome, datiUtenteLocale.genere, datiUtenteLocale.xp, datiUtenteLocale.livello, datiUtenteLocale.monumenti);
+          window.controllaMostraTutorial();
+        } else {
+          const statoMonumenti = (typeof monumenti !== 'undefined') ? monumenti.map(m => ({ nome: m.nome, scoperto: false })) : [];
+          datiUtenteLocale = {
+            nome: "Esploratore",
+            genere: "Esploratore",
+            xp: 0,
+            livello: 1,
+            monumenti: statoMonumenti,
+            fotoProfilo: null,
+            amici: [],
+            messaggi: [],
+            idClan: "",
+            tutorialVisto: false,
+            status: "online",
+            ultimoAccesso: timestampCorrente
+          };
+          await setDoc(userRef, datiUtenteLocale);
+          fotoProfiloLocale = null;
+          window.entraNelGioco("Esploratore", "Esploratore", 0, 1, statoMonumenti);
+          window.controllaMostraTutorial();
+        }
+      } finally {
+        caricamentoInCorso = false;
+        isAuthProcessing = false;
       }
-      isAuthProcessing = false;
     }
 
     // ============================================
@@ -3505,11 +3504,16 @@ document.addEventListener('touchstart', gestisciPrimoClick);
     // AVVIO AUTENTICAZIONE
     // ============================================
     window.addEventListener('DOMContentLoaded', () => {
+      let avvioGestito = false;
       auth.onAuthStateChanged(async (user) => {
         if (user) {
           if (user.emailVerified) {
-            await caricaEAvviaGioco(user);
+            if (!avvioGestito) {
+              avvioGestito = true;
+              await caricaEAvviaGioco(user);
+            }
           } else {
+            alert(window.__t('alertEmailNotVerified'));
             await signOut(auth);
             document.getElementById('schermata-login').classList.remove('hidden');
           }
