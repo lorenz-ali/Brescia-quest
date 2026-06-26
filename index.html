@@ -2654,10 +2654,10 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         });
       });
 
-      eventiBacheca.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+      eventiBacheca.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
 
       if (eventiBacheca.length > 30) {
-        eventiBacheca = eventiBacheca.slice(0, 30);
+        eventiBacheca = eventiBacheca.slice(-30);
       }
 
       container.innerHTML = "";
@@ -2693,6 +2693,8 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         riga.innerHTML = `<span class="text-gray-500 mr-1.5">${ora}</span> ${evento.html}`;
         container.appendChild(riga);
       });
+
+      container.scrollTop = container.scrollHeight;
     }
 
     const avviaAscoltoChatRealTime = function() {
@@ -3403,10 +3405,10 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         });
       });
 
-      eventiBacheca.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+      eventiBacheca.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
 
       if (eventiBacheca.length > 50) {
-        eventiBacheca = eventiBacheca.slice(0, 50);
+        eventiBacheca = eventiBacheca.slice(-50);
       }
 
       container.innerHTML = "";
@@ -3442,6 +3444,8 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         riga.innerHTML = `<span class="text-gray-500 mr-1.5">${ora}</span> ${ev.html}`;
         container.appendChild(riga);
       });
+
+      container.scrollTop = container.scrollHeight;
     }
 
     // ============================================
