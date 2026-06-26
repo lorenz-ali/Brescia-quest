@@ -1307,6 +1307,38 @@ document.addEventListener('touchstart', gestisciPrimoClick);
 
     window.chiudiPopupScoperta = function() {
       document.getElementById('popup-scoperta').classList.add('hidden');
+
+      const nomeLuogo = document.getElementById('popup-nome')?.textContent || 'un luogo';
+      if (utenteCorrenteId && nomeLuogo !== 'Nome Posto') {
+        const idMsg = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const msgObj = {
+          id: idMsg,
+          testo: `🎉 Ho scoperto ${nomeLuogo}!`,
+          timestamp: new Date().toISOString(),
+          letteDa: []
+        };
+        updateDoc(doc(db, "utenti", utenteCorrenteId), {
+          messaggi: arrayUnion(msgObj)
+        }).catch(console.error);
+
+        if (idClanAttivoCorrente) {
+          const snapUtente = getDoc(doc(db, "utenti", utenteCorrenteId));
+          snapUtente.then(snap => {
+            const nomeMitt = snap.data().nome || "Esploratore";
+            updateDoc(doc(db, "clan", idClanAttivoCorrente), {
+              messaggi: arrayUnion({
+                id: idMsg + '_clan',
+                mittenteId: utenteCorrenteId,
+                mittenteNome: nomeMitt,
+                testo: `🎉 Ho scoperto ${nomeLuogo}!`,
+                timestamp: new Date().toISOString(),
+                letteDa: []
+              })
+            }).catch(console.error);
+          });
+        }
+      }
+
       if (typeof window.chiudiPopup === 'function') {
         window.chiudiPopup();
       }
@@ -2598,19 +2630,6 @@ document.addEventListener('touchstart', gestisciPrimoClick);
         const nomeVisualizzato = idUtente === utenteCorrenteId ? "Tu" : (dUtente.nome || "Esploratore");
         const isMittente = idUtente === utenteCorrenteId;
         
-        const monumentiUtente = dUtente.monumenti || [];
-        monumentiUtente.forEach(m => {
-          if (m.scoperto) {
-            eventiBacheca.push({
-              timestamp: m.timestamp || dUtente.ultimoAccesso || new Date().toISOString(),
-              html: `🎉 <strong>${nomeVisualizzato}</strong> ha scoperto <span class="text-green-400 font-semibold">${m.nome}</span>!`,
-              tipo: 'scoperta',
-              id: `scoperta_${m.nome}_${idUtente}`,
-              mittente: idUtente
-            });
-          }
-        });
-
         const messaggiUtente = dUtente.messaggi || [];
         let documentomodificato = false;
 
@@ -3355,19 +3374,6 @@ document.addEventListener('touchstart', gestisciPrimoClick);
       if (!container || !datiClanCorrente) return;
 
       let eventiBacheca = [];
-
-      membri.forEach(membro => {
-        const nomeVis = membro.id === utenteCorrenteId ? "Tu" : (membro.nome || "Esploratore");
-        (membro.monumenti || []).forEach(m => {
-          if (m.scoperto) {
-            eventiBacheca.push({
-              timestamp: m.timestamp || new Date().toISOString(),
-              html: `🎉 <strong>${nomeVis}</strong> ha scoperto <span class="text-green-400 font-semibold">${m.nome}</span>!`,
-              tipo: 'scoperta'
-            });
-          }
-        });
-      });
 
       let messaggiModificati = false;
       const messaggiControllati = (datiClanCorrente.messaggi || []).map(msg => {
