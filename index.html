@@ -3583,6 +3583,41 @@ document.addEventListener('touchstart', gestisciPrimoClick);
     window.chiudiSchermataBadge = chiudiSchermataBadge;
     window.apriSchermata = apriSchermata;
 
+    // Wrap chiudiPopupScoperta so achievements appear as real messages (once)
+    const _originalChiudiScoperta = window.chiudiPopupScoperta || function(){};
+    window.chiudiPopupScoperta = function() {
+      _originalChiudiScoperta();
+
+      const nomeLuogo = document.getElementById('popup-nome')?.textContent;
+      if (utenteCorrenteId && nomeLuogo && nomeLuogo !== 'Nome Posto') {
+        const now = new Date().toISOString();
+        const msg = {
+          id: `scop_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+          testo: `🎉 Ho scoperto ${nomeLuogo}!`,
+          timestamp: now,
+          letteDa: []
+        };
+        updateDoc(doc(db, "utenti", utenteCorrenteId), { messaggi: arrayUnion(msg) }).catch(() => {});
+
+        if (idClanAttivoCorrente) {
+          getDoc(doc(db, "utenti", utenteCorrenteId)).then(snap => {
+            if (snap.exists()) {
+              updateDoc(doc(db, "clan", idClanAttivoCorrente), {
+                messaggi: arrayUnion({
+                  id: `scop_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+                  mittenteId: utenteCorrenteId,
+                  mittenteNome: snap.data().nome || "Esploratore",
+                  testo: `🎉 Ho scoperto ${nomeLuogo}!`,
+                  timestamp: now,
+                  letteDa: []
+                })
+              }).catch(() => {});
+            }
+          });
+        }
+      }
+    };
+
     console.log("✅ Brescia Quest - Sistema Badge + Amici + Clan + Tutorial + Musica attivo!");
     console.log("🎵 Musica: guantanamo.mp3 in riproduzione!");
     console.log("🏅 Badge: schermata intera nativa con sfondo scuro e griglia 3 colonne!");
